@@ -98,8 +98,8 @@ jobs:
           import -window root results/shots/zz_last.png || true
           kill $GPID 2>/dev/null || true
           pkill -f java || true
-          grep -E "ABCLIENT|Exception|ERROR|FATAL|animalbonds" results/client-full.log | head -400 > results/client.log || true
-          grep -q "ABCLIENT DONE" results/client-full.log
+          grep -E "ABCLIENT|RIDETEST|Exception|ERROR|FATAL|animalbonds" results/client-full.log | head -400 > results/client.log || true
+          grep -q "ABCLIENT DONE" results/client-full.log && ! grep -q "RIDETEST .* FAIL" results/client-full.log
 
       - name: Summary
         if: always()

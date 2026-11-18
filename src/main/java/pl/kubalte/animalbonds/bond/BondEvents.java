@@ -38,6 +38,7 @@ public final class BondEvents {
         bus.addListener(BondEvents::onChangeTarget);
         bus.addListener(BondEvents::onConvert);
         bus.addListener(BondEvents::onJoin);
+        bus.addListener(BondEvents::onFall);
         bus.addListener(BondEvents::onDeath);
         bus.addListener(BondEvents::onEntityTick);
         bus.addListener(BondEvents::onEntityTickPre);
@@ -225,6 +226,13 @@ public final class BondEvents {
             hp.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(SIZE_ID, (s - 1) * 1.5, op));
             mob.setHealth(mob.getMaxHealth());
         }
+    }
+
+    /** Big jumps of ridden goats, frogs, flyers landing...: neither mount nor rider take fall damage. */
+    static void onFall(net.neoforged.neoforge.event.entity.living.LivingFallEvent e) {
+        var ent = e.getEntity();
+        Mob mount = ent instanceof Mob m ? m : ent.getVehicle() instanceof Mob v ? v : null;
+        if (mount != null && BondLogic.isBonded(mount) && RideControl.isPlayerRidden(mount)) e.setCanceled(true);
     }
 
     /** Zombie -> drowned, villager -> witch etc.: the bond survives the conversion. */

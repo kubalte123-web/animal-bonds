@@ -109,11 +109,95 @@ public final class ClientSelfTest {
             }
             case 1340 -> server.execute(() -> cmd(server, "tp @p 600 -60 652 180 15"));
             case 1440 -> shot("bagsfit");
-            case 1500 -> {
+            default -> {
+                if (ticks >= 1500) rideTests(mc, server);
+            }
+        }
+    }
+
+    // ---------------- riding movement tests ----------------
+    private record RideCase(String name, net.minecraft.world.entity.EntityType<? extends Mob> type, boolean forward, int jumpTicks,
+                            float pitch, boolean wall, boolean night, double minRise, double maxRise, boolean hover) {}
+
+    private static final java.util.List<RideCase> RIDE_CASES = java.util.List.of(
+            new RideCase("cow_jump", EntityTypes.COW, false, 4, 0, false, false, 0.8, 1.8, false),
+            new RideCase("goat_high_jump", EntityTypes.GOAT, false, 4, 0, false, false, 2.5, 99, false),
+            new RideCase("spider_wall_climb", EntityTypes.SPIDER, true, 0, 0, true, false, 3.0, 99, false),
+            new RideCase("bee_flight", EntityTypes.BEE, true, 0, -35, false, false, 3.0, 99, true),
+            new RideCase("phantom_flight", EntityTypes.PHANTOM, true, 0, -35, false, true, 3.0, 99, true));
+
+    private static int rideCase = 0, rideT = 0;
+    private static double rideStartY, rideMaxY, rideYAtRelease;
+    private static java.util.UUID rideMob;
+
+    private static void rideTests(Minecraft mc, MinecraftServer server) {
+        if (rideCase >= RIDE_CASES.size()) {
+            if (rideT++ == 20) {
                 AnimalBonds.LOGGER.info("ABCLIENT DONE");
                 mc.stop();
             }
-            default -> {}
+            return;
+        }
+        RideCase c = RIDE_CASES.get(rideCase);
+        int t = rideT++;
+        var vehicle = mc.player.getVehicle();
+        if (t == 0) {
+            server.execute(() -> {
+                ServerPlayer sp = player(server);
+                ServerLevel level = (ServerLevel) sp.level();
+                cmd(server, c.night() ? "time set 18000" : "time set 1000");
+                BlockPos base = new BlockPos(700 + rideCase * 20, -60, 700);
+                // clear the air around and build a stone wall 3 blocks ahead (+Z) for climbers
+                for (int x = -3; x <= 3; x++) for (int z = -3; z <= 8; z++) for (int y = 0; y < 12; y++)
+                    level.setBlockAndUpdate(base.offset(x, y, z), Blocks.AIR.defaultBlockState());
+                if (c.wall()) for (int x = -3; x <= 3; x++) for (int y = 0; y < 6; y++)
+                    level.setBlockAndUpdate(base.offset(x, y, 3), Blocks.STONE.defaultBlockState());
+                Mob m = spawn(level, c.type(), base, 6, false);
+                if (m == null) return;
+                if (c.type() == EntityTypes.PHANTOM) m.teleportTo(base.getX() + 0.5, base.getY() + 2, base.getZ() + 0.5);
+                rideMob = m.getUUID();
+                cmd(server, String.format("tp @p %d %d %d 0 0", base.getX(), base.getY(), base.getZ() - 2));
+                sp.startRiding(m, true, true);
+            });
+        } else if (t == 20) {
+            mc.player.setYRot(0);
+            mc.player.setXRot(c.pitch());
+            rideStartY = vehicle != null ? vehicle.getY() : 0;
+            rideMaxY = rideStartY;
+            if (c.forward()) mc.options.keyUp.setDown(true);
+            if (c.jumpTicks() > 0) mc.options.keyJump.setDown(true);
+        } else if (t > 20 && t <= 90) {
+            mc.player.setYRot(0);
+            mc.player.setXRot(c.pitch());
+            if (t == 20 + c.jumpTicks()) mc.options.keyJump.setDown(false);
+            if (vehicle != null) rideMaxY = Math.max(rideMaxY, vehicle.getY());
+            if (t == 90) {
+                mc.options.keyUp.setDown(false);
+                mc.options.keyJump.setDown(false);
+                rideYAtRelease = vehicle != null ? vehicle.getY() : 0;
+            }
+        } else if (t == 110) {
+            double rise = rideMaxY - rideStartY;
+            boolean ok = vehicle != null && rise >= c.minRise() && rise <= c.maxRise();
+            String hoverInfo = "";
+            if (c.hover() && vehicle != null) {
+                double drop = rideYAtRelease - vehicle.getY();
+                hoverInfo = String.format(" hoverDrop=%.2f", drop);
+                ok &= drop < 1.0;
+            }
+            AnimalBonds.LOGGER.info("ABCLIENT RIDETEST {} {} rise={}{} (expected {}..{}) riding={}", c.name(), ok ? "PASS" : "FAIL",
+                    String.format("%.2f", rise), hoverInfo, c.minRise(), c.maxRise(), vehicle != null);
+            if (rideCase == 3) shot("flying");
+        } else if (t == 115) {
+            server.execute(() -> {
+                ServerPlayer sp = player(server);
+                sp.stopRiding();
+                Mob m = find(sp, rideMob);
+                if (m != null) m.discard();
+            });
+        } else if (t >= 125) {
+            rideCase++;
+            rideT = 0;
         }
     }
 
