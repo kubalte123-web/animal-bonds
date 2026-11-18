@@ -66,7 +66,7 @@ public final class BondRendering {
         PoseStack ps = e.getPoseStack();
         ps.pushPose();
         ps.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
-        float y = Math.max(0.25F, h * 0.55F);
+        float y = Math.max(0.3F, h * 0.68F);
         float side = w / 2.0F + 0.12F;
         float s = Math.max(0.22F, Math.min(0.45F, w * 0.4F));
         e.getSubmitNodeCollector().submitCustomGeometry(ps, RenderTypes.entityCutout(BAG_TEXTURE), (pose, vc) -> {

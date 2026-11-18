@@ -30,6 +30,8 @@ public final class PenScanner {
         public final LongOpenHashSet cells;
         public final int minX, minZ, maxX, maxZ;
         public final List<BlockPos> troughs = new ArrayList<>();
+        /** Troughs, beds etc. inside the pen: not walkable cells, but a creature standing on them is in the pen. */
+        public final LongOpenHashSet features = new LongOpenHashSet();
         public int beds;
         public boolean water, hay, flowers, snow, warmth;
         public int grassCells, sandCells;
@@ -48,7 +50,8 @@ public final class PenScanner {
         }
 
         public boolean contains(int x, int z) {
-            return cells.contains(pack(x, z));
+            long k = pack(x, z);
+            return cells.contains(k) || features.contains(k);
         }
 
         public AABB box() {
@@ -161,14 +164,19 @@ public final class PenScanner {
         // look for them in the whole bounding box plus the fence ring, next to a pen cell.
         for (int x = pen.minX - 1; x <= pen.maxX + 1; x++) {
             for (int z = pen.minZ - 1; z <= pen.maxZ + 1; z++) {
-                if (pen.contains(x, z)) continue;
-                if (!(pen.contains(x + 1, z) || pen.contains(x - 1, z) || pen.contains(x, z + 1) || pen.contains(x, z - 1))) continue;
+                if (pen.cells.contains(pack(x, z))) continue;
+                if (!(pen.cells.contains(pack(x + 1, z)) || pen.cells.contains(pack(x - 1, z))
+                        || pen.cells.contains(pack(x, z + 1)) || pen.cells.contains(pack(x, z - 1)))) continue;
                 m.set(x, pen.y, z);
                 BlockState st = level.getBlockState(m);
                 if (st.getBlock() instanceof TroughBlock) {
                     if (st.getValue(TroughBlock.FILL) > 0) pen.troughs.add(m.immutable());
+                    pen.features.add(pack(x, z));
                 } else if (st.getBlock() instanceof NestBlock) {
                     pen.beds++;
+                    pen.features.add(pack(x, z));
+                } else if (st.is(Blocks.WATER_CAULDRON)) {
+                    pen.water = true;
                 } else if (st.is(Blocks.HAY_BLOCK)) {
                     pen.hay = true;
                 } else if (st.is(BlockTags.CAMPFIRES) || st.is(Blocks.MAGMA_BLOCK)) {

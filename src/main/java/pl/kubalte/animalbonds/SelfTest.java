@@ -159,6 +159,12 @@ public final class SelfTest {
         BondData zd = BondLogic.bond(zombie);
         zombie.setTarget(fake);
         check(zombie.getTarget() == null, "bonded zombie does not target players");
+        zombie.setTarget(cow2);
+        check(zombie.getTarget() == null, "bonded zombie does not attack other creatures");
+        Mob golem = EntityTypes.IRON_GOLEM.spawn(level, origin.offset(3, 0, -2), EntitySpawnReason.COMMAND);
+        golem.setTarget(zombie);
+        check(golem.getTarget() == null, "iron golem leaves a bonded zombie alone");
+        golem.discard();
         BondLogic.addXp(zombie, zd, BondLevels.xpForLevel(7));
         check(zd.level() >= 7, "zombie at level 7");
         be.updatePen(level);

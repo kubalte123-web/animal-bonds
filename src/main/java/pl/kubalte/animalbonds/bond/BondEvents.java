@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.AnimalTameEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -34,6 +36,7 @@ public final class BondEvents {
         bus.addListener(BondEvents::onInteract);
         bus.addListener(BondEvents::onTame);
         bus.addListener(BondEvents::onChangeTarget);
+        bus.addListener(BondEvents::onConvert);
         bus.addListener(BondEvents::onDeath);
         bus.addListener(BondEvents::onEntityTick);
         bus.addListener(BondEvents::onEntityTickPre);
@@ -158,9 +161,31 @@ public final class BondEvents {
 
     static void onChangeTarget(LivingChangeTargetEvent e) {
         if (!(e.getEntity() instanceof Mob mob)) return;
-        if (!(e.getNewAboutToBeSetTarget() instanceof Player)) return;
+        var target = e.getNewAboutToBeSetTarget();
+        if (target == null) return;
         BondData d = BondLogic.get(mob);
-        if (d != null && d.level() >= BondConfig.PEACEFUL_LEVEL.get()) e.setCanceled(true);
+        if (d != null && d.level() >= BondConfig.PEACEFUL_LEVEL.get()) {
+            // A bonded monster is a pet: it attacks nobody. Other bonded creatures just leave players alone.
+            if (mob instanceof Enemy || target instanceof Player) {
+                e.setCanceled(true);
+                return;
+            }
+        }
+        // Golems and tamed animals leave bonded monsters alone.
+        if (target instanceof Mob tm && tm instanceof Enemy && !(mob instanceof Enemy)) {
+            BondData td = BondLogic.get(tm);
+            if (td != null && td.level() >= BondConfig.PEACEFUL_LEVEL.get()) e.setCanceled(true);
+        }
+    }
+
+    /** Zombie -> drowned, villager -> witch etc.: the bond survives the conversion. */
+    static void onConvert(LivingConversionEvent.Post e) {
+        if (!(e.getEntity() instanceof Mob from) || !(e.getOutcome() instanceof Mob to)) return;
+        BondData d = BondLogic.get(from);
+        if (d == null) return;
+        to.setData(ModRegistry.BOND.get(), d);
+        to.setPersistenceRequired();
+        if (from.hasData(ModRegistry.BAGS.get())) to.setData(ModRegistry.BAGS.get(), from.getData(ModRegistry.BAGS.get()));
     }
 
     static void onDeath(LivingDeathEvent e) {

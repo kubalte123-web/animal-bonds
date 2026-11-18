@@ -215,8 +215,9 @@ public class BondBookScreen extends Screen {
         for (int code : e.needs()) {
             Need need = Need.byOrdinal(code / 2);
             boolean ok = (code & 1) == 1 && e.bonded();
-            MutableComponent line = Component.literal(ok ? "✔ " : "✘ ").append(Component.translatable(need.translationKey()));
-            text(g, line, x, y, ok ? GOOD : BAD);
+            String mark = !e.bonded() ? "• " : ok ? "✔ " : "✘ ";
+            MutableComponent line = Component.literal(mark).append(Component.translatable(need.translationKey()));
+            text(g, line, x, y, !e.bonded() ? INK_SOFT : ok ? GOOD : BAD);
             y += 10;
             if (y > top + H - 46) break;
         }

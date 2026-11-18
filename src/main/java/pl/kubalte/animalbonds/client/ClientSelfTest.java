@@ -1,5 +1,6 @@
 package pl.kubalte.animalbonds.client;
 
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -21,6 +22,7 @@ import pl.kubalte.animalbonds.bond.BondData;
 import pl.kubalte.animalbonds.bond.BondEvents;
 import pl.kubalte.animalbonds.bond.BondLevels;
 import pl.kubalte.animalbonds.bond.BondLogic;
+import pl.kubalte.animalbonds.network.ModNetwork;
 
 /**
  * CI-only visual test (-Danimalbonds.clienttest=true): builds a pen in single player, opens the book
@@ -49,7 +51,8 @@ public final class ClientSelfTest {
             case 60 -> server.execute(() -> setup(server));
             case 200 -> shot("world");
             case 300 -> server.execute(() -> {
-                ServerPlayer sp = server.getPlayerList().getPlayers().get(0);
+                ServerPlayer sp = player(server);
+                logMobs(sp);
                 if (sp.level().getBlockEntity(pedestal) instanceof PedestalBlockEntity be) be.openBook(sp);
             });
             case 380 -> shot("book1");
@@ -61,14 +64,61 @@ public final class ClientSelfTest {
             case 680 -> shot("book4");
             case 740 -> {
                 mc.gui.setScreen(null);
-                server.execute(() -> faintCow(server));
+                mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+                server.execute(() -> {
+                    ServerPlayer sp = player(server);
+                    Mob cow = find(sp, cowId);
+                    if (cow != null) AnimalBonds.LOGGER.info("ABCLIENT ride started: {}", sp.startRiding(cow, true, true));
+                });
             }
-            case 820 -> shot("faint");
-            case 900 -> {
+            case 840 -> shot("ride");
+            case 900 -> server.execute(() -> {
+                ServerPlayer sp = player(server);
+                Mob cow = find(sp, cowId);
+                if (cow != null) ModNetwork.openBags(sp, cow);
+            });
+            case 960 -> shot("bags");
+            case 1000 -> {
+                mc.gui.setScreen(null);
+                mc.options.setCameraType(CameraType.FIRST_PERSON);
+                server.execute(() -> {
+                    ServerPlayer sp = player(server);
+                    sp.stopRiding();
+                    faintZombie(server);
+                });
+            }
+            case 1060 -> server.execute(() -> {
+                ServerPlayer sp = player(server);
+                Mob z = find(sp, zombieId);
+                if (z != null) {
+                    cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 50", z.getX() - 0.5, z.getBlockY() + 1, z.getZ() - 2.5));
+                    AnimalBonds.LOGGER.info("ABCLIENT zombie fainted={} at {}", BondLogic.get(z) != null && BondLogic.get(z).isFainted(), z.blockPosition());
+                }
+            });
+            case 1140 -> shot("faint");
+            case 1200 -> {
                 AnimalBonds.LOGGER.info("ABCLIENT DONE");
                 mc.stop();
             }
             default -> {}
+        }
+    }
+
+    private static java.util.UUID cowId, zombieId;
+
+    private static ServerPlayer player(MinecraftServer server) {
+        return server.getPlayerList().getPlayers().get(0);
+    }
+
+    private static Mob find(ServerPlayer sp, java.util.UUID id) {
+        return id != null && ((ServerLevel) sp.level()).getEntity(id) instanceof Mob m ? m : null;
+    }
+
+    private static void logMobs(ServerPlayer sp) {
+        ServerLevel level = (ServerLevel) sp.level();
+        var pen = pl.kubalte.animalbonds.bond.PenScanner.scan(level, pedestal);
+        for (Mob m : level.getEntitiesOfClass(Mob.class, sp.getBoundingBox().inflate(24))) {
+            AnimalBonds.LOGGER.info("ABCLIENT mob {} at {} inPen={}", m.getType(), m.blockPosition(), pen != null && pen.contains(m.getBlockX(), m.getBlockZ()));
         }
     }
 
@@ -93,11 +143,13 @@ public final class ClientSelfTest {
         pedestal = SelfTest.buildPen(level, origin);
         level.setBlockAndUpdate(origin.offset(1, 0, 6), ModRegistry.TROUGH.get().defaultBlockState().setValue(TroughBlock.FILL, 3));
         level.setBlockAndUpdate(origin.offset(6, 0, 6), ModRegistry.NEST.get().defaultBlockState());
-        level.setBlockAndUpdate(origin.offset(6, 0, 1), Blocks.WATER.defaultBlockState());
+        level.setBlockAndUpdate(origin.offset(5, -1, 1), Blocks.WATER.defaultBlockState());
 
         Mob cow = spawn(level, EntityTypes.COW, origin.offset(3, 0, 3), 6, true);
+        if (cow != null) cowId = cow.getUUID();
         spawn(level, EntityTypes.SHEEP, origin.offset(4, 0, 5), 3, false);
         Mob zombie = spawn(level, EntityTypes.ZOMBIE, origin.offset(2, 0, 2), 8, false);
+        if (zombie != null) zombieId = zombie.getUUID();
         if (zombie != null) zombie.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.LEATHER_HELMET));
         spawn(level, EntityTypes.CHICKEN, origin.offset(5, 0, 2), 0, false);
         if (cow != null) cow.setCustomName(net.minecraft.network.chat.Component.literal("Mućka"));
@@ -118,7 +170,7 @@ public final class ClientSelfTest {
         return mob;
     }
 
-    private static void faintCow(MinecraftServer server) {
+    private static void faintZombie(MinecraftServer server) {
         ServerPlayer sp = server.getPlayerList().getPlayers().get(0);
         ServerLevel level = (ServerLevel) sp.level();
         for (Mob m : level.getEntitiesOfClass(Mob.class, sp.getBoundingBox().inflate(20), m -> m.getType() == EntityTypes.ZOMBIE)) {
