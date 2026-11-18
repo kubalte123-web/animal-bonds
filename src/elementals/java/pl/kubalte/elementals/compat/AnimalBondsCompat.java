@@ -37,7 +37,7 @@ import pl.kubalte.elementals.Elementals;
  *   <li>Fire: warmth for everyone; gifts come out smelted (raw meat cooked, raw ore → ingots...)</li>
  *   <li>Ice: snow for everyone; trough food lasts twice as long</li>
  *   <li>Dark: darkness for everyone; at night wild monsters near the pen glow and are weakened</li>
- *   <li>Electric: gifts come 40% more often, bond grows twice as fast during thunderstorms</li>
+ *   <li>Electric: gifts come 40% more often, work goes 50% faster, bond grows twice as fast during thunderstorms</li>
  *   <li>Dragon: +50% bond growth and one extra item in every gift</li>
  *   <li>Mchowiec: plants and crops in and around the pen grow faster; grass for everyone</li>
  *   <li>Puszek: sociable, each one makes bonds in the pen grow 10% faster (up to +30%)</li>
@@ -55,6 +55,16 @@ public final class AnimalBondsCompat {
         NeoForge.EVENT_BUS.addListener(AnimalBondsCompat::onGift);
         for (String c : new String[] {"mossling", "puffowl", "emberlizard", "frostling"})
             AnimalBondsApi.excludeFromTextureVariety(Elementals.MODID + ":" + c); // their colours show the element
+        // work mode (when enabled in Animal Bonds): jobs by species and element
+        AnimalBondsApi.registerWork("elementals:mossling", pl.kubalte.animalbonds.work.Work.FARMER);
+        AnimalBondsApi.registerWork("elementals:puffowl", pl.kubalte.animalbonds.work.Work.COLLECTOR);
+        AnimalBondsApi.registerWork("elementals:frostling", pl.kubalte.animalbonds.work.Work.GUARD);
+        AnimalBondsApi.registerWorkProvider(mob -> switch (Elementals.element(mob)) {
+            case FIRE -> java.util.EnumSet.of(pl.kubalte.animalbonds.work.Work.SMELTER);
+            case DARK -> java.util.EnumSet.of(pl.kubalte.animalbonds.work.Work.GUARD);
+            case DRAGON -> java.util.EnumSet.allOf(pl.kubalte.animalbonds.work.Work.class);
+            default -> null;
+        });
         AnimalBondsApi.registerBookLine(mob -> {
             Element el = Elementals.element(mob);
             return el == Element.NONE ? null : Component.translatable("element.elementals.label", el.displayName());
@@ -105,6 +115,7 @@ public final class AnimalBondsCompat {
         }
         if (elements.contains(Element.ELECTRIC)) {
             pen.giftSpeed *= 1.4F;
+            pen.workSpeed *= 1.5F;
             if (level.isThundering()) pen.xpMultiplier *= 2F;
         }
         if (elements.contains(Element.DRAGON)) {

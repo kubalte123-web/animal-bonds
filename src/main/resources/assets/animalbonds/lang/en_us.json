@@ -90,5 +90,20 @@
   "message.animalbonds.splice_hybrid": "Hybrids can't be spliced again.",
   "message.animalbonds.splice_tired": "The creature is resting after splicing.",
   "message.animalbonds.splice_cost": "You need: %s",
-  "message.animalbonds.spliced": "A hybrid is born: %s!"
+  "message.animalbonds.spliced": "A hybrid is born: %s!",
+  "block.animalbonds.scratching_post": "Scratching Post",
+  "item.animalbonds.ball": "Ball",
+  "work.animalbonds.label": "Job: %s",
+  "work.animalbonds.farmer": "farmer",
+  "work.animalbonds.guard": "guard",
+  "work.animalbonds.collector": "collector",
+  "work.animalbonds.smelter": "smelter",
+  "animalbonds.configuration.play": "Play",
+  "animalbonds.configuration.work": "Pen work",
+  "animalbonds.configuration.ballLevel": "Ball fetch level",
+  "animalbonds.configuration.ballXp": "Bond points per fetch",
+  "animalbonds.configuration.ballCooldownTicks": "Fetch reward cooldown",
+  "animalbonds.configuration.enabled": "Work enabled (Palworld style)",
+  "animalbonds.configuration.workLevel": "Level needed to work",
+  "animalbonds.configuration.workRadius": "Work range outside the fence"
 }

@@ -89,6 +89,25 @@ public final class BondConfig {
     public static final ModConfigSpec.DoubleValue MAX_SCALE = B.comment("Największy rozmiar (1.0 = normalny)")
             .defineInRange("maxScale", 1.2, 1.0, 3.0);
     static {
+        B.pop().push("play");
+    }
+    public static final ModConfigSpec.IntValue BALL_LEVEL = B.comment("Od którego poziomu więzi stwór aportuje piłkę")
+            .defineInRange("ballLevel", 2, 1, 10);
+    public static final ModConfigSpec.IntValue BALL_XP = B.comment("Punkty więzi za przyniesienie piłki")
+            .defineInRange("ballXp", 8, 0, 1000);
+    public static final ModConfigSpec.IntValue BALL_COOLDOWN = B.comment("Co ile ticków ten sam stwór może dostać punkty za aport")
+            .defineInRange("ballCooldownTicks", 600, 0, 1_000_000);
+    static {
+        B.pop().push("work");
+    }
+    public static final ModConfigSpec.BooleanValue WORK_ENABLED = B.comment(
+            "Praca w zagrodzie (w stylu Palworlda): stwory zbierają plony, pilnują, sprzątają przedmioty i przetapiają w magazynie. Domyślnie wyłączone.")
+            .define("enabled", false);
+    public static final ModConfigSpec.IntValue WORK_LEVEL = B.comment("Od którego poziomu więzi stwór pracuje")
+            .defineInRange("workLevel", 3, 1, 10);
+    public static final ModConfigSpec.IntValue WORK_RADIUS = B.comment("Jak daleko poza płotem stwory pracują (pola uprawne obok zagrody)")
+            .defineInRange("workRadius", 6, 0, 16);
+    static {
         B.pop();
     }
 

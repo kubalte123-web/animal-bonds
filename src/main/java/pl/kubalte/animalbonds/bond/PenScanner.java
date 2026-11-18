@@ -38,6 +38,14 @@ public final class PenScanner {
         /** Height of the pedestal-side start cell (kept for reference). */
         public final int y;
         public final List<BlockPos> troughs = new ArrayList<>();
+        /** Every trough, also empty ones (refilled from the pen storage). */
+        public final List<BlockPos> allTroughs = new ArrayList<>();
+        /** Scratching posts: creatures pet themselves. */
+        public int posts;
+        /** Chest/barrel next to the pedestal: gifts and work products go there (null = none). */
+        public BlockPos storage;
+        /** >1 = creatures work faster (set by other mods, e.g. electric creatures). */
+        public float workSpeed = 1F;
         /** Troughs, beds etc. at the pen's edge/inside: not walkable, but a creature on them is in the pen. */
         public final LongOpenHashSet features = new LongOpenHashSet();
         public int beds;
@@ -116,7 +124,8 @@ public final class PenScanner {
     /** Blocks you can't count as "ground": standing on top of the pen boundary means being outside of it. */
     private static boolean isBoundaryBlock(BlockState st) {
         return st.is(BlockTags.FENCES) || st.is(BlockTags.WALLS) || st.is(BlockTags.FENCE_GATES)
-                || st.getBlock() instanceof TroughBlock || st.getBlock() instanceof PedestalBlock;
+                || st.getBlock() instanceof TroughBlock || st.getBlock() instanceof PedestalBlock
+                || st.getBlock() instanceof pl.kubalte.animalbonds.block.ScratchingPostBlock;
     }
 
     /** Can a creature stand at this position? */
@@ -238,6 +247,10 @@ public final class PenScanner {
                     BlockState st = level.getBlockState(m);
                     if (st.getBlock() instanceof TroughBlock) {
                         if (st.getValue(TroughBlock.FILL) > 0) pen.troughs.add(m.immutable());
+                        pen.allTroughs.add(m.immutable());
+                        pen.features.add(n);
+                    } else if (st.getBlock() instanceof pl.kubalte.animalbonds.block.ScratchingPostBlock) {
+                        if (dy == 0) pen.posts++;
                         pen.features.add(n);
                     } else if (st.getBlock() instanceof NestBlock) {
                         pen.beds++;

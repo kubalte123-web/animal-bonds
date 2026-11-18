@@ -36,6 +36,16 @@ public final class AnimalBondsApi {
         SpeciesProfiles.register(entityTypeId, new SpeciesProfiles.Profile(needs, favourites, g, space));
     }
 
+    /** A creature type does this job in the pen when work mode is on. */
+    public static void registerWork(String entityTypeId, pl.kubalte.animalbonds.work.Work work) {
+        pl.kubalte.animalbonds.work.PenWork.register(entityTypeId, work);
+    }
+
+    /** Jobs decided per creature (e.g. by its element). */
+    public static void registerWorkProvider(Function<Mob, java.util.Set<pl.kubalte.animalbonds.work.Work>> provider) {
+        pl.kubalte.animalbonds.work.PenWork.registerProvider(provider);
+    }
+
     /** Adds a line under the creature's name in the Chronicle (return null for "nothing to show"). */
     public static void registerBookLine(Function<Mob, Component> line) {
         BOOK_LINES.add(line);

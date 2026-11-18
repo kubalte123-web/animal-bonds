@@ -90,5 +90,20 @@
   "message.animalbonds.splice_hybrid": "Hybryd nie można dalej splatać.",
   "message.animalbonds.splice_tired": "Stworzenie odpoczywa po splataniu.",
   "message.animalbonds.splice_cost": "Potrzebujesz: %s",
-  "message.animalbonds.spliced": "Narodziła się hybryda: %s!"
+  "message.animalbonds.spliced": "Narodziła się hybryda: %s!",
+  "block.animalbonds.scratching_post": "Drapak",
+  "item.animalbonds.ball": "Piłka",
+  "work.animalbonds.label": "Praca: %s",
+  "work.animalbonds.farmer": "rolnik",
+  "work.animalbonds.guard": "strażnik",
+  "work.animalbonds.collector": "zbieracz",
+  "work.animalbonds.smelter": "hutnik",
+  "animalbonds.configuration.play": "Zabawa",
+  "animalbonds.configuration.work": "Praca w zagrodzie",
+  "animalbonds.configuration.ballLevel": "Poziom aportowania piłki",
+  "animalbonds.configuration.ballXp": "Punkty więzi za aport",
+  "animalbonds.configuration.ballCooldownTicks": "Przerwa między nagrodami za aport",
+  "animalbonds.configuration.enabled": "Praca włączona (styl Palworlda)",
+  "animalbonds.configuration.workLevel": "Poziom, od którego stwory pracują",
+  "animalbonds.configuration.workRadius": "Zasięg pracy poza płotem"
 }

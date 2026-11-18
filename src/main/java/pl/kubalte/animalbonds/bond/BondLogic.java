@@ -147,7 +147,13 @@ public final class BondLogic {
             addXp(mob, d, Math.round(BondConfig.PASSIVE_XP.get() * d.happiness / 100f * pen.xpMultiplier));
         }
 
-        tryGift(level, mob, d, pen.giftSpeed, pen.giftBonus);
+        // Pen upgrade: a scratching post keeps everybody feeling petted.
+        if (pen.posts > 0 && level.getGameTime() - d.lastPet >= DAY / 2) {
+            d.lastPet = level.getGameTime();
+            hearts(mob, 1);
+        }
+
+        tryGift(level, mob, d, pen.giftSpeed, pen.giftBonus, pen.storage);
         sync(mob, d);
     }
 
@@ -164,6 +170,11 @@ public final class BondLogic {
     }
 
     public static ItemStack tryGift(ServerLevel level, Mob mob, BondData d, float speed, int bonus) {
+        return tryGift(level, mob, d, speed, bonus, null);
+    }
+
+    /** With a pen storage (chest next to the pedestal) the gift goes straight into it. */
+    public static ItemStack tryGift(ServerLevel level, Mob mob, BondData d, float speed, int bonus, BlockPos storage) {
         if (d.isFainted() || d.level() < BondConfig.GIFT_LEVEL.get()) return ItemStack.EMPTY;
         long now = level.getGameTime();
         if (now - d.lastGift < giftInterval(d) / Math.max(0.1F, speed)) return ItemStack.EMPTY;
@@ -175,7 +186,9 @@ public final class BondLogic {
         }
         d.lastGift = now;
         if (!gift.isEmpty()) {
-            mob.spawnAtLocation(level, gift);
+            net.minecraft.world.Container box = pl.kubalte.animalbonds.work.PenStorage.get(level, storage);
+            ItemStack rest = box == null ? gift : pl.kubalte.animalbonds.work.PenStorage.insert(box, gift);
+            if (!rest.isEmpty()) mob.spawnAtLocation(level, rest);
             hearts(mob, 3);
         }
         return gift;

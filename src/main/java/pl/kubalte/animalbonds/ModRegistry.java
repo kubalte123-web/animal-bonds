@@ -43,6 +43,9 @@ public final class ModRegistry {
             p -> p.mapColor(MapColor.COLOR_PURPLE).strength(3.0F).sound(SoundType.AMETHYST).noOcclusion().lightLevel(st -> 7));
     public static final DeferredBlock<NestBlock> NEST = BLOCKS.registerBlock("animal_bed", NestBlock::new,
             p -> p.mapColor(MapColor.COLOR_YELLOW).strength(0.5F).sound(SoundType.GRASS).noOcclusion());
+    public static final DeferredBlock<pl.kubalte.animalbonds.block.ScratchingPostBlock> SCRATCHING_POST = BLOCKS.registerBlock("scratching_post",
+            pl.kubalte.animalbonds.block.ScratchingPostBlock::new,
+            p -> p.mapColor(MapColor.WOOD).strength(1.0F).sound(SoundType.WOOL).noOcclusion());
 
     // --- Items ---
     public static final DeferredItem<BlockItem> PEDESTAL_ITEM = ITEMS.registerSimpleBlockItem("bond_pedestal", PEDESTAL);
@@ -50,6 +53,9 @@ public final class ModRegistry {
     public static final DeferredItem<BlockItem> ALTAR_ITEM = ITEMS.registerSimpleBlockItem("splicing_altar", ALTAR);
     public static final DeferredItem<BlockItem> NEST_ITEM = ITEMS.registerSimpleBlockItem("animal_bed", NEST);
     public static final DeferredItem<Item> SADDLEBAGS = ITEMS.registerSimpleItem("saddlebags", p -> p.stacksTo(1));
+    public static final DeferredItem<BlockItem> SCRATCHING_POST_ITEM = ITEMS.registerSimpleBlockItem("scratching_post", SCRATCHING_POST);
+    public static final DeferredItem<pl.kubalte.animalbonds.play.BallItem> BALL = ITEMS.registerItem("ball",
+            pl.kubalte.animalbonds.play.BallItem::new, p -> p.stacksTo(16));
 
     // --- Block entities ---
     public static final Supplier<BlockEntityType<PedestalBlockEntity>> PEDESTAL_BE = BLOCK_ENTITIES.register("bond_pedestal",
@@ -74,6 +80,8 @@ public final class ModRegistry {
                 output.accept(NEST_ITEM.get());
                 output.accept(ALTAR_ITEM.get());
                 output.accept(SADDLEBAGS.get());
+                output.accept(SCRATCHING_POST_ITEM.get());
+                output.accept(BALL.get());
             }).build());
 
     public static void register(IEventBus modBus) {

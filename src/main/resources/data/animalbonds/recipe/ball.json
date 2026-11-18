@@ -1,0 +1,13 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "minecraft:slime_ball",
+  "#minecraft:wool",
+  "minecraft:leather"
+ ],
+ "result": {
+  "id": "animalbonds:ball",
+  "count": 2
+ }
+}

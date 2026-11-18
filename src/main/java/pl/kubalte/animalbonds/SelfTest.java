@@ -60,7 +60,9 @@ public final class SelfTest {
         MinecraftServer server = event.getServer();
         try {
             run(server.overworld());
+            upgradesTest(server.overworld());
             setupEscapeTest(server.overworld());
+            setupBallTest(server.overworld());
             waitTicks = 1200; // let the creatures live for a minute
             net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(SelfTest::onServerTick);
             return;
@@ -111,7 +113,84 @@ public final class SelfTest {
                 check(in, "after 60 s " + m.getType() + " still in pen (at " + m.blockPosition() + ", alive=" + m.isAlive() + ")");
             }
         }
+        check(pl.kubalte.animalbonds.play.BallLogic.fetches >= 1, "a bonded wolf fetched the thrown ball ("
+                + pl.kubalte.animalbonds.play.BallLogic.fetches + " fetches, wolf at " + (ballWolf == null ? null : ballWolf.blockPosition()) + ")");
+        if (ballWolf != null) {
+            BondData wd = BondLogic.get(ballWolf);
+            check(wd != null && wd.lastPet > 0, "fetching counts as petting for the day");
+        }
         finish(e.getServer());
+    }
+
+    private static Mob ballWolf;
+
+    /** A wolf and a (fake) player in a pen; the player throws a ball, checked when the wait is over. */
+    private static void setupBallTest(ServerLevel level) {
+        BlockPos o = new BlockPos(8, 250, 160);
+        forceChunks(level, o);
+        buildPen(level, o);
+        ballWolf = EntityTypes.WOLF.spawn(level, o.offset(5, 0, 6), EntitySpawnReason.COMMAND);
+        BondData d = BondLogic.bond(ballWolf);
+        BondLogic.addXp(ballWolf, d, BondLevels.xpForLevel(4));
+        d.lastPet = Long.MIN_VALUE / 2;
+        FakePlayer p = FakePlayerFactory.get(level, new com.mojang.authlib.GameProfile(java.util.UUID.nameUUIDFromBytes("abtest-ball".getBytes()), "ABBall"));
+        p.setPos(o.getX() + 2.5, o.getY(), o.getZ() + 1.5);
+        p.setYRot(0F);
+        p.setXRot(10F);
+        pl.kubalte.animalbonds.play.BallLogic.throwBall(p, new ItemStack(ModRegistry.BALL.get()));
+    }
+
+    /** Pen upgrades (scratching post, storage chest, trough refill) and work mode. */
+    private static void upgradesTest(ServerLevel level) {
+        BlockPos o = new BlockPos(8, 250, 110);
+        forceChunks(level, o);
+        BlockPos ped = buildPen(level, o);
+        BlockPos chestPos = ped.offset(-1, 0, 0);
+        level.setBlockAndUpdate(chestPos, Blocks.CHEST.defaultBlockState());
+        net.minecraft.world.Container chest = (net.minecraft.world.Container) level.getBlockEntity(chestPos);
+        chest.setItem(0, new ItemStack(Items.WHEAT, 4));
+        chest.setItem(1, new ItemStack(Items.RAW_IRON, 2));
+        BlockPos trough = o.offset(1, 0, 3);
+        level.setBlockAndUpdate(trough, ModRegistry.TROUGH.get().defaultBlockState().setValue(TroughBlock.FILL, 0));
+        level.setBlockAndUpdate(o.offset(6, 0, 6), ModRegistry.SCRATCHING_POST.get().defaultBlockState());
+        BlockPos crop = o.offset(5, 0, 2);
+        level.setBlockAndUpdate(crop.below(), Blocks.FARMLAND.defaultBlockState());
+        level.setBlockAndUpdate(crop, ((net.minecraft.world.level.block.CropBlock) Blocks.WHEAT).getStateForAge(7));
+
+        Mob cow = EntityTypes.COW.spawn(level, o.offset(3, 0, 4), EntitySpawnReason.COMMAND);
+        Mob strider = EntityTypes.STRIDER.spawn(level, o.offset(4, 0, 5), EntitySpawnReason.COMMAND);
+        BondData cd = BondLogic.bond(cow), sd = BondLogic.bond(strider);
+        BondLogic.addXp(cow, cd, BondLevels.xpForLevel(5));
+        BondLogic.addXp(strider, sd, BondLevels.xpForLevel(5));
+        cd.lastPet = Long.MIN_VALUE / 2;
+        cd.lastGift = Long.MIN_VALUE / 2;
+
+        PenScanner.Pen pen = PenScanner.scan(level, ped);
+        check(pen != null && pen.posts == 1, "scratching post found in pen (" + (pen == null ? -1 : pen.posts) + ")");
+        check(pl.kubalte.animalbonds.work.PenStorage.find(level, ped) != null, "chest next to the pedestal is the pen storage");
+
+        PedestalBlockEntity be = (PedestalBlockEntity) level.getBlockEntity(ped);
+        boolean wasOn = BondConfig.WORK_ENABLED.get();
+        BondConfig.WORK_ENABLED.set(false);
+        be.updatePen(level);
+        check(level.getBlockState(crop).getValue(net.minecraft.world.level.block.CropBlock.AGE) == 7, "work mode off: nobody harvests");
+        check(cd.lastPet == level.getGameTime(), "scratching post makes the cow feel petted");
+        check(level.getBlockState(trough).getValue(TroughBlock.FILL) > 0, "empty trough refilled from the storage");
+        check(cd.lastGift == level.getGameTime() && level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                pen.box().inflate(2)).isEmpty(), "gift went straight into the storage");
+        check(pl.kubalte.animalbonds.work.PenStorage.count(chest, st -> st.is(Items.IRON_INGOT)) == 0, "work mode off: nothing smelted");
+
+        BondConfig.WORK_ENABLED.set(true);
+        for (int i = 0; i < 8; i++) be.updatePen(level);
+        check(level.getBlockState(crop).getValue(net.minecraft.world.level.block.CropBlock.AGE) == 0, "farmer cow harvested and replanted the wheat");
+        check(pl.kubalte.animalbonds.work.PenStorage.count(chest, st -> st.is(Items.IRON_INGOT)) == 2, "strider smelted the raw iron in the storage");
+        check(pl.kubalte.animalbonds.work.PenWork.jobs(cow).contains(pl.kubalte.animalbonds.work.Work.FARMER)
+                && pl.kubalte.animalbonds.work.PenWork.jobs(strider).contains(pl.kubalte.animalbonds.work.Work.SMELTER), "jobs by species");
+        String line = pl.kubalte.animalbonds.api.AnimalBondsApi.bookLine(cow);
+        check(line.contains("work.animalbonds.label"), "Chronicle shows the job (" + line + ")");
+        BondConfig.WORK_ENABLED.set(wasOn);
+        cow.discard();
+        strider.discard();
     }
 
     private static long PenScanner_pack(int x, int z) {

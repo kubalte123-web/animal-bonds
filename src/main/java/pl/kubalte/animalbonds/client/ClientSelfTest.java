@@ -131,12 +131,51 @@ public final class ClientSelfTest {
                     });
                 }
                 if (ticks == 2000) shot("spliced");
-                if (ticks >= 2100) rideTests(mc, server);
+                if (ticks == 2040) server.execute(() -> upgradesScene(server));
+                if (ticks == 2160) shot("upgrades");
+                if (ticks == 2180) server.execute(() -> {
+                    ServerPlayer sp = player(server);
+                    pl.kubalte.animalbonds.play.BallLogic.throwBall(sp, new net.minecraft.world.item.ItemStack(ModRegistry.BALL.get()));
+                });
+                if (ticks == 2240) shot("fetch");
+                if (ticks == 2480) {
+                    int f = pl.kubalte.animalbonds.play.BallLogic.fetches;
+                    AnimalBonds.LOGGER.info("ABCLIENT RIDETEST ball_fetch {} fetches={}", f >= 1 ? "PASS" : "FAIL", f);
+                    shot("fetched");
+                }
+                if (ticks >= 2560) rideTests(mc, server);
             }
         }
     }
 
     private static BlockPos altarPos;
+
+    /** Pen with upgrades (storage chest, scratching post, trough) and a wheat field worked by a cow; a wolf to play ball with. */
+    private static void upgradesScene(MinecraftServer server) {
+        ServerPlayer sp = player(server);
+        ServerLevel level = (ServerLevel) sp.level();
+        BlockPos o = new BlockPos(900, -60, 900);
+        cmd(server, "time set 1000");
+        for (int x = -8; x <= 14; x++) for (int z = -8; z <= 12; z++) for (int y = 0; y < 6; y++)
+            level.setBlockAndUpdate(o.offset(x, y, z), Blocks.AIR.defaultBlockState());
+        BlockPos ped = SelfTest.buildPen(level, o);
+        level.setBlockAndUpdate(ped.offset(0, 0, -1), Blocks.CHEST.defaultBlockState());
+        level.setBlockAndUpdate(o.offset(1, 0, 3), ModRegistry.TROUGH.get().defaultBlockState().setValue(TroughBlock.FILL, 3));
+        level.setBlockAndUpdate(o.offset(5, 0, 5), ModRegistry.SCRATCHING_POST.get().defaultBlockState());
+        level.setBlockAndUpdate(o.offset(2, 0, 6), ModRegistry.SCRATCHING_POST.get().defaultBlockState());
+        for (int z = 1; z <= 6; z++) {
+            level.setBlockAndUpdate(o.offset(8, -1, z), Blocks.FARMLAND.defaultBlockState());
+            level.setBlockAndUpdate(o.offset(8, 0, z), ((net.minecraft.world.level.block.CropBlock) Blocks.WHEAT).getStateForAge(z % 2 == 0 ? 7 : 4));
+        }
+        pl.kubalte.animalbonds.BondConfig.WORK_ENABLED.set(true);
+        Mob cow = spawn(level, EntityTypes.COW, o.offset(3, 0, 3), 5, false);
+        Mob chicken = spawn(level, EntityTypes.CHICKEN, o.offset(4, 0, 2), 4, false);
+        Mob wolf = spawn(level, EntityTypes.WOLF, o.offset(-3, 0, -3), 4, false);
+        for (Mob m : new Mob[] {cow, chicken, wolf}) if (m != null) m.setNoAi(false);
+        if (level.getBlockEntity(ped) instanceof PedestalBlockEntity be) be.updatePen(level);
+        sp.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(ModRegistry.BALL.get()));
+        cmd(server, String.format("tp @p %d %d %d -35 25", o.getX() - 4, o.getY() + 1, o.getZ() - 4));
+    }
 
     private static void hybrid(ServerLevel level, net.minecraft.world.entity.EntityType<? extends Mob> body, String donor, BlockPos pos,
                                boolean head, boolean legs, boolean extras, int colors) {

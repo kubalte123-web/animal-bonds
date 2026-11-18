@@ -64,8 +64,14 @@ public class PedestalBlockEntity extends BlockEntity {
     public PenScanner.Pen updatePen(ServerLevel level) {
         PenScanner.Pen pen = PenScanner.scan(level, worldPosition);
         if (pen == null) return null;
+        pen.storage = pl.kubalte.animalbonds.work.PenStorage.find(level, worldPosition);
         java.util.Set<java.util.UUID> nearby = returnRunaways(level, pen);
-        List<Mob> mobs = pen.mobs(level);
+        List<Mob> mobs = new java.util.ArrayList<>(pen.mobs(level));
+        // workers and ball players busy just outside the fence still belong to the pen
+        for (Mob m : level.getEntitiesOfClass(Mob.class, pen.box().inflate(16, 4, 16), m -> residents.contains(m.getUUID())
+                && !mobs.contains(m) && (pl.kubalte.animalbonds.work.PenWork.isBusy(m) || pl.kubalte.animalbonds.play.BallLogic.isBusy(m)))) {
+            mobs.add(m);
+        }
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new pl.kubalte.animalbonds.api.PenTickEvent(level, worldPosition, pen, mobs));
         residents.retainAll(nearby); // creatures taken far away (or gone) stop being residents
         for (Mob mob : mobs) {
@@ -76,6 +82,8 @@ public class PedestalBlockEntity extends BlockEntity {
                 residents.add(mob.getUUID());
             }
         }
+        pl.kubalte.animalbonds.work.PenWork.refillTroughs(level, pen);
+        pl.kubalte.animalbonds.work.PenWork.tick(level, pen, mobs);
         return pen;
     }
 
@@ -90,6 +98,7 @@ public class PedestalBlockEntity extends BlockEntity {
         for (Mob mob : level.getEntitiesOfClass(Mob.class, near, m -> residents.contains(m.getUUID()))) {
             nearby.add(mob.getUUID());
             if (pen.isInside(mob)) continue;
+            if (pl.kubalte.animalbonds.work.PenWork.isBusy(mob) || pl.kubalte.animalbonds.play.BallLogic.isBusy(mob)) continue;
             if (mob.isPassenger() || mob.isVehicle() || mob.isLeashed()) continue;
             BondData d = BondLogic.get(mob);
             if (d == null || d.isFainted()) continue;
@@ -107,6 +116,7 @@ public class PedestalBlockEntity extends BlockEntity {
             return;
         }
         PenScanner.Pen pen = PenScanner.scan(level, worldPosition);
+        if (pen != null) pen.storage = pl.kubalte.animalbonds.work.PenStorage.find(level, worldPosition);
         if (pen == null) {
             player.sendOverlayMessage(Component.translatable("message.animalbonds.no_pen"));
             return;

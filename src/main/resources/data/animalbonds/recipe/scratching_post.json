@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "key": {
+  "W": "#minecraft:wool",
+  "H": "minecraft:hay_block",
+  "P": "#minecraft:wooden_slabs"
+ },
+ "pattern": [
+  "W",
+  "H",
+  "P"
+ ],
+ "result": {
+  "id": "animalbonds:scratching_post",
+  "count": 1
+ }
+}

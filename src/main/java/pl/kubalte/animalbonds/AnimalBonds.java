@@ -23,5 +23,20 @@ public class AnimalBonds {
 
         BondEvents.register(NeoForge.EVENT_BUS);
         SelfTest.register(NeoForge.EVENT_BUS);
+        pl.kubalte.animalbonds.play.BallLogic.register(NeoForge.EVENT_BUS);
+        // the Chronicle shows each creature's job when work mode is on
+        pl.kubalte.animalbonds.api.AnimalBondsApi.registerBookLine(mob -> {
+            if (!pl.kubalte.animalbonds.work.PenWork.enabled()) return null;
+            var jobs = pl.kubalte.animalbonds.work.PenWork.jobs(mob);
+            if (jobs.isEmpty()) return null;
+            net.minecraft.network.chat.MutableComponent c = net.minecraft.network.chat.Component.empty();
+            boolean first = true;
+            for (var w : jobs) {
+                if (!first) c.append(", ");
+                c.append(w.displayName());
+                first = false;
+            }
+            return net.minecraft.network.chat.Component.translatable("work.animalbonds.label", c);
+        });
     }
 }
