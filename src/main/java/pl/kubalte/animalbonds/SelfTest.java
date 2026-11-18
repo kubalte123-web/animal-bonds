@@ -170,6 +170,7 @@ public final class SelfTest {
         check(pl.kubalte.animalbonds.work.PenStorage.find(level, ped) != null, "chest next to the pedestal is the pen storage");
 
         PedestalBlockEntity be = (PedestalBlockEntity) level.getBlockEntity(ped);
+        if (pen != null) AnimalBonds.LOGGER.info("ABTEST debug pen area={} x {}..{} z {}..{} y {}..{} o={}", pen.area(), pen.minX, pen.maxX, pen.minZ, pen.maxZ, pen.minY, pen.maxY, o);
         AnimalBonds.LOGGER.info("ABTEST debug upgrades: mobs in pen={} cow={} lvl={} strider={} lvl={} pet={}", pen == null ? null : pen.mobs(level),
                 cow.blockPosition(), cd.level(), strider.blockPosition(), sd.level(), cd.lastPet);
         boolean wasOn = BondConfig.WORK_ENABLED.get();
