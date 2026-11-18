@@ -63,7 +63,7 @@ public final class ElementalsSelfTest {
         check(Elementals.element(lizard) == Element.FIRE, "Żarołaz is always fire");
         check(Elementals.element(frost) == Element.ICE, "Szroniec is always ice");
         check(Elementals.hasRolledElement(moss) && Elementals.hasRolledElement(owl), "other creatures get an element roll");
-        check(moss.isFood(net.minecraft.world.item.Items.SWEET_BERRIES.getDefaultInstance()), "Mchowiec eats berries (can be bred)");
+        check(((net.minecraft.world.entity.animal.Animal) moss).isFood(net.minecraft.world.item.Items.SWEET_BERRIES.getDefaultInstance()), "Mchowiec eats berries (can be bred)");
         check(frost.isNoGravity(), "Szroniec hovers");
 
         // ---- toughness bonus ----

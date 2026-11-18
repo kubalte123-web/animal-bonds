@@ -150,7 +150,7 @@ public final class AnimalBondsCompat {
             Map.entry(Items.POTATO, Items.BAKED_POTATO), Map.entry(Items.KELP, Items.DRIED_KELP), Map.entry(Items.RAW_IRON, Items.IRON_INGOT),
             Map.entry(Items.RAW_GOLD, Items.GOLD_INGOT), Map.entry(Items.RAW_COPPER, Items.COPPER_INGOT), Map.entry(Items.SAND, Items.GLASS),
             Map.entry(Items.COBBLESTONE, Items.STONE), Map.entry(Items.CLAY_BALL, Items.BRICK), Map.entry(Items.NETHERRACK, Items.NETHER_BRICK),
-            Map.entry(Items.CACTUS, Items.GREEN_DYE), Map.entry(Items.WET_SPONGE, Items.SPONGE), Map.entry(Items.IRON_NUGGET, Items.IRON_NUGGET));
+            Map.entry(Items.WET_SPONGE, Items.SPONGE), Map.entry(Items.IRON_NUGGET, Items.IRON_NUGGET));
 
     /** Fire in the pen: gifts come out smelted. */
     static void onGift(BondGiftEvent e) {
