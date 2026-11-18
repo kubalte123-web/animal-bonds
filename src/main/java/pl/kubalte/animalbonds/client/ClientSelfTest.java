@@ -112,14 +112,14 @@ public final class ClientSelfTest {
             default -> {
                 if (ticks == 1500) server.execute(() -> hybridShowcase(server));
                 if (ticks == 1600) shot("hybrids");
-                if (ticks == 1620) server.execute(() -> {
+                if (ticks == 1700) server.execute(() -> {
                     ServerPlayer sp = player(server);
                     pl.kubalte.animalbonds.block.SplicingAltarBlock.open(sp, (ServerLevel) sp.level(), altarPos);
                 });
-                if (ticks == 1660 && mc.gui.screen() instanceof AltarScreen a) a.testChoose(true, true, false, true);
-                if (ticks == 1700) shot("altar");
-                if (ticks == 1720 && mc.gui.screen() instanceof AltarScreen a) a.testSplice();
-                if (ticks == 1760) {
+                if (ticks == 1740 && mc.gui.screen() instanceof AltarScreen a) a.testChoose(true, true, false, true);
+                if (ticks == 1800) shot("altar");
+                if (ticks == 1860 && mc.gui.screen() instanceof AltarScreen a) a.testSplice();
+                if (ticks == 1920) {
                     mc.gui.setScreen(null);
                     server.execute(() -> {
                         cmd(server, "gamemode creative @a");
@@ -127,10 +127,11 @@ public final class ClientSelfTest {
                         long n = ((ServerLevel) sp.level()).getEntitiesOfClass(Mob.class, sp.getBoundingBox().inflate(16),
                                 m -> pl.kubalte.animalbonds.bond.Hybrids.isHybrid(m)).size();
                         AnimalBonds.LOGGER.info("ABCLIENT RIDETEST altar_splice {} hybrids={}", n >= 7 ? "PASS" : "FAIL", n);
+                        cmd(server, String.format("tp @p %d %d %d 0 25", altarPos.getX(), altarPos.getY(), altarPos.getZ() - 4));
                     });
                 }
-                if (ticks == 1800) shot("spliced");
-                if (ticks >= 1820) rideTests(mc, server);
+                if (ticks == 2000) shot("spliced");
+                if (ticks >= 2100) rideTests(mc, server);
             }
         }
     }
@@ -169,7 +170,7 @@ public final class ClientSelfTest {
         for (Mob m : new Mob[] {cow, spider}) if (m != null) m.setNoAi(true);
         sp.getInventory().add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.GOLDEN_APPLE, 2));
         cmd(server, "gamemode survival @a");
-        cmd(server, String.format("tp @p %d %d %d -25 20", b.getX() + 5, b.getY(), b.getZ() - 1));
+        cmd(server, String.format("tp @p %d %d %d 0 15", b.getX() + 5, b.getY(), b.getZ() - 2));
     }
 
     // ---------------- riding movement tests ----------------
