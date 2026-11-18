@@ -207,6 +207,7 @@ public class BondBookScreen extends Screen {
                 text(g, Component.translatable("gui.animalbonds.gift", time(e.giftTicks())), x, y, INK_SOFT);
                 y += 10;
             }
+        }
         y += 2;
         text(g, Component.translatable("gui.animalbonds.needs").withStyle(ChatFormatting.UNDERLINE), x, y, INK);
         y += 10;
