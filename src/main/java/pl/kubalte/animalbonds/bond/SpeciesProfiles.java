@@ -192,6 +192,11 @@ public final class SpeciesProfiles {
         return h == null ? p : Hybrids.mergedProfile(p, key.toString(), h.donorType());
     }
 
+    /** Registers (or replaces) the profile of a creature type, e.g. from another mod. */
+    public static void register(String typeId, Profile profile) {
+        PROFILES.put(typeId, profile);
+    }
+
     /** Profile of a creature type by id (used for a hybrid's donor parent). */
     public static Profile byId(String typeId) {
         Profile p = PROFILES.get(typeId);

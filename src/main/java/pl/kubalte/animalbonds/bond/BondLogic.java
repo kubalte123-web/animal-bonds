@@ -117,6 +117,7 @@ public final class BondLogic {
                 case SNOW -> pen.snow;
                 case WARMTH -> pen.warmth;
             };
+            if (!ok && pen.forcedNeeds.contains(needs.get(i))) ok = true;
             if (ok) {
                 mask |= 1 << i;
                 satisfied++;
@@ -133,7 +134,7 @@ public final class BondLogic {
         RandomSource rnd = level.getRandom();
 
         // Eating from the trough.
-        if (SpeciesProfiles.get(mob).needs().contains(Need.TROUGH) && !pen.troughs.isEmpty() && rnd.nextInt(8) == 0) {
+        if (SpeciesProfiles.get(mob).needs().contains(Need.TROUGH) && !pen.troughs.isEmpty() && rnd.nextFloat() < 0.125F * pen.troughUse) {
             BlockPos t = pen.troughs.get(rnd.nextInt(pen.troughs.size()));
             BlockState st = level.getBlockState(t);
             if (st.getBlock() instanceof TroughBlock && st.getValue(TroughBlock.FILL) > 0) {
@@ -143,10 +144,10 @@ public final class BondLogic {
 
         // Passive bond growth when the creature is content.
         if (d.happiness >= 50) {
-            addXp(mob, d, Math.round(BondConfig.PASSIVE_XP.get() * d.happiness / 100f));
+            addXp(mob, d, Math.round(BondConfig.PASSIVE_XP.get() * d.happiness / 100f * pen.xpMultiplier));
         }
 
-        tryGift(level, mob, d);
+        tryGift(level, mob, d, pen.giftSpeed, pen.giftBonus);
         sync(mob, d);
     }
 
@@ -159,10 +160,19 @@ public final class BondLogic {
 
     /** Drops a material gift if enough time passed. Returns the stack that was given (or EMPTY). */
     public static ItemStack tryGift(ServerLevel level, Mob mob, BondData d) {
+        return tryGift(level, mob, d, 1F, 0);
+    }
+
+    public static ItemStack tryGift(ServerLevel level, Mob mob, BondData d, float speed, int bonus) {
         if (d.isFainted() || d.level() < BondConfig.GIFT_LEVEL.get()) return ItemStack.EMPTY;
         long now = level.getGameTime();
-        if (now - d.lastGift < giftInterval(d)) return ItemStack.EMPTY;
+        if (now - d.lastGift < giftInterval(d) / Math.max(0.1F, speed)) return ItemStack.EMPTY;
         ItemStack gift = rollGift(mob, d.level(), level.getRandom());
+        if (!gift.isEmpty() && bonus > 0) gift.setCount(Math.min(gift.getMaxStackSize(), gift.getCount() + bonus));
+        if (!gift.isEmpty()) {
+            var ev = net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new pl.kubalte.animalbonds.api.BondGiftEvent(mob, gift));
+            gift = ev.getStack();
+        }
         d.lastGift = now;
         if (!gift.isEmpty()) {
             mob.spawnAtLocation(level, gift);

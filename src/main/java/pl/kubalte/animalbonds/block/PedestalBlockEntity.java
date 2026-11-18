@@ -66,6 +66,7 @@ public class PedestalBlockEntity extends BlockEntity {
         if (pen == null) return null;
         java.util.Set<java.util.UUID> nearby = returnRunaways(level, pen);
         List<Mob> mobs = pen.mobs(level);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new pl.kubalte.animalbonds.api.PenTickEvent(level, worldPosition, pen, mobs));
         residents.retainAll(nearby); // creatures taken far away (or gone) stop being residents
         for (Mob mob : mobs) {
             BondData d = BondLogic.getOrAutoBond(mob);
@@ -111,6 +112,7 @@ public class PedestalBlockEntity extends BlockEntity {
             return;
         }
         List<Mob> mobs = pen.mobs(level);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new pl.kubalte.animalbonds.api.PenTickEvent(level, worldPosition, pen, mobs));
         for (Mob mob : mobs) {
             BondData d = BondLogic.getOrAutoBond(mob);
             if (d != null) {

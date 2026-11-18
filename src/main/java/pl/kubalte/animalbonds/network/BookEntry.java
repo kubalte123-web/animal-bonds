@@ -36,6 +36,8 @@ public record BookEntry(int entityId, String typeId, String customName, boolean 
         String name = mob.hasCustomName() ? mob.getCustomName().getString() : "";
         pl.kubalte.animalbonds.bond.HybridData hy = pl.kubalte.animalbonds.bond.Hybrids.get(mob);
         String hybrid = hy == null ? "" : hy.parents().isEmpty() ? hy.donorType() : hy.parents();
+        String extra = pl.kubalte.animalbonds.api.AnimalBondsApi.bookLine(mob);
+        if (!extra.isEmpty()) hybrid = hybrid + "\u0000" + extra;
         if (d == null) {
             return new BookEntry(mob.getId(), type, name, false, 0, 0, 0, 1, -1, needs, 0, false, -1, profile.favourites(), hybrid);
         }

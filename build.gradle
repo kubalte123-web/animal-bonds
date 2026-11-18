@@ -20,6 +20,8 @@ group = mod_group_id
 // CI-only test mod with a GeckoLib creature (never part of the released jar)
 sourceSets {
     testmod // sources in src/testmod/java and src/testmod/resources
+    // second mod in this repo: "Żywiołaki" (elemental creatures), released as its own jar
+    elementals
 }
 
 sourceSets.main.resources {
@@ -81,12 +83,30 @@ neoForge {
             server()
             programArgument '--nogui'
             systemProperty 'animalbonds.selftest', 'true'
+            systemProperty 'elementals.selftest', 'true'
+            systemProperty 'elementals.noRolls', 'true'
         }
 
         // CI: visual test in single player (see ClientSelfTest.java); screenshots are taken by the workflow.
         clientTest {
             client()
             systemProperty 'animalbonds.clienttest', 'true'
+            systemProperty 'elementals.noRolls', 'true'
+            programArguments.addAll '--quickPlaySingleplayer', 'world', '--width', '1280', '--height', '720'
+        }
+
+        // CI: Żywiołaki visual test, with GeckoLib and with the built-in renderer
+        elClientGecko {
+            client()
+            systemProperty 'elementals.clienttest', 'true'
+            systemProperty 'elementals.noRolls', 'true'
+            programArguments.addAll '--quickPlaySingleplayer', 'world', '--width', '1280', '--height', '720'
+        }
+        elClientPlain {
+            client()
+            systemProperty 'elementals.clienttest', 'true'
+            systemProperty 'elementals.noRolls', 'true'
+            systemProperty 'elementals.forceFallback', 'true'
             programArguments.addAll '--quickPlaySingleplayer', 'world', '--width', '1280', '--height', '720'
         }
 
@@ -116,8 +136,12 @@ neoForge {
     }
 
     addModdingDependenciesTo(sourceSets.testmod)
+    addModdingDependenciesTo(sourceSets.elementals)
 
     mods {
+        elementals {
+            sourceSet(sourceSets.elementals)
+        }
         abtestgeo {
             sourceSet(sourceSets.testmod)
         }
@@ -141,6 +165,9 @@ configurations {
 dependencies {
     compileOnly "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     testmodImplementation "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+    // Żywiołaki: GeckoLib and Animal Bonds are optional integrations
+    elementalsCompileOnly "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+    elementalsCompileOnly sourceSets.main.output
     // present in the dev/test client so CI checks that the integration loads
     localRuntime "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 
@@ -215,3 +242,12 @@ idea {
         downloadJavadoc = true
     }
 }
+
+// ---- Żywiołaki jar ----
+def elementalsJar = tasks.register('elementalsJar', Jar) {
+    archiveBaseName = 'elementals'
+    archiveVersion = project.elementals_version
+    from sourceSets.elementals.output
+}
+tasks.named('build') { dependsOn elementalsJar }
+tasks.named('assemble') { dependsOn elementalsJar }

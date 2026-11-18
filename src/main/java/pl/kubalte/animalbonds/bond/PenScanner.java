@@ -43,6 +43,16 @@ public final class PenScanner {
         public int beds;
         public boolean water, hay, flowers, snow, warmth;
         public int grassCells, sandCells;
+        // ---- bonuses given by other mods through PenTickEvent ----
+        /** Needs satisfied for every creature in the pen. */
+        public final java.util.EnumSet<Need> forcedNeeds = java.util.EnumSet.noneOf(Need.class);
+        public float xpMultiplier = 1F;
+        /** >1 = gifts come more often. */
+        public float giftSpeed = 1F;
+        /** Extra items added to every gift. */
+        public int giftBonus = 0;
+        /** <1 = trough food lasts longer. */
+        public float troughUse = 1F;
 
         Pen(int y, Long2IntOpenHashMap cells, int minX, int minZ, int maxX, int maxZ, int minY, int maxY) {
             this.y = y;

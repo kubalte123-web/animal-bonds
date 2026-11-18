@@ -1,0 +1,40 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="elementals"
+version="0.1.0"
+displayName="Żywiołaki (Elementals)"
+description='''
+Żywioły dla stworzeń (ogień, lód, mrok, elektryczność, smok) i nowe stworzenia: Mchowiec, Puszek, Żarołaz, Szroniec.
+Działa samodzielnie. Z GeckoLib stworzenia mają animacje GeckoLib, a z Animal Bonds żywioły i gatunki dają bonusy zagrodzie.
+'''
+
+[[dependencies.elementals]]
+    modId="neoforge"
+    type="required"
+    versionRange="[26.2.0.95,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.elementals]]
+    modId="minecraft"
+    type="required"
+    versionRange="[26.2]"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.elementals]]
+    modId="geckolib"
+    type="optional"
+    versionRange="[5.5,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies.elementals]]
+    modId="animalbonds"
+    type="optional"
+    versionRange="[0.1,)"
+    ordering="AFTER"
+    side="BOTH"

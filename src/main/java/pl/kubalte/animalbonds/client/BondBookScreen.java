@@ -189,7 +189,14 @@ public class BondBookScreen extends Screen {
         Component title = e.customName().isEmpty() ? species : Component.literal(e.customName());
         centered(g, title.copy().withStyle(ChatFormatting.BOLD), left + W / 4, top + 14, INK);
         if (!e.hybrid().isEmpty()) {
-            centered(g, Component.translatable("gui.animalbonds.hybrid_of", e.hybrid()), left + W / 4, top + 25, 0xFF6A3FA0);
+            int cut = e.hybrid().indexOf('\u0000');
+            String hy = cut < 0 ? e.hybrid() : e.hybrid().substring(0, cut);
+            Component line = hy.isEmpty() ? Component.empty() : Component.translatable("gui.animalbonds.hybrid_of", hy);
+            if (cut >= 0) {
+                Component extra = pl.kubalte.animalbonds.api.AnimalBondsApi.parseBookLine(e.hybrid().substring(cut + 1));
+                line = hy.isEmpty() ? extra : line.copy().append("  ").append(extra);
+            }
+            centered(g, line, left + W / 4, top + 25, 0xFF6A3FA0);
         } else if (!e.customName().isEmpty()) {
             centered(g, species, left + W / 4, top + 25, INK_SOFT);
         }

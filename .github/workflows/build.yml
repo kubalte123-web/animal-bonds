@@ -60,8 +60,8 @@ jobs:
           echo "eula=true" > run/eula.txt
           printf 'online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\ngenerate-structures=false\nspawn-monsters=false\npause-when-empty-seconds=-1\n' > run/server.properties
           ./gradlew runSelfTest --console=plain 2>&1 | tee results/selftest-full.log || true
-          grep -E "ABTEST|Exception|ERROR" results/selftest-full.log > results/selftest.log || true
-          grep -q "ABTEST RESULT: PASS" results/selftest-full.log
+          grep -E "ABTEST|ELTEST|Exception|ERROR" results/selftest-full.log > results/selftest.log || true
+          grep -q "ABTEST RESULT: PASS" results/selftest-full.log && grep -q "ELTEST RESULT: PASS" results/selftest-full.log
 
       - name: Client visual test
         id: clienttest
@@ -101,6 +101,44 @@ jobs:
           grep -E "ABCLIENT|RIDETEST|Exception|ERROR|FATAL|animalbonds" results/client-full.log | head -400 > results/client.log || true
           grep -q "ABCLIENT DONE" results/client-full.log && ! grep -q "RIDETEST .* FAIL" results/client-full.log
 
+      - name: Elementals visual test (GeckoLib and built-in renderer)
+        id: eltest
+        continue-on-error: true
+        if: steps.build.outcome == 'success'
+        timeout-minutes: 20
+        run: |
+          export LIBGL_ALWAYS_SOFTWARE=1
+          pgrep Xvfb > /dev/null || (Xvfb :99 -screen 0 1280x720x24 > /dev/null 2>&1 &)
+          export DISPLAY=:99
+          sleep 2
+          ok=1
+          for task in elClientGecko elClientPlain; do
+            log="results/$task-full.log"
+            ./gradlew run${task^} --console=plain > "$log" 2>&1 &
+            GPID=$!
+            seen=""
+            for i in $(seq 1 600); do
+              sleep 1
+              for name in $(grep -oE "ELCLIENT SHOT [a-z0-9]+" "$log" | awk '{print $3}'); do
+                case " $seen " in *" $name "*) ;; *)
+                  sleep 1
+                  import -window root "results/shots/el_$name.png" && echo "shot $name"
+                  seen="$seen $name";;
+                esac
+              done
+              if grep -q "ELCLIENT DONE" "$log"; then break; fi
+              if ! kill -0 $GPID 2>/dev/null; then echo "client exited"; break; fi
+            done
+            import -window root "results/shots/zz_$task.png" || true
+            sleep 5
+            kill $GPID 2>/dev/null || true
+            pkill -f java || true
+            sleep 3
+            grep -E "ELCLIENT|Żywiołaki|elementals|Exception|ERROR|FATAL" "$log" | head -300 > "results/$task.log" || true
+            grep -q "ELCLIENT DONE" "$log" || ok=0
+          done
+          [ $ok = 1 ]
+
       - name: Summary
         if: always()
         run: |
@@ -108,6 +146,7 @@ jobs:
             echo "build=${{ steps.build.outcome }}"
             echo "selftest=${{ steps.selftest.outcome }}"
             echo "clienttest=${{ steps.clienttest.outcome }}"
+            echo "eltest=${{ steps.eltest.outcome }}"
           } >> results/status.txt
           cat results/status.txt
           # keep logs small enough for git
@@ -132,5 +171,5 @@ jobs:
           git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ci-results
 
       - name: Fail if any test failed
-        if: steps.build.outcome != 'success' || steps.selftest.outcome != 'success' || steps.clienttest.outcome != 'success'
+        if: steps.build.outcome != 'success' || steps.selftest.outcome != 'success' || steps.clienttest.outcome != 'success' || steps.eltest.outcome != 'success'
         run: exit 1
