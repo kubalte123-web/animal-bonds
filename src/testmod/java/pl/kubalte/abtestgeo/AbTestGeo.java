@@ -2,7 +2,7 @@ package pl.kubalte.abtestgeo;
 
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animation.AnimatableManager;
+import com.geckolib.animatable.manager.AnimatableManager;
 import com.geckolib.renderer.GeoEntityRenderer;
 import com.geckolib.util.GeckoLibUtil;
 import net.minecraft.world.entity.EntityType;
