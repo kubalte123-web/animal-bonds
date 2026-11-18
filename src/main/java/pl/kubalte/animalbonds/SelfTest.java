@@ -170,11 +170,14 @@ public final class SelfTest {
         check(pl.kubalte.animalbonds.work.PenStorage.find(level, ped) != null, "chest next to the pedestal is the pen storage");
 
         PedestalBlockEntity be = (PedestalBlockEntity) level.getBlockEntity(ped);
+        AnimalBonds.LOGGER.info("ABTEST debug upgrades: mobs in pen={} cow={} lvl={} strider={} lvl={} pet={}", pen == null ? null : pen.mobs(level),
+                cow.blockPosition(), cd.level(), strider.blockPosition(), sd.level(), cd.lastPet);
         boolean wasOn = BondConfig.WORK_ENABLED.get();
         BondConfig.WORK_ENABLED.set(false);
         be.updatePen(level);
         check(level.getBlockState(crop).getValue(net.minecraft.world.level.block.CropBlock.AGE) == 7, "work mode off: nobody harvests");
-        check(cd.lastPet == level.getGameTime(), "scratching post makes the cow feel petted");
+        check(cd.lastPet == level.getGameTime(), "scratching post makes the cow feel petted (" + cd.lastPet + " vs " + level.getGameTime()
+                + ", same data: " + (BondLogic.get(cow) == cd) + ")");
         check(level.getBlockState(trough).getValue(TroughBlock.FILL) > 0, "empty trough refilled from the storage");
         check(cd.lastGift == level.getGameTime() && level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
                 pen.box().inflate(2)).isEmpty(), "gift went straight into the storage");
