@@ -46,7 +46,7 @@ jobs:
           set -o pipefail
           mkdir -p run
           echo "eula=true" > run/eula.txt
-          printf 'online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\ngenerate-structures=false\nspawn-monsters=false\n' > run/server.properties
+          printf 'online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\ngenerate-structures=false\nspawn-monsters=false\npause-when-empty-seconds=-1\n' > run/server.properties
           ./gradlew runSelfTest --console=plain 2>&1 | tee results/selftest-full.log || true
           grep -E "ABTEST|Exception|ERROR" results/selftest-full.log > results/selftest.log || true
           grep -q "ABTEST RESULT: PASS" results/selftest-full.log
