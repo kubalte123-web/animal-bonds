@@ -122,6 +122,7 @@ public final class ClientSelfTest {
                 if (ticks == 1760) {
                     mc.gui.setScreen(null);
                     server.execute(() -> {
+                        cmd(server, "gamemode creative @a");
                         ServerPlayer sp = player(server);
                         long n = ((ServerLevel) sp.level()).getEntitiesOfClass(Mob.class, sp.getBoundingBox().inflate(16),
                                 m -> pl.kubalte.animalbonds.bond.Hybrids.isHybrid(m)).size();
