@@ -19,10 +19,7 @@ group = mod_group_id
 
 // CI-only test mod with a GeckoLib creature (never part of the released jar)
 sourceSets {
-    testmod {
-        java.srcDir 'src/testmod/java'
-        resources.srcDir 'src/testmod/resources'
-    }
+    testmod // sources in src/testmod/java and src/testmod/resources
 }
 
 sourceSets.main.resources {
