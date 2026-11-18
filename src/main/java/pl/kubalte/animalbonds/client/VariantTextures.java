@@ -23,18 +23,28 @@ import pl.kubalte.animalbonds.BondConfig;
 public final class VariantTextures {
     private VariantTextures() {}
 
-    public static final ContextKey<Integer> SEED = new ContextKey<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "variant_seed"));
+    public static final ContextKey<Long> SEED = new ContextKey<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "variant_seed"));
+    /** true = animal-like creature (natural colours), false = monster/other (any colours). Used for modded creatures. */
+    public static final ContextKey<Boolean> NATURAL = new ContextKey<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "variant_natural"));
     public static final ContextKey<String> TYPE = new ContextKey<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "variant_type"));
 
-    /** Distinct colourings per texture; combined with the size variation this makes look-alikes very rare. */
-    private static final int VARIANTS = 48;
+    /** Generated textures kept in memory; the least recently seen ones are released. */
+    private static final int MAX_TEXTURES = 1024;
+    /** New textures generated per frame at most (avoids a hitch when a herd comes into view). */
+    private static final int MAX_NEW_PER_FRAME = 12;
+    private static int newThisFrame;
+    private static long frameMillis;
+    private static int generatedTotal;
+
+    private record Entry(Identifier id, long[] lastUsed) {}
 
     private static final Set<String> EXCLUDED = Set.of(
             "minecraft:sheep", "minecraft:player", "minecraft:armor_stand", "minecraft:ender_dragon", "minecraft:wither",
             "minecraft:villager", "minecraft:wandering_trader", "minecraft:iron_golem", "minecraft:snow_golem",
             "minecraft:mannequin", "minecraft:giant", "minecraft:warden", "minecraft:elder_guardian");
 
-    private static final Map<String, Identifier> CACHE = new HashMap<>();
+    private static final Map<String, Entry> CACHE = new java.util.LinkedHashMap<>(256, 0.75f, true);
+    private static final Map<Identifier, NativeImage> BASE_IMAGES = new HashMap<>();
 
     public static boolean applies(String type) {
         return BondConfig.TEXTURE_VARIETY.get() && !EXCLUDED.contains(type);
@@ -48,7 +58,7 @@ public final class VariantTextures {
 
     private record Style(int[] palette, boolean hueShift, double patchChance) {}
 
-    private static Style style(String type) {
+    private static Style style(String type, boolean natural) {
         return switch (type) {
             case "minecraft:cow", "minecraft:mooshroom", "minecraft:horse", "minecraft:donkey", "minecraft:mule",
                  "minecraft:goat", "minecraft:llama", "minecraft:trader_llama", "minecraft:wolf", "minecraft:cat",
@@ -57,39 +67,77 @@ public final class VariantTextures {
             case "minecraft:chicken", "minecraft:parrot", "minecraft:bat" -> new Style(FEATHERS, false, 0.5);
             case "minecraft:pig" -> new Style(PIG, false, 0.6);
             case "minecraft:spider", "minecraft:cave_spider" -> new Style(SPIDER, false, 0.5);
-            default -> new Style(null, true, 0.3); // monsters & others: any colours
+            // unknown (also modded) creatures: animals get natural colours, monsters and others any colours
+            default -> natural ? new Style(FUR, false, 0.6) : new Style(null, true, 0.3);
         };
     }
 
-    /** Called from the renderer mixin with the vanilla texture; returns this creature's variant texture. */
+    /**
+     * Called from the renderer mixin with the vanilla (or modded) texture; returns this creature's own texture.
+     * The colouring is computed from the creature's UUID hash, so every creature is unique, stable across
+     * sessions and identical for every player - and it works for creatures from any mod.
+     */
     public static Identifier resolve(Identifier base, LivingEntityRenderState state) {
-        Integer seed = state.getRenderData(SEED);
+        Long seed = state.getRenderData(SEED);
         String type = state.getRenderData(TYPE);
+        Boolean natural = state.getRenderData(NATURAL);
         if (seed == null || type == null || !base.getPath().endsWith(".png")) return base;
-        int variant = Math.floorMod(seed, VARIANTS);
-        String key = base + "#" + variant;
-        Identifier cached = CACHE.get(key);
-        if (cached != null) return cached;
+        long now = System.currentTimeMillis();
+        if (now - frameMillis > 15) {
+            frameMillis = now;
+            newThisFrame = 0;
+        }
+        String key = base + "#" + Long.toHexString(seed);
+        Entry cached = CACHE.get(key);
+        if (cached != null) {
+            cached.lastUsed()[0] = now;
+            return cached.id();
+        }
+        if (newThisFrame >= MAX_NEW_PER_FRAME) return base; // generated in one of the next frames
+        newThisFrame++;
         Identifier out = base;
         try {
-            out = generate(base, type, variant);
+            out = generate(base, type, natural != null && natural, seed);
+            generatedTotal++;
         } catch (Exception ex) {
             AnimalBonds.LOGGER.warn("Could not create variant texture for {}: {}", base, ex.toString());
         }
-        CACHE.put(key, out);
+        CACHE.put(key, new Entry(out, new long[] {now}));
+        evict(now);
         return out;
     }
 
-    private static Identifier generate(Identifier base, String type, int variant) throws Exception {
-        Minecraft mc = Minecraft.getInstance();
-        var res = mc.getResourceManager().getResource(base);
-        if (res.isEmpty()) return base;
-        NativeImage img;
-        try (InputStream in = res.get().open()) {
-            img = NativeImage.read(in);
+    /** Releases textures of creatures that haven't been seen for a while once the cache is full. */
+    private static void evict(long now) {
+        if (CACHE.size() <= MAX_TEXTURES) return;
+        var it = CACHE.entrySet().iterator();
+        while (CACHE.size() > MAX_TEXTURES && it.hasNext()) {
+            Entry e = it.next().getValue();
+            if (now - e.lastUsed()[0] < 10_000) break; // access-ordered: the rest is newer
+            if (e.id().getNamespace().equals(AnimalBonds.MODID)) Minecraft.getInstance().getTextureManager().release(e.id());
+            it.remove();
         }
-        recolor(img, style(type), new Random(variant * 7919L + type.hashCode() * 31L + base.hashCode()));
-        String path = "variant/" + base.getNamespace() + "/" + base.getPath().replace(".png", "") + "_" + variant;
+    }
+
+    public static int generatedTotal() {
+        return generatedTotal;
+    }
+
+    private static Identifier generate(Identifier base, String type, boolean natural, long seed) throws Exception {
+        Minecraft mc = Minecraft.getInstance();
+        NativeImage src = BASE_IMAGES.get(base);
+        if (src == null) {
+            var res = mc.getResourceManager().getResource(base);
+            if (res.isEmpty()) return base;
+            try (InputStream in = res.get().open()) {
+                src = NativeImage.read(in);
+            }
+            BASE_IMAGES.put(base, src);
+        }
+        NativeImage img = new NativeImage(src.getWidth(), src.getHeight(), false);
+        img.copyFrom(src);
+        recolor(img, style(type, natural), new Random(seed ^ base.hashCode() * 0x9E3779B97F4A7C15L));
+        String path = "variant/" + Long.toHexString(seed) + "/" + base.getNamespace() + "/" + base.getPath().replace(".png", "");
         Identifier id = Identifier.fromNamespaceAndPath(AnimalBonds.MODID, path);
         mc.getTextureManager().register(id, new DynamicTexture(() -> id.toString(), img));
         return id;
@@ -153,9 +201,10 @@ public final class VariantTextures {
         }
 
         if (style.palette() != null) {
-            int base = style.palette()[rnd.nextInt(style.palette().length)];
-            int patch = style.palette()[rnd.nextInt(style.palette().length)];
-            if (patch == base) patch = style.palette()[(rnd.nextInt(style.palette().length - 1) + 1 + indexOf(style.palette(), base)) % style.palette().length];
+            // any colour between two neighbouring palette colours, slightly jittered: no two creatures alike
+            int base = paletteColor(style.palette(), rnd);
+            int patch = paletteColor(style.palette(), rnd);
+            for (int tries = 0; tries < 5 && colorDistance(base, patch) < 90; tries++) patch = paletteColor(style.palette(), rnd);
             // mean luminance of recolourable pixels, to keep the original shading around 1.0
             double sum = 0;
             int n = 0;
@@ -200,6 +249,21 @@ public final class VariantTextures {
                 img.setPixel(x, y, (a << 24) | fromHsv(hue, c[1] * satMul, c[2] * valMul));
             }
         }
+    }
+
+    private static int paletteColor(int[] pal, Random rnd) {
+        int i = rnd.nextInt(pal.length);
+        int a = pal[i], b = pal[(i + 1) % pal.length];
+        float t = rnd.nextFloat();
+        int r = (int) (((a >> 16) & 255) * (1 - t) + ((b >> 16) & 255) * t);
+        int g = (int) (((a >> 8) & 255) * (1 - t) + ((b >> 8) & 255) * t);
+        int bl = (int) ((a & 255) * (1 - t) + (b & 255) * t);
+        float[] hsv = hsv((r << 16) | (g << 8) | bl);
+        return fromHsv(hsv[0] + (rnd.nextFloat() - 0.5f) * 0.03f, hsv[1] * (0.9f + rnd.nextFloat() * 0.2f), hsv[2] * (0.92f + rnd.nextFloat() * 0.16f));
+    }
+
+    private static int colorDistance(int a, int b) {
+        return Math.abs(((a >> 16) & 255) - ((b >> 16) & 255)) + Math.abs(((a >> 8) & 255) - ((b >> 8) & 255)) + Math.abs((a & 255) - (b & 255));
     }
 
     private static int indexOf(int[] arr, int v) {

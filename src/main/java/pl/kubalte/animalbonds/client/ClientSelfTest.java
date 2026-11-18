@@ -103,10 +103,13 @@ public final class ClientSelfTest {
             });
             case 1140 -> shot("faint");
             case 1160 -> server.execute(() -> showcase(server));
-            case 1260 -> shot("variety");
-            case 1280 -> server.execute(() -> cmd(server, "tp @p 600 -60 652 180 15"));
-            case 1360 -> shot("bagsfit");
-            case 1420 -> {
+            case 1300 -> {
+                shot("variety");
+                AnimalBonds.LOGGER.info("ABCLIENT unique textures generated: {}", VariantTextures.generatedTotal());
+            }
+            case 1340 -> server.execute(() -> cmd(server, "tp @p 600 -60 652 180 15"));
+            case 1440 -> shot("bagsfit");
+            case 1500 -> {
                 AnimalBonds.LOGGER.info("ABCLIENT DONE");
                 mc.stop();
             }

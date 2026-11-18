@@ -38,7 +38,9 @@ public final class BondRendering {
             if (!(entity instanceof Mob mob)) return;
             String type = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();
             if (VariantTextures.applies(type)) {
-                state.setRenderData(VariantTextures.SEED, mob.getUUID().hashCode());
+                java.util.UUID u = mob.getUUID();
+                state.setRenderData(VariantTextures.SEED, u.getMostSignificantBits() * 31 + u.getLeastSignificantBits());
+                state.setRenderData(VariantTextures.NATURAL, mob instanceof net.minecraft.world.entity.animal.Animal);
                 state.setRenderData(VariantTextures.TYPE, type);
             }
             BondData d = BondLogic.get(mob);
