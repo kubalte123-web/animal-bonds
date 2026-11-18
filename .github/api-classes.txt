@@ -1,0 +1,12 @@
+net.minecraft.client.renderer.entity.LivingEntityRenderer
+net.minecraft.client.renderer.entity.state.LivingEntityRenderState
+net.minecraft.client.renderer.entity.state.EntityRenderState
+net.minecraft.client.model.geom.ModelPart
+net.minecraft.client.model.geom.ModelPart$Cube
+net.minecraft.client.model.geom.ModelPart$Visitor
+net.minecraft.client.model.Model
+net.minecraft.client.renderer.texture.DynamicTexture
+net.minecraft.client.renderer.texture.TextureManager
+com.mojang.blaze3d.platform.NativeImage
+net.minecraft.world.entity.ai.attributes.AttributeModifier
+net.minecraft.world.entity.ai.attributes.AttributeInstance

@@ -37,6 +37,18 @@ jobs:
           ./gradlew build --console=plain 2>&1 | tee results/build.log
           cp build/libs/*.jar results/ || true
 
+      - name: Dump API signatures (for development)
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        run: |
+          JAR=$(find build ~/.gradle -name "*.jar" 2>/dev/null | grep -iE "neoforge-.*(merged|client|minecraft).*\.jar$|minecraft-.*\.jar$" | head -5)
+          echo "$JAR" > results/api.txt
+          J=$(echo "$JAR" | tr '\n' ':')
+          for c in $(cat .github/api-classes.txt 2>/dev/null); do
+            echo "=== $c" >> results/api.txt
+            javap -cp "$J" -p "$c" >> results/api.txt 2>&1 || true
+          done
+
       - name: Server self-test
         id: selftest
         continue-on-error: true
