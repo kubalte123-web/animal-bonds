@@ -39,6 +39,7 @@ public final class BallLogic {
         Phase phase = Phase.FLYING;
         Mob chaser;
         int age, phaseAge;
+        final java.util.Set<Mob> gaveUp = java.util.Collections.newSetFromMap(new WeakHashMap<>());
 
         Game(ItemEntity ball, ServerPlayer owner) {
             this.ball = new WeakReference<>(ball);
@@ -121,7 +122,7 @@ public final class BallLogic {
         switch (g.phase) {
             case FLYING -> {
                 if (g.age < 8) return true;
-                Mob m = findPlayer(level, ball, owner);
+                Mob m = findPlayer(level, ball, owner, g);
                 if (m == null) return g.age < 200; // nobody to play with: the ball just lies there
                 g.chaser = m;
                 g.phase = Phase.CHASE;
@@ -130,7 +131,16 @@ public final class BallLogic {
             }
             case CHASE -> {
                 Mob m = g.chaser;
-                if (m == null || !m.isAlive() || g.phaseAge > 400) return false;
+                if (m == null || !m.isAlive()) return false;
+                if (g.phaseAge > 300) { // could not get there: someone else may try
+                    g.gaveUp.add(m);
+                    g.chaser = null;
+                    g.phase = Phase.FLYING;
+                    g.phaseAge = 0;
+                    g.age = Math.min(g.age, 100);
+                    ball.setPickUpDelay(10);
+                    return true;
+                }
                 if (m.distanceToSqr(ball) < 1.7 * 1.7 + m.getBbWidth()) {
                     g.phase = Phase.CARRY;
                     g.phaseAge = 0;
@@ -158,19 +168,20 @@ public final class BallLogic {
     }
 
     /** A bonded creature of the thrower, from the ball-playing level, not busy, closest to the ball. */
-    private static Mob findPlayer(ServerLevel level, ItemEntity ball, ServerPlayer owner) {
+    private static Mob findPlayer(ServerLevel level, ItemEntity ball, ServerPlayer owner, Game g) {
         Mob best = null;
         double bestD = Double.MAX_VALUE;
         for (Mob m : level.getEntitiesOfClass(Mob.class, ball.getBoundingBox().inflate(20, 6, 20), Mob::isAlive)) {
             BondData d = BondLogic.get(m);
             if (d == null || d.isFainted() || d.level() < BondConfig.BALL_LEVEL.get() || m.isNoAi()) continue;
+            if (g.gaveUp.contains(m)) continue;
             if (m.isPassenger() || m.isVehicle() || m.isLeashed() || isBusy(m) || !BondAccess.canUse(owner, m, d)) continue;
             double dd = m.distanceToSqr(ball);
             if (dd >= bestD) continue;
             log("candidate {} at {} d={}", m.getType(), m.blockPosition(), Math.sqrt(dd));
             // only creatures that can actually get there (not the ones behind the fence)
             net.minecraft.world.level.pathfinder.Path path = m.getNavigation().createPath(ball, 1);
-            if (dd > 2.5 * 2.5 && (path == null || !path.canReach())) {
+            if ((path == null || path.getEndNode() == null || path.getEndNode().asBlockPos().distSqr(ball.blockPosition()) > 4)) {
                 log("  cannot reach (path={})", path);
                 continue;
             }
