@@ -103,6 +103,8 @@ public final class SelfTest {
         if (waitTicks == 1100) {
             try {
                 checkUpgrades(e.getServer().overworld());
+                // the ball is thrown once the test area is loaded and ticking
+                pl.kubalte.animalbonds.play.BallLogic.throwBall(ballThrower, new ItemStack(ModRegistry.BALL.get()));
             } catch (Throwable t) {
                 AnimalBonds.LOGGER.error("ABTEST FAIL upgrades exception", t);
                 FAILS.add("upgrades exception: " + t);
@@ -145,8 +147,10 @@ public final class SelfTest {
         p.setPos(o.getX() + 2.5, o.getY(), o.getZ() + 1.5);
         p.setYRot(0F);
         p.setXRot(10F);
-        pl.kubalte.animalbonds.play.BallLogic.throwBall(p, new ItemStack(ModRegistry.BALL.get()));
+        ballThrower = p;
     }
+
+    private static FakePlayer ballThrower;
 
     private static BlockPos upPed, upCrop, upTrough, upChest;
     private static Mob upCow, upStrider;
