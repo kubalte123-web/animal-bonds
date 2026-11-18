@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "#minecraft:planks",
+    "W": "minecraft:wheat"
+  },
+  "pattern": [
+    "PWP",
+    "PPP"
+  ],
+  "result": {
+    "id": "animalbonds:feeding_trough",
+    "count": 2
+  }
+}

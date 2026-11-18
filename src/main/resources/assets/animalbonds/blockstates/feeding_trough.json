@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "fill=0": {
+      "model": "animalbonds:block/feeding_trough_0"
+    },
+    "fill=1": {
+      "model": "animalbonds:block/feeding_trough_1"
+    },
+    "fill=2": {
+      "model": "animalbonds:block/feeding_trough_2"
+    },
+    "fill=3": {
+      "model": "animalbonds:block/feeding_trough_3"
+    },
+    "fill=4": {
+      "model": "animalbonds:block/feeding_trough_4"
+    }
+  }
+}

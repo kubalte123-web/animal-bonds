@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:book",
+    "L": "minecraft:leather",
+    "S": "#minecraft:wooden_slabs",
+    "G": "#minecraft:logs"
+  },
+  "pattern": [
+    " B ",
+    "LGL",
+    " S "
+  ],
+  "result": {
+    "id": "animalbonds:bond_pedestal"
+  }
+}

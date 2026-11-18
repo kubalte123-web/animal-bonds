@@ -1,0 +1,90 @@
+package pl.kubalte.animalbonds.network;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import pl.kubalte.animalbonds.BondConfig;
+import pl.kubalte.animalbonds.ModRegistry;
+import pl.kubalte.animalbonds.block.PedestalBlockEntity;
+import pl.kubalte.animalbonds.bond.BagData;
+import pl.kubalte.animalbonds.bond.BondData;
+import pl.kubalte.animalbonds.bond.BondLogic;
+
+public final class ModNetwork {
+    private ModNetwork() {}
+
+    public static void register(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar r = event.registrar("1");
+        // Client handler is registered in the client-only class (RegisterClientPayloadHandlersEvent).
+        r.playToClient(OpenBookPayload.TYPE, OpenBookPayload.STREAM_CODEC);
+        r.playToServer(RenamePayload.TYPE, RenamePayload.STREAM_CODEC, ModNetwork::handleRename);
+        r.playToServer(OpenBagsPayload.TYPE, OpenBagsPayload.STREAM_CODEC, ModNetwork::handleOpenBags);
+    }
+
+    private static boolean nearPedestal(ServerPlayer player, BlockPos pedestal) {
+        return player.level().getBlockEntity(pedestal) instanceof PedestalBlockEntity
+                && player.distanceToSqr(pedestal.getX() + 0.5, pedestal.getY() + 0.5, pedestal.getZ() + 0.5) < 10 * 10;
+    }
+
+    private static Mob mobNear(ServerPlayer player, BlockPos pedestal, int entityId) {
+        Entity e = player.level().getEntity(entityId);
+        if (!(e instanceof Mob mob) || !mob.isAlive()) return null;
+        if (mob.distanceToSqr(pedestal.getX() + 0.5, pedestal.getY(), pedestal.getZ() + 0.5) > 64 * 64) return null;
+        return mob;
+    }
+
+    static void handleRename(RenamePayload p, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player) || !nearPedestal(player, p.pedestal())) return;
+        Mob mob = mobNear(player, p.pedestal(), p.entityId());
+        if (mob == null) return;
+        BondData d = BondLogic.get(mob);
+        if (d == null || d.level() < BondConfig.NAME_LEVEL.get()) {
+            player.sendOverlayMessage(Component.translatable("message.animalbonds.need_level", BondConfig.NAME_LEVEL.get()));
+            return;
+        }
+        String name = p.name().strip();
+        if (name.length() > 32) name = name.substring(0, 32);
+        if (name.isEmpty()) {
+            mob.setCustomName(null);
+        } else {
+            mob.setCustomName(Component.literal(name));
+        }
+        mob.setPersistenceRequired();
+        BondLogic.hearts(mob, 5);
+        player.sendOverlayMessage(Component.translatable("message.animalbonds.named", mob.getDisplayName()));
+        if (player.level().getBlockEntity(p.pedestal()) instanceof PedestalBlockEntity be) be.openBook(player);
+    }
+
+    static void handleOpenBags(OpenBagsPayload p, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player)) return;
+        Mob mob;
+        if (p.entityId() < 0) {
+            mob = player.getVehicle() instanceof Mob v ? v : null;
+        } else {
+            mob = nearPedestal(player, p.pedestal()) ? mobNear(player, p.pedestal(), p.entityId()) : null;
+        }
+        if (mob == null) return;
+        openBags(player, mob);
+    }
+
+    public static void openBags(ServerPlayer player, Mob mob) {
+        BondData d = BondLogic.get(mob);
+        if (d == null || !d.bags) return;
+        BagData bags = mob.getData(ModRegistry.BAGS.get());
+        player.openMenu(new SimpleMenuProvider((id, inv, pl) -> new ChestMenu(MenuType.GENERIC_9x2, id, inv, bags.container, 2) {
+            @Override
+            public boolean stillValid(Player who) {
+                return mob.isAlive() && who.distanceToSqr(mob) < 80 * 80;
+            }
+        }, Component.translatable("container.animalbonds.bags", mob.getDisplayName())));
+    }
+}

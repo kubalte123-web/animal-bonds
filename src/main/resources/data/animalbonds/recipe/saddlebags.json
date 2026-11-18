@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": "minecraft:leather",
+    "C": "minecraft:chest",
+    "S": "minecraft:string"
+  },
+  "pattern": [
+    "LSL",
+    "C C",
+    "L L"
+  ],
+  "result": {
+    "id": "animalbonds:saddlebags"
+  }
+}

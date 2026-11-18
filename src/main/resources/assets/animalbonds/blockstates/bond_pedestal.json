@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "animalbonds:block/bond_pedestal"
+    },
+    "facing=east": {
+      "model": "animalbonds:block/bond_pedestal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "animalbonds:block/bond_pedestal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "animalbonds:block/bond_pedestal",
+      "y": 270
+    }
+  }
+}
