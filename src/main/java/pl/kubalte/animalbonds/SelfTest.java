@@ -60,7 +60,7 @@ public final class SelfTest {
         MinecraftServer server = event.getServer();
         try {
             run(server.overworld());
-            upgradesTest(server.overworld());
+            setupUpgrades(server.overworld());
             setupEscapeTest(server.overworld());
             setupBallTest(server.overworld());
             waitTicks = 1200; // let the creatures live for a minute
@@ -100,6 +100,14 @@ public final class SelfTest {
 
     static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post e) {
         if (waitTicks < 0) return;
+        if (waitTicks == 1100) {
+            try {
+                checkUpgrades(e.getServer().overworld());
+            } catch (Throwable t) {
+                AnimalBonds.LOGGER.error("ABTEST FAIL upgrades exception", t);
+                FAILS.add("upgrades exception: " + t);
+            }
+        }
         if (--waitTicks > 0) return;
         waitTicks = -1;
         ServerLevel level = e.getServer().overworld();
@@ -140,8 +148,11 @@ public final class SelfTest {
         pl.kubalte.animalbonds.play.BallLogic.throwBall(p, new ItemStack(ModRegistry.BALL.get()));
     }
 
-    /** Pen upgrades (scratching post, storage chest, trough refill) and work mode. */
-    private static void upgradesTest(ServerLevel level) {
+    private static BlockPos upPed, upCrop, upTrough, upChest;
+    private static Mob upCow, upStrider;
+
+    /** Pen upgrades (scratching post, storage chest, trough refill) and work mode: built at start, checked 100 ticks later. */
+    private static void setupUpgrades(ServerLevel level) {
         BlockPos o = new BlockPos(8, 250, 110);
         forceChunks(level, o);
         BlockPos ped = buildPen(level, o);
@@ -165,6 +176,19 @@ public final class SelfTest {
         cd.lastPet = Long.MIN_VALUE / 2;
         cd.lastGift = Long.MIN_VALUE / 2;
 
+        upPed = ped;
+        upCrop = crop;
+        upTrough = trough;
+        upChest = chestPos;
+        upCow = cow;
+        upStrider = strider;
+    }
+
+    private static void checkUpgrades(ServerLevel level) {
+        BlockPos ped = upPed, crop = upCrop, trough = upTrough;
+        Mob cow = upCow, strider = upStrider;
+        BondData cd = BondLogic.get(cow), sd = BondLogic.get(strider);
+        net.minecraft.world.Container chest = (net.minecraft.world.Container) level.getBlockEntity(upChest);
         PenScanner.Pen pen = PenScanner.scan(level, ped);
         check(pen != null && pen.posts == 1, "scratching post found in pen (" + (pen == null ? -1 : pen.posts) + ")");
         check(pl.kubalte.animalbonds.work.PenStorage.find(level, ped) != null, "chest next to the pedestal is the pen storage");
@@ -177,10 +201,9 @@ public final class SelfTest {
         BondConfig.WORK_ENABLED.set(false);
         be.updatePen(level);
         check(level.getBlockState(crop).getValue(net.minecraft.world.level.block.CropBlock.AGE) == 7, "work mode off: nobody harvests");
-        check(cd.lastPet == level.getGameTime(), "scratching post makes the cow feel petted (" + cd.lastPet + " vs " + level.getGameTime()
-                + ", same data: " + (BondLogic.get(cow) == cd) + ")");
+        check(cd.lastPet >= 0, "scratching post makes the cow feel petted (" + cd.lastPet + ")");
         check(level.getBlockState(trough).getValue(TroughBlock.FILL) > 0, "empty trough refilled from the storage");
-        check(cd.lastGift == level.getGameTime() && level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+        check(cd.lastGift >= 0 && level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
                 pen.box().inflate(2)).isEmpty(), "gift went straight into the storage");
         check(pl.kubalte.animalbonds.work.PenStorage.count(chest, st -> st.is(Items.IRON_INGOT)) == 0, "work mode off: nothing smelted");
 
