@@ -165,7 +165,7 @@ public final class HybridRendering {
         ps.translate(0.0F, -1.501F, 0.0F);
 
         final boolean hHead = swapHead, hLegs = swapLegs, hExtras = swapExtras;
-        e.getSubmitNodeCollector().submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(baseTex), (pose, vc) -> {
+        e.getSubmitNodeCollector().submitCustomGeometry(ps, RenderTypes.entityCutout(baseTex), (pose, vc) -> {
             baseModel.setupAnim(state);
             PoseStack m = stackOf(pose);
             baseModel.root().visit(m, (p, path, idx, cube) -> {
@@ -186,7 +186,7 @@ public final class HybridRendering {
             if (donorStyle != null && seed != null) donorTex = VariantTextures.resolve(donorTex, s ^ 0x5DEECE66DL, donorStyle, donorStyleNatural);
             EntityModel dm = donor.renderer().getModel();
             float[][] B = base.boxes(), D = don.boxes();
-            e.getSubmitNodeCollector().submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(donorTex), (pose, vc) -> {
+            e.getSubmitNodeCollector().submitCustomGeometry(ps, RenderTypes.entityCutout(donorTex), (pose, vc) -> {
                 dm.setupAnim(ds);
                 if (hHead) drawGroup(dm, pose, vc, light, overlay, HEAD, D[HEAD], headTarget(B), true);
                 if (hLegs) {

@@ -87,8 +87,8 @@ public final class ModNetwork {
         if (!(level.getBlockState(p.altar()).getBlock() instanceof pl.kubalte.animalbonds.block.SplicingAltarBlock)) return;
         if (player.distanceToSqr(p.altar().getX() + 0.5, p.altar().getY() + 0.5, p.altar().getZ() + 0.5) > 100) return;
         Mob a = mobNear(player, p.altar(), p.entityA()), b = mobNear(player, p.altar(), p.entityB());
-        if (a != null && a.distanceToSqr(p.altar().getCenter()) > 14 * 14) a = null;
-        if (b != null && b.distanceToSqr(p.altar().getCenter()) > 14 * 14) b = null;
+        if (a != null && a.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(p.altar())) > 14 * 14) a = null;
+        if (b != null && b.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(p.altar())) > 14 * 14) b = null;
         pl.kubalte.animalbonds.bond.Hybrids.splice(level, player, p.altar(), a, b, p.choices());
         pl.kubalte.animalbonds.block.SplicingAltarBlock.open(player, level, p.altar());
     }
