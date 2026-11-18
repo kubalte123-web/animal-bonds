@@ -203,7 +203,7 @@ public final class HybridRendering {
                 }
                 if (hExtras && D[BODY] != null && B[BODY] != null) {
                     // tails and wings keep their place relative to the body
-                    drawGroupMapped(dm, pose, vc, light, overlay, EXTRAS, D[BODY], B[BODY], false);
+                    drawGroupMapped(dm, pose, vc, light, overlay, EXTRAS, D[BODY], B[BODY], true);
                 }
             });
         }
@@ -247,7 +247,9 @@ public final class HybridRendering {
         float tx = Math.max(0.01F, to[3] - to[0]), ty = Math.max(0.01F, to[4] - to[1]), tz = Math.max(0.01F, to[5] - to[2]);
         float kx = tx / fx, ky = ty / fy, kz = tz / fz;
         if (uniform) {
-            float k = Math.max(0.5F, Math.min(1.8F, Math.max(tx, Math.max(ty, tz)) / Math.max(fx, Math.max(fy, fz))));
+            // keep proportions: one scale for all axes, limited so parts never get absurdly big or tiny
+            float k = (float) Math.cbrt((tx / fx) * (ty / fy) * (tz / fz));
+            k = Math.max(0.5F, Math.min(group == HEAD ? 1.25F : 1.3F, k));
             kx = ky = kz = k;
         } else {
             kx = Math.max(0.3F, Math.min(3F, kx));
