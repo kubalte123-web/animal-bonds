@@ -108,7 +108,7 @@ public final class BondEvents {
         }
     }
 
-    static void pet(ServerPlayer player, Mob mob, BondData d) {
+    public static void pet(ServerPlayer player, Mob mob, BondData d) {
         long now = mob.level().getGameTime();
         BondLogic.hearts(mob, 2);
         if (now - d.lastPet >= BondConfig.PET_COOLDOWN.get()) {
@@ -119,7 +119,7 @@ public final class BondEvents {
         BondLogic.sync(mob, d);
     }
 
-    static void handFeed(ServerPlayer player, Mob mob, BondData d, ItemStack stack) {
+    public static void handFeed(ServerPlayer player, Mob mob, BondData d, ItemStack stack) {
         ServerLevel level = (ServerLevel) mob.level();
         long now = level.getGameTime();
         if (!player.getAbilities().instabuild) stack.shrink(1);

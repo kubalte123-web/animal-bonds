@@ -22,7 +22,6 @@ import pl.kubalte.animalbonds.bond.BondData;
 import pl.kubalte.animalbonds.bond.BondEvents;
 import pl.kubalte.animalbonds.bond.BondLevels;
 import pl.kubalte.animalbonds.bond.BondLogic;
-import pl.kubalte.animalbonds.network.ModNetwork;
 
 /**
  * CI-only visual test (-Danimalbonds.clienttest=true): builds a pen in single player, opens the book
@@ -71,12 +70,17 @@ public final class ClientSelfTest {
                     if (cow != null) AnimalBonds.LOGGER.info("ABCLIENT ride started: {}", sp.startRiding(cow, true, true));
                 });
             }
+            case 770 -> {
+                server.execute(() -> logCow(server, "before"));
+                mc.options.keyUp.setDown(true);
+            }
+            case 820 -> {
+                mc.options.keyUp.setDown(false);
+                server.execute(() -> logCow(server, "after"));
+            }
             case 840 -> shot("ride");
-            case 900 -> server.execute(() -> {
-                ServerPlayer sp = player(server);
-                Mob cow = find(sp, cowId);
-                if (cow != null) ModNetwork.openBags(sp, cow);
-            });
+            // Pressing the inventory key while riding must open the saddlebags instead.
+            case 900 -> mc.gui.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
             case 960 -> shot("bags");
             case 1000 -> {
                 mc.gui.setScreen(null);
@@ -105,6 +109,14 @@ public final class ClientSelfTest {
     }
 
     private static java.util.UUID cowId, zombieId;
+    private static net.minecraft.world.phys.Vec3 cowStart;
+
+    private static void logCow(MinecraftServer server, String when) {
+        Mob cow = find(player(server), cowId);
+        if (cow == null) return;
+        if (cowStart == null) cowStart = cow.position();
+        AnimalBonds.LOGGER.info("ABCLIENT ride {} cow at {} moved {}", when, cow.position(), cow.position().distanceTo(cowStart));
+    }
 
     private static ServerPlayer player(MinecraftServer server) {
         return server.getPlayerList().getPlayers().get(0);

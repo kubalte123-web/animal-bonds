@@ -186,6 +186,28 @@ public final class SelfTest {
         BondLogic.addXp(cow2, c2, BondLevels.xpForLevel(5));
         check(c2.level() >= BondConfig.RIDE_LEVEL.get(), "cow2 reaches riding level");
 
+        // ---- Petting & hand feeding (real handlers) ----
+        Mob sheep = EntityTypes.SHEEP.spawn(level, origin.offset(2, 0, 5), EntitySpawnReason.COMMAND);
+        boolean bonded = false;
+        for (int i = 0; i < 60 && !bonded; i++) {
+            pl.kubalte.animalbonds.bond.BondEvents.handFeed(fake, sheep, BondLogic.get(sheep), new ItemStack(Items.WHEAT, 64));
+            bonded = BondLogic.isBonded(sheep);
+        }
+        check(bonded, "hand feeding wheat eventually bonds a sheep");
+        BondData sd = BondLogic.get(sheep);
+        sd.lastTreat = Long.MIN_VALUE / 2;
+        int x0 = sd.xp;
+        pl.kubalte.animalbonds.bond.BondEvents.handFeed(fake, sheep, sd, new ItemStack(Items.WHEAT, 64));
+        check(sd.xp > x0, "treat gives xp (" + x0 + " -> " + sd.xp + ")");
+        int x1 = sd.xp;
+        pl.kubalte.animalbonds.bond.BondEvents.handFeed(fake, sheep, sd, new ItemStack(Items.WHEAT, 64));
+        check(sd.xp == x1, "second treat right away gives no xp");
+        pl.kubalte.animalbonds.bond.BondEvents.pet(fake, sheep, sd);
+        int x2 = sd.xp;
+        check(x2 > x1, "petting gives xp");
+        pl.kubalte.animalbonds.bond.BondEvents.pet(fake, sheep, sd);
+        check(sd.xp == x2, "petting has a cooldown");
+
         // ---- Serialization ----
         var json = BondData.MAP_CODEC.codec().encodeStart(JsonOps.INSTANCE, d).getOrThrow();
         BondData back = BondData.MAP_CODEC.codec().parse(JsonOps.INSTANCE, json).getOrThrow();

@@ -153,7 +153,7 @@ public class BondBookScreen extends Screen {
         Component title = e.customName().isEmpty() ? species : Component.literal(e.customName());
         centered(g, title.copy().withStyle(ChatFormatting.BOLD), left + W / 4, top + 14, INK);
         if (!e.customName().isEmpty()) centered(g, species, left + W / 4, top + 25, INK_SOFT);
-        centered(g, Component.literal((Math.floorMod(index, entries.size()) + 1) + " / " + entries.size()), midX, top + H - 24, INK_SOFT);
+        centered(g, Component.literal((Math.floorMod(index, entries.size()) + 1) + " / " + entries.size()), left + W / 4 + 6, top + H - 24, INK_SOFT);
 
         // ---- Left page: the live creature ----
         int bx0 = left + 22, by0 = top + 36, bx1 = left + W / 2 - 18, by1 = top + H - 60;
@@ -183,45 +183,43 @@ public class BondBookScreen extends Screen {
         } else {
             text(g, Component.translatable("gui.animalbonds.level", e.level(), BondLevels.MAX_LEVEL).withStyle(ChatFormatting.BOLD), x, y, INK);
             y += 11;
-            // hearts: one per level
+            // hearts: one per level, xp numbers on the right
             StringBuilder hearts = new StringBuilder();
-            for (int i = 1; i <= BondLevels.MAX_LEVEL; i++) hearts.append(i <= e.level() ? '❤' : '♡');
+            for (int i = 1; i <= BondLevels.MAX_LEVEL; i++) hearts.append(i <= e.level() ? '\u2764' : '\u2661');
             text(g, Component.literal(hearts.toString()), x, y, 0xFFC0392B);
-            y += 11;
+            Component xpText = Component.literal(e.xp() + "/" + e.xpTo());
+            text(g, xpText, x + pageW - font.width(xpText), y, INK_SOFT);
+            y += 10;
             // xp bar
-            int barW = pageW;
-            g.fill(x, y, x + barW, y + 5, 0xFF8D7B62);
+            g.fill(x, y, x + pageW, y + 4, 0xFF8D7B62);
             float frac = e.xpTo() > e.xpFrom() ? (e.xp() - e.xpFrom()) / (float) (e.xpTo() - e.xpFrom()) : 1F;
-            g.fill(x, y, x + (int) (barW * Math.min(1F, Math.max(0F, frac))), y + 5, 0xFFD4A017);
-            y += 8;
-            text(g, Component.translatable("gui.animalbonds.xp", e.xp(), e.xpTo()), x, y, INK_SOFT);
-            y += 12;
+            g.fill(x, y, x + (int) (pageW * Math.min(1F, Math.max(0F, frac))), y + 4, 0xFFD4A017);
+            y += 7;
             int mood = e.happiness();
             Component moodText = mood < 0 ? Component.translatable("gui.animalbonds.mood_unknown")
                     : Component.translatable("gui.animalbonds.mood", mood);
             text(g, moodText, x, y, mood < 0 ? INK_SOFT : mood >= 75 ? GOOD : mood >= 50 ? INK : BAD);
-            y += 12;
+            y += 10;
             if (e.faintTicks() > 0) {
                 text(g, Component.translatable("gui.animalbonds.fainted", time(e.faintTicks())), x, y, BAD);
-                y += 11;
+                y += 10;
             } else if (e.giftTicks() >= 0) {
                 text(g, Component.translatable("gui.animalbonds.gift", time(e.giftTicks())), x, y, INK_SOFT);
-                y += 11;
+                y += 10;
             }
-        }
-        y += 3;
+        y += 2;
         text(g, Component.translatable("gui.animalbonds.needs").withStyle(ChatFormatting.UNDERLINE), x, y, INK);
-        y += 11;
+        y += 10;
         for (int code : e.needs()) {
             Need need = Need.byOrdinal(code / 2);
             boolean ok = (code & 1) == 1 && e.bonded();
             String mark = !e.bonded() ? "• " : ok ? "✔ " : "✘ ";
             MutableComponent line = Component.literal(mark).append(Component.translatable(need.translationKey()));
             text(g, line, x, y, !e.bonded() ? INK_SOFT : ok ? GOOD : BAD);
-            y += 10;
-            if (y > top + H - 46) break;
+            y += 9;
+            if (y > top + H - 40) break;
         }
-        if (!e.favourites().isEmpty() && y < top + H - 46) {
+        if (!e.favourites().isEmpty() && y < top + H - 40) {
             y += 2;
             MutableComponent fav = Component.translatable("gui.animalbonds.favourite").append(" ");
             String first = e.favourites().get(0);
