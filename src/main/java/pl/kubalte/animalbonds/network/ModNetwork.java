@@ -16,6 +16,7 @@ import pl.kubalte.animalbonds.BondConfig;
 import pl.kubalte.animalbonds.ModRegistry;
 import pl.kubalte.animalbonds.block.PedestalBlockEntity;
 import pl.kubalte.animalbonds.bond.BagData;
+import pl.kubalte.animalbonds.bond.BondAccess;
 import pl.kubalte.animalbonds.bond.BondData;
 import pl.kubalte.animalbonds.bond.BondLogic;
 
@@ -28,10 +29,11 @@ public final class ModNetwork {
         r.playToClient(OpenBookPayload.TYPE, OpenBookPayload.STREAM_CODEC);
         r.playToServer(RenamePayload.TYPE, RenamePayload.STREAM_CODEC, ModNetwork::handleRename);
         r.playToServer(OpenBagsPayload.TYPE, OpenBagsPayload.STREAM_CODEC, ModNetwork::handleOpenBags);
+        r.playToServer(MembersPayload.TYPE, MembersPayload.STREAM_CODEC, ModNetwork::handleMembers);
     }
 
     private static boolean nearPedestal(ServerPlayer player, BlockPos pedestal) {
-        return player.level().getBlockEntity(pedestal) instanceof PedestalBlockEntity
+        return player.level().getBlockEntity(pedestal) instanceof PedestalBlockEntity be && be.access().isTrusted(player)
                 && player.distanceToSqr(pedestal.getX() + 0.5, pedestal.getY() + 0.5, pedestal.getZ() + 0.5) < 10 * 10;
     }
 
@@ -47,6 +49,7 @@ public final class ModNetwork {
         Mob mob = mobNear(player, p.pedestal(), p.entityId());
         if (mob == null) return;
         BondData d = BondLogic.get(mob);
+        if (d != null && !BondAccess.canUse(player, mob, d)) return;
         if (d == null || d.level() < BondConfig.NAME_LEVEL.get()) {
             player.sendOverlayMessage(Component.translatable("message.animalbonds.need_level", BondConfig.NAME_LEVEL.get()));
             return;
@@ -76,9 +79,38 @@ public final class ModNetwork {
         openBags(player, mob);
     }
 
+    static void handleMembers(MembersPayload p, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player)) return;
+        if (!(player.level().getBlockEntity(p.pedestal()) instanceof PedestalBlockEntity be)) return;
+        if (player.distanceToSqr(p.pedestal().getX() + 0.5, p.pedestal().getY() + 0.5, p.pedestal().getZ() + 0.5) > 100) return;
+        if (!be.access().isOwner(player)) {
+            player.sendOverlayMessage(Component.translatable("message.animalbonds.only_owner"));
+            return;
+        }
+        if (be.access().owner.isEmpty()) be.setOwner(player);
+        String name = p.name().strip();
+        if (p.add()) {
+            ServerPlayer target = player.level().getServer().getPlayerList().getPlayerByName(name);
+            if (target == null) {
+                player.sendOverlayMessage(Component.translatable("message.animalbonds.player_offline", name));
+            } else if (!target.getUUID().equals(player.getUUID())) {
+                be.access().members.put(target.getUUID(), target.getName().getString());
+                player.sendOverlayMessage(Component.translatable("message.animalbonds.member_added", target.getName().getString()));
+            }
+        } else {
+            be.access().members.values().removeIf(n -> n.equalsIgnoreCase(name));
+        }
+        be.accessChanged();
+        be.openBook(player);
+    }
+
     public static void openBags(ServerPlayer player, Mob mob) {
         BondData d = BondLogic.get(mob);
         if (d == null || !d.bags) return;
+        if (!BondAccess.canUse(player, mob, d)) {
+            player.sendOverlayMessage(Component.translatable("message.animalbonds.not_yours", mob.getDisplayName()));
+            return;
+        }
         BagData bags = mob.getData(ModRegistry.BAGS.get());
         player.openMenu(new SimpleMenuProvider((id, inv, pl) -> new ChestMenu(MenuType.GENERIC_9x2, id, inv, bags.container, 2) {
             @Override

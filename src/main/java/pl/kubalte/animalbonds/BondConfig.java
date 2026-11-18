@@ -47,6 +47,8 @@ public final class BondConfig {
             .defineInRange("scanIntervalTicks", 600, 20, 72000);
     public static final ModConfigSpec.IntValue MAX_PEN_AREA = B.comment("Maks. powierzchnia zagrody w blokach")
             .defineInRange("maxPenArea", 1600, 16, 16384);
+    public static final ModConfigSpec.IntValue MAX_PEN_STEP = B.comment("Maks. różnica wysokości między sąsiednimi kratkami zagrody (wzniesienia/doły)")
+            .defineInRange("maxPenStep", 5, 1, 16);
     static {
         B.pop().push("gifts");
     }
@@ -64,6 +66,17 @@ public final class BondConfig {
     }
     public static final ModConfigSpec.DoubleValue RIDE_SPEED = B.comment("Mnożnik prędkości ujeżdżanego stwora")
             .defineInRange("rideSpeed", 1.0, 0.1, 5.0);
+    static {
+        B.pop().push("variety");
+    }
+    public static final ModConfigSpec.BooleanValue TEXTURE_VARIETY = B.comment("Każdy stwór dostaje własne, losowe ubarwienie (owce bez zmian)")
+            .define("textureVariety", true);
+    public static final ModConfigSpec.BooleanValue SIZE_VARIETY = B.comment("Losowy rozmiar stworów: mniejsze są szybsze, większe wolniejsze, ale mają więcej życia")
+            .define("sizeVariety", true);
+    public static final ModConfigSpec.DoubleValue MIN_SCALE = B.comment("Najmniejszy rozmiar (1.0 = normalny)")
+            .defineInRange("minScale", 0.85, 0.3, 1.0);
+    public static final ModConfigSpec.DoubleValue MAX_SCALE = B.comment("Największy rozmiar (1.0 = normalny)")
+            .defineInRange("maxScale", 1.2, 1.0, 3.0);
     static {
         B.pop();
     }

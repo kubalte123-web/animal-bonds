@@ -51,5 +51,18 @@
   "message.animalbonds.full": "%s jest najedzony, przyjdź później.",
   "message.animalbonds.level_up": "%s: przywiązanie wzrosło do poziomu %s!",
   "message.animalbonds.named": "Od teraz to %s.",
-  "animalbonds.configuration.title": "Więzi ze Zwierzętami: konfiguracja"
+  "animalbonds.configuration.title": "Więzi ze Zwierzętami: konfiguracja",
+  "gui.animalbonds.members": "Opiekunowie",
+  "gui.animalbonds.back": "Wróć",
+  "gui.animalbonds.member_nick": "Nick gracza",
+  "gui.animalbonds.members_title": "Opiekunowie zagrody",
+  "gui.animalbonds.owner": "Właściciel: %s",
+  "gui.animalbonds.trusted": "Zaufani gracze",
+  "gui.animalbonds.nobody": "Nikt jeszcze.",
+  "gui.animalbonds.only_owner_manages": "Tylko właściciel może dopisywać graczy.",
+  "message.animalbonds.not_yours": "%s ufa tylko swoim opiekunom.",
+  "message.animalbonds.not_your_chronicle": "Ta Kronika należy do %s.",
+  "message.animalbonds.only_owner": "Tylko właściciel Kroniki może to zmienić.",
+  "message.animalbonds.player_offline": "Gracz %s musi być online.",
+  "message.animalbonds.member_added": "%s jest teraz opiekunem tej zagrody."
 }

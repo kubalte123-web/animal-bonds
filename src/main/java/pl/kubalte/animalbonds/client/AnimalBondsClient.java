@@ -38,9 +38,9 @@ public class AnimalBondsClient {
     static void handleOpenBook(OpenBookPayload p, IPayloadContext ctx) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui.screen() instanceof BondBookScreen book && book.pedestal().equals(p.pedestal())) {
-            book.update(p.area(), p.entries());
+            book.update(p);
         } else {
-            mc.gui.setScreen(new BondBookScreen(p.pedestal(), p.area(), p.entries()));
+            mc.gui.setScreen(new BondBookScreen(p));
         }
     }
 

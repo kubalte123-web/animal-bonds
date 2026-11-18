@@ -20,11 +20,38 @@ import pl.kubalte.animalbonds.network.OpenBookPayload;
 
 public class PedestalBlockEntity extends BlockEntity {
     private int timer;
+    private PenAccess access = new PenAccess();
     /** Bonded creatures that lived in the pen at the last scan (not saved: rebuilt on the first scan). */
     private final java.util.Set<java.util.UUID> residents = new java.util.HashSet<>();
 
     public PedestalBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistry.PEDESTAL_BE.get(), pos, state);
+    }
+
+    public PenAccess access() {
+        return access;
+    }
+
+    public void setOwner(net.minecraft.world.entity.player.Player player) {
+        access.owner = java.util.Optional.of(player.getUUID());
+        access.ownerName = player.getName().getString();
+        setChanged();
+    }
+
+    public void accessChanged() {
+        setChanged();
+    }
+
+    @Override
+    protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput out) {
+        super.saveAdditional(out);
+        out.store("access", PenAccess.CODEC, access);
+    }
+
+    @Override
+    protected void loadAdditional(net.minecraft.world.level.storage.ValueInput in) {
+        super.loadAdditional(in);
+        in.read("access", PenAccess.CODEC).ifPresent(a -> access = a);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, PedestalBlockEntity be) {
@@ -43,6 +70,7 @@ public class PedestalBlockEntity extends BlockEntity {
         for (Mob mob : mobs) {
             BondData d = BondLogic.getOrAutoBond(mob);
             if (d != null) {
+                if (d.owner.isEmpty() && access.owner.isPresent()) d.owner = access.owner;
                 BondLogic.penTick(level, worldPosition, mob, d, pen, mobs);
                 residents.add(mob.getUUID());
             }
@@ -58,7 +86,7 @@ public class PedestalBlockEntity extends BlockEntity {
         if (residents.isEmpty()) return;
         net.minecraft.world.phys.AABB near = pen.box().inflate(8, 2, 8);
         for (Mob mob : level.getEntitiesOfClass(Mob.class, near, m -> residents.contains(m.getUUID()))) {
-            if (pen.contains(mob.getBlockX(), mob.getBlockZ()) && mob.getBlockY() <= pen.y + 1) continue;
+            if (pen.isInside(mob)) continue;
             if (mob.isPassenger() || mob.isVehicle() || mob.isLeashed()) continue;
             BondData d = BondLogic.get(mob);
             if (d == null || d.isFainted()) continue;
@@ -70,6 +98,10 @@ public class PedestalBlockEntity extends BlockEntity {
 
     public void openBook(ServerPlayer player) {
         ServerLevel level = (ServerLevel) this.level;
+        if (!access.isTrusted(player)) {
+            player.sendOverlayMessage(Component.translatable("message.animalbonds.not_your_chronicle", access.ownerName));
+            return;
+        }
         PenScanner.Pen pen = PenScanner.scan(level, worldPosition);
         if (pen == null) {
             player.sendOverlayMessage(Component.translatable("message.animalbonds.no_pen"));
@@ -84,6 +116,7 @@ public class PedestalBlockEntity extends BlockEntity {
             }
         }
         List<BookEntry> entries = mobs.stream().map(m -> BookEntry.of(m, pen, level.getGameTime())).toList();
-        PacketDistributor.sendToPlayer(player, new OpenBookPayload(worldPosition, pen.area(), entries));
+        PacketDistributor.sendToPlayer(player, new OpenBookPayload(worldPosition, pen.area(), entries,
+                access.ownerName, List.copyOf(access.members.values()), access.isOwner(player)));
     }
 }

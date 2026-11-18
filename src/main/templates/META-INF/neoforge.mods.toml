@@ -85,3 +85,6 @@ Więzi ze zwierzętami: przywiązanie 1-10, piedestał z Kroniką Zagrody, potrz
 # stop your mod loading on the server for example.
 #[features.${mod_id}]
 #openGLVersion="[3.2,)"
+
+[[mixins]]
+config="animalbonds.mixins.json"

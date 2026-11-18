@@ -37,6 +37,7 @@ public final class BondEvents {
         bus.addListener(BondEvents::onTame);
         bus.addListener(BondEvents::onChangeTarget);
         bus.addListener(BondEvents::onConvert);
+        bus.addListener(BondEvents::onJoin);
         bus.addListener(BondEvents::onDeath);
         bus.addListener(BondEvents::onEntityTick);
         bus.addListener(BondEvents::onEntityTickPre);
@@ -67,6 +68,8 @@ public final class BondEvents {
             if (!server) return;
             if (d == null) {
                 player.sendOverlayMessage(Component.translatable("message.animalbonds.not_bonded", mob.getDisplayName()));
+            } else if (!BondAccess.canUse((ServerPlayer) player, mob, d)) {
+                notYours(player, mob);
             } else if (d.bags) {
                 player.sendOverlayMessage(Component.translatable("message.animalbonds.bags_already"));
             } else if (d.level() < BondConfig.BAGS_LEVEL.get()) {
@@ -92,7 +95,9 @@ public final class BondEvents {
         if (player.isShiftKeyDown() && stack.isEmpty() && d != null && !(mob instanceof AbstractHorse)) {
             consume(e);
             if (!server) return;
-            if (d.level() < BondConfig.RIDE_LEVEL.get()) {
+            if (!BondAccess.canUse((ServerPlayer) player, mob, d)) {
+                notYours(player, mob);
+            } else if (d.level() < BondConfig.RIDE_LEVEL.get()) {
                 player.sendOverlayMessage(Component.translatable("message.animalbonds.need_level", BondConfig.RIDE_LEVEL.get()));
             } else if (mob.isVehicle()) {
                 player.sendOverlayMessage(Component.translatable("message.animalbonds.occupied"));
@@ -111,6 +116,7 @@ public final class BondEvents {
     public static void pet(ServerPlayer player, Mob mob, BondData d) {
         long now = mob.level().getGameTime();
         BondLogic.hearts(mob, 2);
+        if (!BondAccess.canUse(player, mob, d)) return; // strangers may pet, but the bond only grows with its carers
         if (now - d.lastPet >= BondConfig.PET_COOLDOWN.get()) {
             d.lastPet = now;
             if (BondLogic.addXp(mob, d, BondConfig.PET_XP.get())) levelUp(player, mob, d);
@@ -122,6 +128,10 @@ public final class BondEvents {
     public static void handFeed(ServerPlayer player, Mob mob, BondData d, ItemStack stack) {
         ServerLevel level = (ServerLevel) mob.level();
         long now = level.getGameTime();
+        if (d != null && !BondAccess.canUse(player, mob, d)) {
+            notYours(player, mob);
+            return;
+        }
         if (!player.getAbilities().instabuild) stack.shrink(1);
         mob.heal(2.0F);
         level.playSound(null, mob.blockPosition(), SoundEvents.GENERIC_EAT.value(), SoundSource.NEUTRAL, 1.0F, 1.0F);
@@ -129,6 +139,7 @@ public final class BondEvents {
             if (level.getRandom().nextInt(100) < BondConfig.TAME_CHANCE.get()) {
                 d = BondLogic.bond(mob);
                 d.lastTreat = now;
+                d.owner = java.util.Optional.of(player.getUUID());
                 BondLogic.sync(mob, d);
                 BondLogic.hearts(mob, 7);
                 player.sendOverlayMessage(Component.translatable("message.animalbonds.bonded", mob.getDisplayName()));
@@ -148,6 +159,10 @@ public final class BondEvents {
         BondLogic.sync(mob, d);
     }
 
+    static void notYours(Player player, Mob mob) {
+        player.sendOverlayMessage(Component.translatable("message.animalbonds.not_yours", mob.getDisplayName()));
+    }
+
     static void levelUp(Player player, Mob mob, BondData d) {
         player.sendOverlayMessage(Component.translatable("message.animalbonds.level_up", mob.getDisplayName(), d.level()));
         mob.level().playSound(null, mob.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.NEUTRAL, 0.6F, 1.4F);
@@ -156,6 +171,7 @@ public final class BondEvents {
     static void onTame(AnimalTameEvent e) {
         if (e.isCanceled()) return;
         BondData d = BondLogic.bond(e.getAnimal());
+        if (d.owner.isEmpty()) d.owner = java.util.Optional.of(e.getTamer().getUUID());
         BondLogic.sync(e.getAnimal(), d);
     }
 
@@ -175,6 +191,39 @@ public final class BondEvents {
         if (target instanceof Mob tm && tm instanceof Enemy && !(mob instanceof Enemy)) {
             BondData td = BondLogic.get(tm);
             if (td != null && td.level() >= BondConfig.PEACEFUL_LEVEL.get()) e.setCanceled(true);
+        }
+    }
+
+    private static final net.minecraft.resources.Identifier SIZE_ID =
+            net.minecraft.resources.Identifier.fromNamespaceAndPath(pl.kubalte.animalbonds.AnimalBonds.MODID, "size");
+    private static final java.util.Set<String> NO_SIZE = java.util.Set.of(
+            "minecraft:ender_dragon", "minecraft:wither", "minecraft:warden", "minecraft:elder_guardian", "minecraft:giant",
+            "minecraft:villager", "minecraft:wandering_trader", "minecraft:armor_stand", "minecraft:mannequin");
+
+    /** Every creature gets its own size once: smaller = faster, bigger = slower but tougher. */
+    static void onJoin(net.neoforged.neoforge.event.entity.EntityJoinLevelEvent e) {
+        if (e.getLevel().isClientSide() || !(e.getEntity() instanceof Mob mob) || !BondConfig.SIZE_VARIETY.get()) return;
+        if (NO_SIZE.contains(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString())) return;
+        var scale = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
+        if (scale == null || scale.hasModifier(SIZE_ID)) return;
+        applySize(mob, mob.getRandom());
+    }
+
+    public static void applySize(Mob mob, net.minecraft.util.RandomSource rnd) {
+        double min = BondConfig.MIN_SCALE.get(), max = BondConfig.MAX_SCALE.get();
+        // most creatures are close to normal size, a few are clearly small or big
+        double t = Math.max(-1, Math.min(1, rnd.nextGaussian() / 2.2));
+        double s = t < 0 ? 1 + t * (1 - min) : 1 + t * (max - 1);
+        var op = net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE;
+        var scale = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
+        scale.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(SIZE_ID, s - 1, op));
+        var speed = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+        if (speed != null && !speed.hasModifier(SIZE_ID))
+            speed.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(SIZE_ID, (1 / s - 1) * 0.9, op));
+        var hp = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+        if (hp != null && !hp.hasModifier(SIZE_ID)) {
+            hp.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(SIZE_ID, (s - 1) * 1.5, op));
+            mob.setHealth(mob.getMaxHealth());
         }
     }
 

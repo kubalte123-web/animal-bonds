@@ -10,7 +10,7 @@ import net.minecraft.resources.Identifier;
 import pl.kubalte.animalbonds.AnimalBonds;
 
 /** Server -> client: open the pen book with the creatures found in the pen. */
-public record OpenBookPayload(BlockPos pedestal, int area, List<BookEntry> entries) implements CustomPacketPayload {
+public record OpenBookPayload(BlockPos pedestal, int area, List<BookEntry> entries, String owner, List<String> members, boolean canManage) implements CustomPacketPayload {
     public static final Type<OpenBookPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "open_book"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, OpenBookPayload> STREAM_CODEC = StreamCodec.of(
@@ -19,6 +19,10 @@ public record OpenBookPayload(BlockPos pedestal, int area, List<BookEntry> entri
                 buf.writeVarInt(p.area);
                 buf.writeVarInt(p.entries.size());
                 for (BookEntry e : p.entries) BookEntry.STREAM_CODEC.encode(buf, e);
+                buf.writeUtf(p.owner);
+                buf.writeVarInt(p.members.size());
+                for (String m : p.members) buf.writeUtf(m);
+                buf.writeBoolean(p.canManage);
             },
             buf -> {
                 BlockPos pos = buf.readBlockPos();
@@ -26,7 +30,11 @@ public record OpenBookPayload(BlockPos pedestal, int area, List<BookEntry> entri
                 int n = buf.readVarInt();
                 List<BookEntry> list = new ArrayList<>(n);
                 for (int i = 0; i < n; i++) list.add(BookEntry.STREAM_CODEC.decode(buf));
-                return new OpenBookPayload(pos, area, list);
+                String owner = buf.readUtf();
+                int mc = buf.readVarInt();
+                List<String> members = new ArrayList<>(mc);
+                for (int i = 0; i < mc; i++) members.add(buf.readUtf());
+                return new OpenBookPayload(pos, area, list, owner, members, buf.readBoolean());
             });
 
     @Override

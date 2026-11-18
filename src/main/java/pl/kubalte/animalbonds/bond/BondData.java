@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
+import java.util.UUID;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -25,10 +27,12 @@ public final class BondData {
     public long faintedUntil;
     public boolean bags;
     public Optional<GlobalPos> home = Optional.empty();
+    /** The player who earned the creature's trust. Others may use it only if trusted at its pen's Chronicle. */
+    public Optional<UUID> owner = Optional.empty();
 
     public BondData() {}
 
-    private BondData(int xp, long lastPet, long lastTreat, long lastGift, int happiness, int needMask, long faintedUntil, boolean bags, Optional<GlobalPos> home) {
+    private BondData(int xp, long lastPet, long lastTreat, long lastGift, int happiness, int needMask, long faintedUntil, boolean bags, Optional<GlobalPos> home, Optional<UUID> owner) {
         this.xp = xp;
         this.lastPet = lastPet;
         this.lastTreat = lastTreat;
@@ -38,6 +42,7 @@ public final class BondData {
         this.faintedUntil = faintedUntil;
         this.bags = bags;
         this.home = home;
+        this.owner = owner;
     }
 
     public int level() {
@@ -57,7 +62,8 @@ public final class BondData {
             Codec.INT.optionalFieldOf("needs", 0).forGetter(d -> d.needMask),
             Codec.LONG.optionalFieldOf("fainted_until", 0L).forGetter(d -> d.faintedUntil),
             Codec.BOOL.optionalFieldOf("bags", false).forGetter(d -> d.bags),
-            GlobalPos.CODEC.optionalFieldOf("home").forGetter(d -> d.home)
+            GlobalPos.CODEC.optionalFieldOf("home").forGetter(d -> d.home),
+            UUIDUtil.CODEC.optionalFieldOf("owner").forGetter(d -> d.owner)
     ).apply(i, BondData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, BondData> STREAM_CODEC = StreamCodec.of(

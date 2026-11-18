@@ -107,11 +107,15 @@ public final class SelfTest {
         check(pen != null, "escape-test pen still detected");
         if (pen != null) {
             for (Mob m : escapeMobs) {
-                boolean in = m.isAlive() && pen.contains(m.getBlockX(), m.getBlockZ()) && m.getBlockY() <= pen.y;
+                boolean in = m.isAlive() && pen.isInside(m);
                 check(in, "after 60 s " + m.getType() + " still in pen (at " + m.blockPosition() + ", alive=" + m.isAlive() + ")");
             }
         }
         finish(e.getServer());
+    }
+
+    private static long PenScanner_pack(int x, int z) {
+        return ((long) x << 32) | (z & 0xFFFFFFFFL);
     }
 
     /** Keep the test area loaded and ticking (far away from spawn, so the client test world stays clean). */
@@ -161,6 +165,29 @@ public final class SelfTest {
         check(PenScanner.scan(level, pedestal) == null, "open pen is not detected");
         level.setBlockAndUpdate(origin.offset(7, 0, 4), Blocks.OAK_FENCE.defaultBlockState());
         check(level.getBlockEntity(pedestal) instanceof PedestalBlockEntity, "pedestal has block entity");
+
+        // ---- Hills and pits inside the pen ----
+        BlockPos hp = new BlockPos(8, 250, 60);
+        forceChunks(level, hp);
+        BlockPos hillPed = buildPen(level, hp);
+        for (int x = 2; x <= 4; x++) for (int z = 2; z <= 4; z++) {
+            int h = (x == 3 && z == 3) ? 3 : 2;
+            for (int y = 0; y < h; y++) level.setBlockAndUpdate(hp.offset(x, y, z), Blocks.DIRT.defaultBlockState());
+        }
+        for (int x = 5; x <= 6; x++) for (int z = 5; z <= 6; z++)
+            for (int y = -1; y >= -4; y--) level.setBlockAndUpdate(hp.offset(x, y, z), Blocks.AIR.defaultBlockState());
+        for (int x = 5; x <= 6; x++) for (int z = 5; z <= 6; z++) level.setBlockAndUpdate(hp.offset(x, -5, z), Blocks.STONE.defaultBlockState());
+        PenScanner.Pen hill = PenScanner.scan(level, hillPed);
+        check(hill != null && hill.area() == 36, "hilly pen detected with area 36 (was " + (hill == null ? -1 : hill.area()) + ")");
+        if (hill != null) {
+            check(hill.cells.get(PenScanner_pack(hp.getX() + 3, hp.getZ() + 3)) == hp.getY() + 3, "hill top floor is 3 blocks up");
+            check(hill.cells.get(PenScanner_pack(hp.getX() + 5, hp.getZ() + 5)) == hp.getY() - 4, "pit floor is 4 blocks down");
+            Mob onHill = EntityTypes.PIG.spawn(level, hp.offset(3, 3, 3), EntitySpawnReason.COMMAND);
+            Mob inPit = EntityTypes.PIG.spawn(level, hp.offset(5, -4, 6), EntitySpawnReason.COMMAND);
+            check(hill.isInside(onHill) && hill.isInside(inPit), "creatures on the hill and in the pit count as inside");
+            onHill.discard();
+            inPit.discard();
+        }
 
         // ---- Creatures ----
         Mob cow = EntityTypes.COW.spawn(level, origin.offset(3, 0, 3), EntitySpawnReason.COMMAND);
@@ -269,6 +296,42 @@ public final class SelfTest {
         check(x2 > x1, "petting gives xp");
         pl.kubalte.animalbonds.bond.BondEvents.pet(fake, sheep, sd);
         check(sd.xp == x2, "petting has a cooldown");
+
+        // ---- Ownership & trusted players ----
+        FakePlayer alice = FakePlayerFactory.get(level, new com.mojang.authlib.GameProfile(java.util.UUID.fromString("00000000-0000-0000-0000-0000000000a1"), "Alice"));
+        FakePlayer bob = FakePlayerFactory.get(level, new com.mojang.authlib.GameProfile(java.util.UUID.fromString("00000000-0000-0000-0000-0000000000b0"), "Bob"));
+        PedestalBlockEntity ped = (PedestalBlockEntity) level.getBlockEntity(pedestal);
+        ped.setOwner(alice);
+        BondData ad = BondLogic.get(sheep);
+        ad.owner = java.util.Optional.of(alice.getUUID());
+        ad.home = java.util.Optional.of(net.minecraft.core.GlobalPos.of(level.dimension(), pedestal));
+        check(pl.kubalte.animalbonds.bond.BondAccess.canUse(alice, sheep, ad), "owner can use her creature");
+        check(!pl.kubalte.animalbonds.bond.BondAccess.canUse(bob, sheep, ad), "stranger cannot use someone else's creature");
+        check(!ped.access().isTrusted(bob), "stranger is not trusted at the Chronicle");
+        ped.access().members.put(bob.getUUID(), "Bob");
+        check(pl.kubalte.animalbonds.bond.BondAccess.canUse(bob, sheep, ad), "trusted player can use the creature");
+        int bx = ad.xp;
+        ad.lastTreat = Long.MIN_VALUE / 2;
+        ped.access().members.remove(bob.getUUID());
+        pl.kubalte.animalbonds.bond.BondEvents.handFeed(bob, sheep, ad, new ItemStack(Items.WHEAT, 64));
+        check(ad.xp == bx, "stranger's treat gives no bond xp");
+
+        // ---- Size variety ----
+        Mob sized = EntityTypes.COW.spawn(level, origin.offset(4, 0, -2), EntitySpawnReason.COMMAND);
+        var sc = sized.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
+        double sv = sc.getValue();
+        check(sc.hasModifier(net.minecraft.resources.Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "size")), "new creature got a random size");
+        check(sv >= BondConfig.MIN_SCALE.get() - 1e-6 && sv <= BondConfig.MAX_SCALE.get() + 1e-6, "size within range (" + sv + ")");
+        double minS = 9, maxS = 0;
+        for (int i = 0; i < 30; i++) {
+            Mob c = EntityTypes.CHICKEN.spawn(level, origin.offset(5, 0, -2), EntitySpawnReason.COMMAND);
+            double v = c.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE).getValue();
+            minS = Math.min(minS, v);
+            maxS = Math.max(maxS, v);
+            c.discard();
+        }
+        check(maxS - minS > 0.08, "sizes vary between creatures (" + minS + " .. " + maxS + ")");
+        sized.discard();
 
         // ---- Serialization ----
         var json = BondData.MAP_CODEC.codec().encodeStart(JsonOps.INSTANCE, d).getOrThrow();

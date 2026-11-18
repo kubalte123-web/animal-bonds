@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "pl.kubalte.animalbonds.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "LivingEntityRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

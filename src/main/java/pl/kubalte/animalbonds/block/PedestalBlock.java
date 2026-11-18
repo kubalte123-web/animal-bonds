@@ -90,6 +90,12 @@ public class PedestalBlock extends BaseEntityBlock {
     }
 
     @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (!level.isClientSide() && placer instanceof Player p && level.getBlockEntity(pos) instanceof PedestalBlockEntity be) be.setOwner(p);
+    }
+
+    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide() && player instanceof ServerPlayer sp && level.getBlockEntity(pos) instanceof PedestalBlockEntity be) {
             be.openBook(sp);

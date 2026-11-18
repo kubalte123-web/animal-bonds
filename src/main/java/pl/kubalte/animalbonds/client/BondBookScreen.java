@@ -24,7 +24,9 @@ import pl.kubalte.animalbonds.AnimalBonds;
 import pl.kubalte.animalbonds.bond.BondLevels;
 import pl.kubalte.animalbonds.bond.Need;
 import pl.kubalte.animalbonds.network.BookEntry;
+import pl.kubalte.animalbonds.network.MembersPayload;
 import pl.kubalte.animalbonds.network.OpenBagsPayload;
+import pl.kubalte.animalbonds.network.OpenBookPayload;
 import pl.kubalte.animalbonds.network.RenamePayload;
 
 /**
@@ -46,14 +48,22 @@ public class BondBookScreen extends Screen {
     private int index;
 
     private int left, top;
-    private EditBox nameBox;
-    private Button nameButton, bagsButton, prevButton, nextButton;
+    private EditBox nameBox, memberBox;
+    private Button nameButton, bagsButton, prevButton, nextButton, membersButton, addMemberButton;
+    private final Button[] removeButtons = new Button[8];
+    private String owner = "";
+    private List<String> members = List.of();
+    private boolean canManage;
+    private boolean membersMode;
 
-    public BondBookScreen(BlockPos pedestal, int area, List<BookEntry> entries) {
+    public BondBookScreen(OpenBookPayload p) {
         super(Component.translatable("gui.animalbonds.book"));
-        this.pedestal = pedestal;
-        this.area = area;
-        this.entries = entries;
+        this.pedestal = p.pedestal();
+        this.area = p.area();
+        this.entries = p.entries();
+        this.owner = p.owner();
+        this.members = p.members();
+        this.canManage = p.canManage();
     }
 
     public BlockPos pedestal() {
@@ -61,9 +71,13 @@ public class BondBookScreen extends Screen {
     }
 
     /** Refresh with new data from the server, staying on the same creature if possible. */
-    public void update(int area, List<BookEntry> newEntries) {
+    public void update(OpenBookPayload p) {
+        List<BookEntry> newEntries = p.entries();
+        this.owner = p.owner();
+        this.members = p.members();
+        this.canManage = p.canManage();
         int currentId = current() != null ? current().entityId() : -1;
-        this.area = area;
+        this.area = p.area();
         this.entries = newEntries;
         this.index = 0;
         for (int i = 0; i < newEntries.size(); i++) {
@@ -91,6 +105,24 @@ public class BondBookScreen extends Screen {
                 .bounds(left + 124, top + H - 55, 30, 18).build());
         bagsButton = addRenderableWidget(Button.builder(Component.translatable("gui.animalbonds.bags"), b -> openBags())
                 .bounds(left + W / 2 + 12, top + H - 30, 60, 20).build());
+        membersButton = addRenderableWidget(Button.builder(Component.translatable("gui.animalbonds.members"), b -> {
+            membersMode = !membersMode;
+            refreshWidgets();
+        }).bounds(left + W / 2 - 74, top + H - 30, 58, 20).build());
+
+        memberBox = new EditBox(font, left + W / 2 + 14, top + H - 54, 90, 16, Component.translatable("gui.animalbonds.member_nick"));
+        memberBox.setMaxLength(16);
+        addRenderableWidget(memberBox);
+        addMemberButton = addRenderableWidget(Button.builder(Component.literal("+"), b -> {
+            if (!memberBox.getValue().isBlank()) ClientPacketDistributor.sendToServer(new MembersPayload(pedestal, true, memberBox.getValue()));
+            memberBox.setValue("");
+        }).bounds(left + W / 2 + 108, top + H - 55, 20, 18).build());
+        for (int i = 0; i < removeButtons.length; i++) {
+            final int idx = i;
+            removeButtons[i] = addRenderableWidget(Button.builder(Component.literal("x"), b -> {
+                if (idx < members.size()) ClientPacketDistributor.sendToServer(new MembersPayload(pedestal, false, members.get(idx)));
+            }).bounds(left + W - 32, top + 50 + i * 12, 12, 11).build());
+        }
         refreshWidgets();
     }
 
@@ -104,7 +136,11 @@ public class BondBookScreen extends Screen {
         nameBox.visible = canName;
         nameButton.visible = canName;
         if (canName) nameBox.setValue(e.customName());
-        bagsButton.visible = e != null && e.bags();
+        bagsButton.visible = e != null && e.bags() && !membersMode;
+        membersButton.setMessage(Component.translatable(membersMode ? "gui.animalbonds.back" : "gui.animalbonds.members"));
+        memberBox.visible = membersMode && canManage;
+        addMemberButton.visible = membersMode && canManage;
+        for (int i = 0; i < removeButtons.length; i++) removeButtons[i].visible = membersMode && canManage && i < members.size();
     }
 
     public void flipPage(int dir) {
@@ -153,7 +189,7 @@ public class BondBookScreen extends Screen {
         Component title = e.customName().isEmpty() ? species : Component.literal(e.customName());
         centered(g, title.copy().withStyle(ChatFormatting.BOLD), left + W / 4, top + 14, INK);
         if (!e.customName().isEmpty()) centered(g, species, left + W / 4, top + 25, INK_SOFT);
-        centered(g, Component.literal((Math.floorMod(index, entries.size()) + 1) + " / " + entries.size()), left + W / 4 + 6, top + H - 24, INK_SOFT);
+        centered(g, Component.literal((Math.floorMod(index, entries.size()) + 1) + " / " + entries.size()), left + 62, top + H - 24, INK_SOFT);
 
         // ---- Left page: the live creature ----
         int bx0 = left + 22, by0 = top + 36, bx1 = left + W / 2 - 18, by1 = top + H - 60;
@@ -170,6 +206,23 @@ public class BondBookScreen extends Screen {
         }
         if (!e.bonded()) {
             centered(g, Component.translatable("gui.animalbonds.hint_bond"), left + W / 4, top + H - 50, INK_SOFT);
+        }
+
+        // ---- Right page: carers (owner + trusted players) ----
+        if (membersMode) {
+            int mx = midX + 14, my = top + 14;
+            text(g, Component.translatable("gui.animalbonds.members_title").withStyle(ChatFormatting.BOLD), mx, my, INK);
+            my += 14;
+            text(g, Component.translatable("gui.animalbonds.owner", owner.isEmpty() ? "-" : owner), mx, my, INK);
+            my += 14;
+            text(g, Component.translatable("gui.animalbonds.trusted").withStyle(ChatFormatting.UNDERLINE), mx, my, INK);
+            my = top + 52;
+            if (members.isEmpty()) text(g, Component.translatable("gui.animalbonds.nobody"), mx, my, INK_SOFT);
+            for (int i = 0; i < Math.min(members.size(), removeButtons.length); i++) {
+                text(g, Component.literal("\u2022 " + members.get(i)), mx, my + i * 12, INK);
+            }
+            if (!canManage) wrapped(g, Component.translatable("gui.animalbonds.only_owner_manages"), mx, top + H - 54, W / 2 - 30, INK_SOFT);
+            return;
         }
 
         // ---- Right page: bond, mood, needs ----

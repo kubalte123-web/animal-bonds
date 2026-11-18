@@ -51,5 +51,18 @@
   "message.animalbonds.full": "%s is full, come back later.",
   "message.animalbonds.level_up": "%s: bond rose to level %s!",
   "message.animalbonds.named": "From now on it's %s.",
-  "animalbonds.configuration.title": "Animal Bonds configuration"
+  "animalbonds.configuration.title": "Animal Bonds configuration",
+  "gui.animalbonds.members": "Carers",
+  "gui.animalbonds.back": "Back",
+  "gui.animalbonds.member_nick": "Player nick",
+  "gui.animalbonds.members_title": "Pen carers",
+  "gui.animalbonds.owner": "Owner: %s",
+  "gui.animalbonds.trusted": "Trusted players",
+  "gui.animalbonds.nobody": "Nobody yet.",
+  "gui.animalbonds.only_owner_manages": "Only the owner can add players.",
+  "message.animalbonds.not_yours": "%s only trusts its carers.",
+  "message.animalbonds.not_your_chronicle": "This Chronicle belongs to %s.",
+  "message.animalbonds.only_owner": "Only the Chronicle's owner can change this.",
+  "message.animalbonds.player_offline": "Player %s must be online.",
+  "message.animalbonds.member_added": "%s now cares for this pen."
 }

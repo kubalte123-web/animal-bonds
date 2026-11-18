@@ -82,7 +82,7 @@ jobs:
           ./gradlew runClientTest --console=plain > results/client-full.log 2>&1 &
           GPID=$!
           seen=""
-          for i in $(seq 1 1080); do
+          for i in $(seq 1 1200); do
             sleep 1
             for name in $(grep -oE "ABCLIENT SHOT [a-z0-9]+" results/client-full.log | awk '{print $3}'); do
               case " $seen " in *" $name "*) ;; *)

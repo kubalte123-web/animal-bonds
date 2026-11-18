@@ -102,7 +102,11 @@ public final class ClientSelfTest {
                 }
             });
             case 1140 -> shot("faint");
-            case 1200 -> {
+            case 1160 -> server.execute(() -> showcase(server));
+            case 1260 -> shot("variety");
+            case 1280 -> server.execute(() -> cmd(server, "tp @p 600 -60 652 180 15"));
+            case 1360 -> shot("bags_fit");
+            case 1420 -> {
                 AnimalBonds.LOGGER.info("ABCLIENT DONE");
                 mc.stop();
             }
@@ -138,6 +142,39 @@ public final class ClientSelfTest {
 
     private static void flip() {
         if (Minecraft.getInstance().gui.screen() instanceof BondBookScreen book) book.flipPage(1);
+    }
+
+    /** Rows of creatures to show the colour/size variety, and a row with saddlebags on many body shapes. */
+    private static void showcase(MinecraftServer server) {
+        ServerPlayer sp = player(server);
+        ServerLevel level = (ServerLevel) sp.level();
+        var rows = java.util.List.of(EntityTypes.COW, EntityTypes.CHICKEN, EntityTypes.SPIDER, EntityTypes.ZOMBIE, EntityTypes.PIG);
+        for (int r = 0; r < rows.size(); r++) {
+            for (int i = 0; i < 6; i++) {
+                Mob m = rows.get(r).spawn(level, new BlockPos(594 + i * 2, -60, 630 + r * 3), EntitySpawnReason.COMMAND);
+                if (m != null) {
+                    m.setNoAi(true);
+                    m.setYRot(180);
+                    m.yBodyRot = 180;
+                    m.yHeadRot = 180;
+                    if (m.getType() == EntityTypes.ZOMBIE)
+                        m.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.LEATHER_HELMET));
+                }
+            }
+        }
+        var bagged = java.util.List.of(EntityTypes.COW, EntityTypes.PIG, EntityTypes.HORSE, EntityTypes.WOLF, EntityTypes.CHICKEN, EntityTypes.ZOMBIE, EntityTypes.SPIDER, EntityTypes.CAMEL);
+        for (int i = 0; i < bagged.size(); i++) {
+            Mob m = spawn(level, bagged.get(i), new BlockPos(593 + i * 2, -60, 646), 5, true);
+            if (m != null) {
+                if (m.getType() == EntityTypes.ZOMBIE)
+                    m.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.LEATHER_HELMET));
+                m.setNoAi(true);
+                m.setYRot(90);
+                m.yBodyRot = 90;
+                m.yHeadRot = 90;
+            }
+        }
+        cmd(server, "tp @p 600 -60 624 0 15");
     }
 
     private static void cmd(MinecraftServer server, String c) {
