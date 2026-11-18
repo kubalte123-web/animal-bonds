@@ -94,7 +94,7 @@ public final class BondEvents {
             } else if (mob.isVehicle()) {
                 player.sendOverlayMessage(Component.translatable("message.animalbonds.occupied"));
             } else {
-                player.startRiding(mob, true);
+                player.startRiding(mob, true, true);
             }
             return;
         }

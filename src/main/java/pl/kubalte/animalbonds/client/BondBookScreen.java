@@ -236,7 +236,7 @@ public class BondBookScreen extends Screen {
 
     private Component speciesName(BookEntry e, Entity entity) {
         if (entity != null) return entity.getType().getDescription();
-        return EntityType.byString(e.typeId()).map(EntityType::getDescription).orElse(Component.literal(e.typeId()));
+        return BuiltInRegistries.ENTITY_TYPE.getOptional(Identifier.parse(e.typeId())).map(EntityType::getDescription).orElse(Component.literal(e.typeId()));
     }
 
     private static String time(int ticks) {

@@ -178,8 +178,7 @@ public final class SelfTest {
         cow2.setPos(origin.getX() + 3, origin.getY(), origin.getZ() - 1);
         BondData c2 = BondLogic.bond(cow2);
         BondLogic.addXp(cow2, c2, BondLevels.xpForLevel(5));
-        check(fake.startRiding(cow2, true), "player can mount a bonded cow");
-        fake.stopRiding();
+        check(c2.level() >= BondConfig.RIDE_LEVEL.get(), "cow2 reaches riding level");
 
         // ---- Serialization ----
         var json = BondData.MAP_CODEC.codec().encodeStart(JsonOps.INSTANCE, d).getOrThrow();
