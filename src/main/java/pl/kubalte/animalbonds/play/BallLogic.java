@@ -84,6 +84,7 @@ public final class BallLogic {
             Game g = it.next();
             ItemEntity ball = g.ball.get();
             ServerPlayer owner = g.owner.get();
+            if (ball == null || !ball.isAlive() || owner == null) log("ended: ball={} owner={}", ball == null ? null : ball.isAlive(), owner);
             if (ball == null || !ball.isAlive() || owner == null || owner.isRemoved() && !(owner instanceof net.neoforged.neoforge.common.util.FakePlayer)
                     || owner.level() != ball.level() || !step(g, ball, owner)) {
                 if (ball != null && ball.isAlive()) release(ball);
@@ -97,8 +98,22 @@ public final class BallLogic {
         ball.setPickUpDelay(10);
     }
 
+    private static final boolean DEBUG = Boolean.getBoolean("animalbonds.selftest") || Boolean.getBoolean("animalbonds.clienttest");
+
+    private static void log(String msg, Object... args) {
+        if (DEBUG) pl.kubalte.animalbonds.AnimalBonds.LOGGER.info("BALL " + msg, args);
+    }
+
     /** Returns false when the game is over. */
     private static boolean step(Game g, ItemEntity ball, ServerPlayer owner) {
+        Phase before = g.phase;
+        boolean go = step0(g, ball, owner);
+        if (!go || g.phase != before) log("age={} {} -> {} go={} ball={} chaser={}", g.age, before, g.phase, go, ball.blockPosition(),
+                g.chaser == null ? null : g.chaser.blockPosition());
+        return go;
+    }
+
+    private static boolean step0(Game g, ItemEntity ball, ServerPlayer owner) {
         ServerLevel level = (ServerLevel) ball.level();
         g.age++;
         g.phaseAge++;
@@ -152,9 +167,13 @@ public final class BallLogic {
             if (m.isPassenger() || m.isVehicle() || m.isLeashed() || isBusy(m) || !BondAccess.canUse(owner, m, d)) continue;
             double dd = m.distanceToSqr(ball);
             if (dd >= bestD) continue;
+            log("candidate {} at {} d={}", m.getType(), m.blockPosition(), Math.sqrt(dd));
             // only creatures that can actually get there (not the ones behind the fence)
             net.minecraft.world.level.pathfinder.Path path = m.getNavigation().createPath(ball, 1);
-            if (dd > 2.5 * 2.5 && (path == null || !path.canReach())) continue;
+            if (dd > 2.5 * 2.5 && (path == null || !path.canReach())) {
+                log("  cannot reach (path={})", path);
+                continue;
+            }
             if (dd < bestD) {
                 bestD = dd;
                 best = m;
