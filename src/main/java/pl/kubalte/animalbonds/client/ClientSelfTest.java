@@ -170,11 +170,11 @@ public final class ClientSelfTest {
         pl.kubalte.animalbonds.BondConfig.WORK_ENABLED.set(true);
         Mob cow = spawn(level, EntityTypes.COW, o.offset(3, 0, 3), 5, false);
         Mob chicken = spawn(level, EntityTypes.CHICKEN, o.offset(4, 0, 2), 4, false);
-        Mob wolf = spawn(level, EntityTypes.WOLF, o.offset(-3, 0, -3), 4, false);
+        Mob wolf = spawn(level, EntityTypes.WOLF, o.offset(-5, 0, 0), 4, false);
         for (Mob m : new Mob[] {cow, chicken, wolf}) if (m != null) m.setNoAi(false);
         if (level.getBlockEntity(ped) instanceof PedestalBlockEntity be) be.updatePen(level);
         sp.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(ModRegistry.BALL.get()));
-        cmd(server, String.format("tp @p %d %d %d -35 25", o.getX() - 4, o.getY() + 1, o.getZ() - 4));
+        cmd(server, String.format("tp @p %d %d %d -30 30", o.getX() - 3, o.getY(), o.getZ() - 3));
     }
 
     private static void hybrid(ServerLevel level, net.minecraft.world.entity.EntityType<? extends Mob> body, String donor, BlockPos pos,

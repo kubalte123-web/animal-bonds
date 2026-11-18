@@ -151,6 +151,10 @@ public final class BallLogic {
             if (d == null || d.isFainted() || d.level() < BondConfig.BALL_LEVEL.get() || m.isNoAi()) continue;
             if (m.isPassenger() || m.isVehicle() || m.isLeashed() || isBusy(m) || !BondAccess.canUse(owner, m, d)) continue;
             double dd = m.distanceToSqr(ball);
+            if (dd >= bestD) continue;
+            // only creatures that can actually get there (not the ones behind the fence)
+            net.minecraft.world.level.pathfinder.Path path = m.getNavigation().createPath(ball, 1);
+            if (dd > 2.5 * 2.5 && (path == null || !path.canReach())) continue;
             if (dd < bestD) {
                 bestD = dd;
                 best = m;

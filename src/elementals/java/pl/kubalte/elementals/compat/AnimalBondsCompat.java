@@ -138,21 +138,20 @@ public final class AnimalBondsCompat {
         }
     }
 
-    /** Mchowiec: bone-meal-like growth on random plants in and around the pen. */
+    /** Mchowiec: bone-meal-like growth on some of the plants in and around the pen. */
     private static void growPlants(ServerLevel level, PenScanner.Pen pen, int tries) {
         var rnd = level.getRandom();
-        BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
-        for (int i = 0; i < tries * 4; i++) {
-            int x = pen.minX - 4 + rnd.nextInt(pen.maxX - pen.minX + 9);
-            int z = pen.minZ - 4 + rnd.nextInt(pen.maxZ - pen.minZ + 9);
-            int y = pen.minY - 1 + rnd.nextInt(Math.max(1, pen.maxY - pen.minY + 3));
-            m.set(x, y, z);
-            BlockState st = level.getBlockState(m);
+        java.util.List<BlockPos> plants = new java.util.ArrayList<>();
+        for (BlockPos p : BlockPos.betweenClosed(pen.minX - 4, pen.minY - 1, pen.minZ - 4, pen.maxX + 4, pen.maxY + 2, pen.maxZ + 4)) {
+            BlockState st = level.getBlockState(p);
             if (st.getBlock() instanceof BonemealableBlock b && !st.is(net.minecraft.world.level.block.Blocks.GRASS_BLOCK)
-                    && b.isValidBonemealTarget(level, m, st) && b.isBonemealSuccess(level, rnd, m, st)) {
-                b.performBonemeal(level, rnd, m.immutable(), st);
-                if (--tries <= 0) return;
-            }
+                    && !st.is(net.minecraft.world.level.block.Blocks.MOSS_BLOCK) && b.isValidBonemealTarget(level, p, st)) plants.add(p.immutable());
+        }
+        java.util.Collections.shuffle(plants, new java.util.Random(rnd.nextLong()));
+        for (int i = 0; i < Math.min(tries, plants.size()); i++) {
+            BlockPos p = plants.get(i);
+            BlockState st = level.getBlockState(p);
+            if (rnd.nextFloat() < 0.35F && st.getBlock() instanceof BonemealableBlock b) b.performBonemeal(level, rnd, p, st);
         }
     }
 
