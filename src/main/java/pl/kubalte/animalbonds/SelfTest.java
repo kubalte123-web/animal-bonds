@@ -139,6 +139,7 @@ public final class SelfTest {
         for (int x = -3; x <= 10; x++) {
             for (int z = -3; z <= 10; z++) {
                 level.setBlockAndUpdate(origin.offset(x, -1, z), Blocks.GRASS_BLOCK.defaultBlockState());
+                for (int y = -6; y <= -2; y++) level.setBlockAndUpdate(origin.offset(x, y, z), Blocks.DIRT.defaultBlockState());
                 for (int y = 0; y < 4; y++) level.setBlockAndUpdate(origin.offset(x, y, z), Blocks.AIR.defaultBlockState());
             }
         }
