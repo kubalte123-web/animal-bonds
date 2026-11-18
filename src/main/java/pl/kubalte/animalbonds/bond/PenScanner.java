@@ -95,8 +95,11 @@ public final class PenScanner {
             if (passable(level, n)) {
                 starts.add(n);
             } else {
+                // Behind the fence: the cell right behind it, or (if a trough/bed sits there) its neighbours.
                 BlockPos beyond = n.relative(d);
-                if (passable(level, beyond)) starts.add(beyond);
+                for (BlockPos c : new BlockPos[] {beyond, beyond.relative(d.getClockWise()), beyond.relative(d.getCounterClockWise()), beyond.relative(d)}) {
+                    if (passable(level, c)) starts.add(c);
+                }
             }
         }
         // Prefer the cells behind a fence (typical "pedestal outside the pen" setup) after trying direct neighbours.
