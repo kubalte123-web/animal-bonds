@@ -55,19 +55,19 @@ public final class ElementalsClientTest {
                 view(server, 4);
             });
             case 220 -> shot(mode + "creatures");
-            case 240 -> server.execute(() -> view(server, 24));
-            case 320 -> shot(mode + "elements");
-            case 340 -> server.execute(() -> view(server, 44));
-            case 400 -> shot(mode + "variants");
-            case 420 -> server.execute(() -> cmd(server, "time set 18000"));
-            case 480 -> shot(mode + "night");
-            case 500 -> {
+            case 300 -> server.execute(() -> view(server, 24));
+            case 380 -> shot(mode + "elements");
+            case 440 -> server.execute(() -> view(server, 44));
+            case 520 -> shot(mode + "variants");
+            case 560 -> server.execute(() -> cmd(server, "time set 18000"));
+            case 640 -> shot(mode + "night");
+            case 700 -> {
                 if (ModList.get().isLoaded("animalbonds")) server.execute(() -> pen(server));
             }
-            case 620 -> {
+            case 820 -> {
                 if (ModList.get().isLoaded("animalbonds")) shot(mode + "book");
             }
-            case 680 -> {
+            case 900 -> {
                 mc.gui.setScreen(null);
                 Elementals.LOGGER.info("ELCLIENT DONE");
                 mc.stop();
