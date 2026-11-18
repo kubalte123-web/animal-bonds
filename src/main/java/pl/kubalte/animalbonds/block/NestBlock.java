@@ -22,6 +22,12 @@ public class NestBlock extends Block {
         return CODEC;
     }
 
+    /** No collision: creatures lie in it (and can't use it as a step over the fence). */
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+        return net.minecraft.world.phys.shapes.Shapes.empty();
+    }
+
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
         return SHAPE;

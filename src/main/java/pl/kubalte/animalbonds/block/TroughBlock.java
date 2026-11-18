@@ -25,6 +25,7 @@ public class TroughBlock extends Block {
     public static final MapCodec<TroughBlock> CODEC = simpleCodec(TroughBlock::new);
     public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, 4);
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 8, 16);
+    private static final VoxelShape COLLISION = Block.box(0, 0, 0, 16, 24, 16);
 
     public TroughBlock(Properties props) {
         super(props);
@@ -70,5 +71,11 @@ public class TroughBlock extends Block {
             level.playSound(null, pos, SoundEvents.COMPOSTER_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    /** As tall as a fence, so creatures can't use it as a step to jump out of the pen. */
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+        return COLLISION;
     }
 }

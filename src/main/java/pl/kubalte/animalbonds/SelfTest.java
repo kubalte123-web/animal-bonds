@@ -52,14 +52,64 @@ public final class SelfTest {
         }
     }
 
+    private static int waitTicks = -1;
+    private static BlockPos escapePedestal;
+    private static List<Mob> escapeMobs = List.of();
+
     static void onStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
         try {
             run(server.overworld());
+            setupEscapeTest(server.overworld());
+            waitTicks = 1200; // let the creatures live for a minute
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(SelfTest::onServerTick);
+            return;
         } catch (Throwable t) {
             AnimalBonds.LOGGER.error("ABTEST FAIL exception", t);
             FAILS.add("exception: " + t);
         }
+        finish(server);
+    }
+
+    /** A pen with trough, bed and pedestal right next to the fence: nobody may jump out. */
+    private static void setupEscapeTest(ServerLevel level) {
+        BlockPos origin = new BlockPos(8, 250, 24);
+        for (int cx = -1; cx <= 2; cx++) for (int cz = 0; cz <= 3; cz++) level.setChunkForced(cx, cz, true);
+        escapePedestal = buildPen(level, origin);
+        level.setBlockAndUpdate(origin.offset(1, 0, 3), ModRegistry.TROUGH.get().defaultBlockState().setValue(TroughBlock.FILL, 4));
+        level.setBlockAndUpdate(origin.offset(6, 0, 3), ModRegistry.NEST.get().defaultBlockState());
+        level.setBlockAndUpdate(origin.offset(3, 0, 1), ModRegistry.PEDESTAL.get().defaultBlockState());
+        List<Mob> list = new ArrayList<>();
+        var types = List.of(EntityTypes.COW, EntityTypes.SHEEP, EntityTypes.PIG, EntityTypes.CHICKEN, EntityTypes.GOAT, EntityTypes.RABBIT, EntityTypes.HORSE, EntityTypes.ZOMBIE);
+        int i = 0;
+        for (var t : types) {
+            Mob m = t.spawn(level, origin.offset(2 + i % 4, 0, 2 + i / 4 * 2), EntitySpawnReason.COMMAND);
+            if (m != null) {
+                BondLogic.bond(m);
+                list.add(m);
+            }
+            i++;
+        }
+        escapeMobs = list;
+    }
+
+    static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post e) {
+        if (waitTicks < 0) return;
+        if (--waitTicks > 0) return;
+        waitTicks = -1;
+        ServerLevel level = e.getServer().overworld();
+        PenScanner.Pen pen = PenScanner.scan(level, escapePedestal);
+        check(pen != null, "escape-test pen still detected");
+        if (pen != null) {
+            for (Mob m : escapeMobs) {
+                boolean in = m.isAlive() && pen.contains(m.getBlockX(), m.getBlockZ()) && m.getBlockY() <= pen.y;
+                check(in, "after 60 s " + m.getType() + " still in pen (at " + m.blockPosition() + ")");
+            }
+        }
+        finish(e.getServer());
+    }
+
+    private static void finish(MinecraftServer server) {
         if (FAILS.isEmpty()) {
             AnimalBonds.LOGGER.info("ABTEST RESULT: PASS ({} checks)", checks);
         } else {

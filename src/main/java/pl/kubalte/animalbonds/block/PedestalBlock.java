@@ -37,6 +37,7 @@ public class PedestalBlock extends BaseEntityBlock {
             Block.box(1, 0, 1, 15, 2, 15),
             Block.box(5, 2, 5, 11, 11, 11),
             Block.box(1, 11, 1, 15, 15, 15));
+    private static final VoxelShape COLLISION = Shapes.or(SHAPE, Block.box(4, 0, 4, 12, 24, 12));
 
     public PedestalBlock(Properties props) {
         super(props);
@@ -94,5 +95,11 @@ public class PedestalBlock extends BaseEntityBlock {
             be.openBook(sp);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    /** As tall as a fence, so creatures can't use it as a step to jump out of the pen. */
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+        return COLLISION;
     }
 }
