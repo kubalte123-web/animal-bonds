@@ -17,7 +17,7 @@ import pl.kubalte.animalbonds.bond.SpeciesProfiles;
 /** One creature page of the book, as sent to the client. */
 public record BookEntry(int entityId, String typeId, String customName, boolean bonded, int level, int xp,
                         int xpFrom, int xpTo, int happiness, List<Integer> needs, int faintTicks, boolean bags,
-                        int giftTicks, List<String> favourites) {
+                        int giftTicks, List<String> favourites, String hybrid) {
 
     /** needs list encoding: ordinal * 2 + (satisfied ? 1 : 0) */
     public static int encodeNeed(Need need, boolean ok) {
@@ -34,15 +34,17 @@ public record BookEntry(int entityId, String typeId, String customName, boolean 
         }
         String type = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();
         String name = mob.hasCustomName() ? mob.getCustomName().getString() : "";
+        pl.kubalte.animalbonds.bond.HybridData hy = pl.kubalte.animalbonds.bond.Hybrids.get(mob);
+        String hybrid = hy == null ? "" : hy.parents().isEmpty() ? hy.donorType() : hy.parents();
         if (d == null) {
-            return new BookEntry(mob.getId(), type, name, false, 0, 0, 0, 1, -1, needs, 0, false, -1, profile.favourites());
+            return new BookEntry(mob.getId(), type, name, false, 0, 0, 0, 1, -1, needs, 0, false, -1, profile.favourites(), hybrid);
         }
         int lvl = d.level();
         int from = BondLevels.xpForLevel(lvl);
         int to = lvl >= BondLevels.MAX_LEVEL ? from : BondLevels.xpForLevel(lvl + 1);
         int faint = d.isFainted() ? (int) Math.max(0, d.faintedUntil - now) : 0;
         int gift = lvl < BondConfig.GIFT_LEVEL.get() ? -1 : (int) Math.max(0, BondLogic.giftInterval(d) - (now - d.lastGift));
-        return new BookEntry(mob.getId(), type, name, true, lvl, d.xp, from, to, d.happiness, needs, faint, d.bags, gift, profile.favourites());
+        return new BookEntry(mob.getId(), type, name, true, lvl, d.xp, from, to, d.happiness, needs, faint, d.bags, gift, profile.favourites(), hybrid);
     }
 
     public static final StreamCodec<FriendlyByteBuf, BookEntry> STREAM_CODEC = StreamCodec.of(
@@ -63,6 +65,7 @@ public record BookEntry(int entityId, String typeId, String customName, boolean 
                 buf.writeVarInt(e.giftTicks + 1);
                 buf.writeVarInt(e.favourites.size());
                 for (String f : e.favourites) buf.writeUtf(f);
+                buf.writeUtf(e.hybrid);
             },
             buf -> {
                 int id = buf.readVarInt();
@@ -83,6 +86,6 @@ public record BookEntry(int entityId, String typeId, String customName, boolean 
                 int fc = buf.readVarInt();
                 List<String> fav = new ArrayList<>(fc);
                 for (int i = 0; i < fc; i++) fav.add(buf.readUtf());
-                return new BookEntry(id, type, name, bonded, level, xp, from, to, happy, needs, faint, bags, gift, fav);
+                return new BookEntry(id, type, name, bonded, level, xp, from, to, happy, needs, faint, bags, gift, fav, buf.readUtf());
             });
 }

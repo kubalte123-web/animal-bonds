@@ -67,6 +67,17 @@ public final class BondConfig {
     public static final ModConfigSpec.DoubleValue RIDE_SPEED = B.comment("Mnożnik prędkości ujeżdżanego stwora")
             .defineInRange("rideSpeed", 1.0, 0.1, 5.0);
     static {
+        B.pop().push("splicing");
+    }
+    public static final ModConfigSpec.IntValue SPLICE_LEVEL = B.comment("Poziom więzi, jaki muszą mieć oboje rodzice, by ich splatać")
+            .defineInRange("spliceLevel", 5, 1, 10);
+    public static final ModConfigSpec.ConfigValue<String> SPLICE_COST_ITEM = B.comment("Przedmiot zużywany przy splataniu")
+            .define("costItem", "minecraft:golden_apple");
+    public static final ModConfigSpec.IntValue SPLICE_COST_COUNT = B.comment("Ile sztuk przedmiotu kosztuje splatanie")
+            .defineInRange("costCount", 1, 0, 64);
+    public static final ModConfigSpec.IntValue SPLICE_COOLDOWN = B.comment("Odpoczynek rodzica po splataniu (ticki)")
+            .defineInRange("parentCooldownTicks", 24000, 0, 10_000_000);
+    static {
         B.pop().push("variety");
     }
     public static final ModConfigSpec.BooleanValue TEXTURE_VARIETY = B.comment("Każdy stwór dostaje własne, losowe ubarwienie (owce bez zmian)")

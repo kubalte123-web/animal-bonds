@@ -187,10 +187,15 @@ public final class SpeciesProfiles {
     public static Profile get(Entity entity) {
         Identifier key = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
         Profile p = PROFILES.get(key.toString());
-        if (p != null) return p;
-        if (entity instanceof Enemy) return FALLBACK_MONSTER;
-        if (entity instanceof Animal) return FALLBACK_ANIMAL;
-        return FALLBACK_OTHER;
+        if (p == null) p = entity instanceof Enemy ? FALLBACK_MONSTER : entity instanceof Animal ? FALLBACK_ANIMAL : FALLBACK_OTHER;
+        HybridData h = Hybrids.get(entity);
+        return h == null ? p : Hybrids.mergedProfile(p, key.toString(), h.donorType());
+    }
+
+    /** Profile of a creature type by id (used for a hybrid's donor parent). */
+    public static Profile byId(String typeId) {
+        Profile p = PROFILES.get(typeId);
+        return p != null ? p : FALLBACK_OTHER;
     }
 
     /** Is this stack a food the mob loves (used for hand feeding and bonding)? */

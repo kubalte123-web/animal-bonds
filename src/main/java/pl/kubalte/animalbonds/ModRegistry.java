@@ -38,12 +38,16 @@ public final class ModRegistry {
             p -> p.mapColor(MapColor.WOOD).strength(2.5F).sound(SoundType.WOOD).noOcclusion());
     public static final DeferredBlock<TroughBlock> TROUGH = BLOCKS.registerBlock("feeding_trough", TroughBlock::new,
             p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD).noOcclusion());
+    public static final DeferredBlock<pl.kubalte.animalbonds.block.SplicingAltarBlock> ALTAR = BLOCKS.registerBlock("splicing_altar",
+            pl.kubalte.animalbonds.block.SplicingAltarBlock::new,
+            p -> p.mapColor(MapColor.COLOR_PURPLE).strength(3.0F).sound(SoundType.AMETHYST).noOcclusion().lightLevel(st -> 7));
     public static final DeferredBlock<NestBlock> NEST = BLOCKS.registerBlock("animal_bed", NestBlock::new,
             p -> p.mapColor(MapColor.COLOR_YELLOW).strength(0.5F).sound(SoundType.GRASS).noOcclusion());
 
     // --- Items ---
     public static final DeferredItem<BlockItem> PEDESTAL_ITEM = ITEMS.registerSimpleBlockItem("bond_pedestal", PEDESTAL);
     public static final DeferredItem<BlockItem> TROUGH_ITEM = ITEMS.registerSimpleBlockItem("feeding_trough", TROUGH);
+    public static final DeferredItem<BlockItem> ALTAR_ITEM = ITEMS.registerSimpleBlockItem("splicing_altar", ALTAR);
     public static final DeferredItem<BlockItem> NEST_ITEM = ITEMS.registerSimpleBlockItem("animal_bed", NEST);
     public static final DeferredItem<Item> SADDLEBAGS = ITEMS.registerSimpleItem("saddlebags", p -> p.stacksTo(1));
 
@@ -54,6 +58,9 @@ public final class ModRegistry {
     // --- Attachments ---
     public static final Supplier<AttachmentType<BondData>> BOND = ATTACHMENTS.register("bond",
             () -> AttachmentType.builder(BondData::new).serialize(BondData.MAP_CODEC).sync(BondData.STREAM_CODEC).build());
+    public static final Supplier<AttachmentType<pl.kubalte.animalbonds.bond.HybridData>> HYBRID = ATTACHMENTS.register("hybrid",
+            () -> AttachmentType.builder(() -> new pl.kubalte.animalbonds.bond.HybridData("minecraft:pig", false, false, false, 2, false, ""))
+                    .serialize(pl.kubalte.animalbonds.bond.HybridData.MAP_CODEC).sync(pl.kubalte.animalbonds.bond.HybridData.STREAM_CODEC).build());
     public static final Supplier<AttachmentType<BagData>> BAGS = ATTACHMENTS.register("bags",
             () -> AttachmentType.builder(BagData::new).serialize(BagData.MAP_CODEC).build());
 
@@ -65,6 +72,7 @@ public final class ModRegistry {
                 output.accept(PEDESTAL_ITEM.get());
                 output.accept(TROUGH_ITEM.get());
                 output.accept(NEST_ITEM.get());
+                output.accept(ALTAR_ITEM.get());
                 output.accept(SADDLEBAGS.get());
             }).build());
 

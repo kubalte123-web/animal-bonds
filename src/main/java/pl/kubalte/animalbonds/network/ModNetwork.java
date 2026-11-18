@@ -30,6 +30,8 @@ public final class ModNetwork {
         r.playToServer(RenamePayload.TYPE, RenamePayload.STREAM_CODEC, ModNetwork::handleRename);
         r.playToServer(OpenBagsPayload.TYPE, OpenBagsPayload.STREAM_CODEC, ModNetwork::handleOpenBags);
         r.playToServer(MembersPayload.TYPE, MembersPayload.STREAM_CODEC, ModNetwork::handleMembers);
+        r.playToClient(OpenAltarPayload.TYPE, OpenAltarPayload.STREAM_CODEC);
+        r.playToServer(SplicePayload.TYPE, SplicePayload.STREAM_CODEC, ModNetwork::handleSplice);
     }
 
     private static boolean nearPedestal(ServerPlayer player, BlockPos pedestal) {
@@ -77,6 +79,18 @@ public final class ModNetwork {
         }
         if (mob == null) return;
         openBags(player, mob);
+    }
+
+    static void handleSplice(SplicePayload p, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player)) return;
+        var level = (net.minecraft.server.level.ServerLevel) player.level();
+        if (!(level.getBlockState(p.altar()).getBlock() instanceof pl.kubalte.animalbonds.block.SplicingAltarBlock)) return;
+        if (player.distanceToSqr(p.altar().getX() + 0.5, p.altar().getY() + 0.5, p.altar().getZ() + 0.5) > 100) return;
+        Mob a = mobNear(player, p.altar(), p.entityA()), b = mobNear(player, p.altar(), p.entityB());
+        if (a != null && a.distanceToSqr(p.altar().getCenter()) > 14 * 14) a = null;
+        if (b != null && b.distanceToSqr(p.altar().getCenter()) > 14 * 14) b = null;
+        pl.kubalte.animalbonds.bond.Hybrids.splice(level, player, p.altar(), a, b, p.choices());
+        pl.kubalte.animalbonds.block.SplicingAltarBlock.open(player, level, p.altar());
     }
 
     static void handleMembers(MembersPayload p, IPayloadContext ctx) {

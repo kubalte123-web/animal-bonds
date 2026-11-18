@@ -44,6 +44,17 @@ public final class BondRendering {
                 state.setRenderData(VariantTextures.NATURAL, mob instanceof net.minecraft.world.entity.animal.Animal);
                 state.setRenderData(VariantTextures.TYPE, type);
             }
+            pl.kubalte.animalbonds.bond.HybridData hyb = pl.kubalte.animalbonds.bond.Hybrids.get(mob);
+            if (hyb != null && state instanceof LivingEntityRenderState) {
+                state.setRenderData(HybridRendering.HYBRID, hyb);
+                if (!VariantTextures.applies(type)) {
+                    java.util.UUID u = mob.getUUID();
+                    state.setRenderData(VariantTextures.SEED, u.getMostSignificantBits() * 31 + u.getLeastSignificantBits());
+                    state.setRenderData(VariantTextures.TYPE, type);
+                    state.setRenderData(VariantTextures.NATURAL, mob instanceof net.minecraft.world.entity.animal.Animal);
+                }
+                state.isInvisible = true; // the vanilla model is replaced by the composite (see HybridRendering)
+            }
             BondData d = BondLogic.get(mob);
             if (d == null) return;
             if (d.isFainted()) state.setRenderData(FAINTED, Boolean.TRUE);
@@ -61,6 +72,7 @@ public final class BondRendering {
     }
 
     static void post(RenderLivingEvent.Post<?, ?, ?> e) {
+        HybridRendering.render(e);
         LivingEntityRenderState state = e.getRenderState();
         boolean fainted = Boolean.TRUE.equals(state.getRenderData(FAINTED));
         float[] bags = state.getRenderData(BAGS);

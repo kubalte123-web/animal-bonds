@@ -28,12 +28,18 @@ public class AnimalBondsClient {
         modBus.addListener(AnimalBondsClient::registerPayloads);
         BondRendering.register(modBus);
         NeoForge.EVENT_BUS.addListener(AnimalBondsClient::onScreenOpening);
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut e) -> HybridRendering.clear());
         ClientSelfTest.register(modBus);
         if (net.neoforged.fml.ModList.get().isLoaded("geckolib")) pl.kubalte.animalbonds.client.compat.GeckoLibCompat.init();
     }
 
     static void registerPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(OpenBookPayload.TYPE, AnimalBondsClient::handleOpenBook);
+        event.register(pl.kubalte.animalbonds.network.OpenAltarPayload.TYPE, (p, ctx) -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.gui.screen() instanceof AltarScreen a && a.altar().equals(p.altar())) a.setData(p);
+            else mc.gui.setScreen(new AltarScreen(p));
+        });
     }
 
     static void handleOpenBook(OpenBookPayload p, IPayloadContext ctx) {

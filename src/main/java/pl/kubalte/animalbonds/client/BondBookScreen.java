@@ -188,7 +188,11 @@ public class BondBookScreen extends Screen {
         Component species = speciesName(e, entity);
         Component title = e.customName().isEmpty() ? species : Component.literal(e.customName());
         centered(g, title.copy().withStyle(ChatFormatting.BOLD), left + W / 4, top + 14, INK);
-        if (!e.customName().isEmpty()) centered(g, species, left + W / 4, top + 25, INK_SOFT);
+        if (!e.hybrid().isEmpty()) {
+            centered(g, Component.translatable("gui.animalbonds.hybrid_of", e.hybrid()), left + W / 4, top + 25, 0xFF6A3FA0);
+        } else if (!e.customName().isEmpty()) {
+            centered(g, species, left + W / 4, top + 25, INK_SOFT);
+        }
         centered(g, Component.literal((Math.floorMod(index, entries.size()) + 1) + " / " + entries.size()), left + 62, top + H - 24, INK_SOFT);
 
         // ---- Left page: the live creature ----

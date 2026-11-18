@@ -81,13 +81,19 @@ public final class VariantTextures {
         Long seed = state.getRenderData(SEED);
         String type = state.getRenderData(TYPE);
         Boolean natural = state.getRenderData(NATURAL);
-        if (seed == null || type == null || !base.getPath().endsWith(".png")) return base;
+        if (seed == null || type == null) return base;
+        return resolve(base, seed, type, natural != null && natural);
+    }
+
+    /** Variant of {@code base} for the given seed, coloured in the style of creature type {@code type}. */
+    public static Identifier resolve(Identifier base, long seed, String type, boolean natural) {
+        if (!base.getPath().endsWith(".png") || !BondConfig.TEXTURE_VARIETY.get()) return base;
         long now = System.currentTimeMillis();
         if (now - frameMillis > 15) {
             frameMillis = now;
             newThisFrame = 0;
         }
-        String key = base + "#" + Long.toHexString(seed);
+        String key = base + "#" + Long.toHexString(seed) + "#" + type;
         Entry cached = CACHE.get(key);
         if (cached != null) {
             cached.lastUsed()[0] = now;
@@ -97,7 +103,7 @@ public final class VariantTextures {
         newThisFrame++;
         Identifier out = base;
         try {
-            out = generate(base, type, natural != null && natural, seed);
+            out = generate(base, type, natural, seed);
             generatedTotal++;
         } catch (Exception ex) {
             AnimalBonds.LOGGER.warn("Could not create variant texture for {}: {}", base, ex.toString());
@@ -137,7 +143,7 @@ public final class VariantTextures {
         NativeImage img = new NativeImage(src.getWidth(), src.getHeight(), false);
         img.copyFrom(src);
         recolor(img, style(type, natural), new Random(seed ^ base.hashCode() * 0x9E3779B97F4A7C15L));
-        String path = "variant/" + Long.toHexString(seed) + "/" + base.getNamespace() + "/" + base.getPath().replace(".png", "");
+        String path = "variant/" + Long.toHexString(seed) + "/" + type.replace(':', '_') + "/" + base.getNamespace() + "/" + base.getPath().replace(".png", "");
         Identifier id = Identifier.fromNamespaceAndPath(AnimalBonds.MODID, path);
         mc.getTextureManager().register(id, new DynamicTexture(() -> id.toString(), img));
         return id;

@@ -29,10 +29,12 @@ public final class BondData {
     public Optional<GlobalPos> home = Optional.empty();
     /** The player who earned the creature's trust. Others may use it only if trusted at its pen's Chronicle. */
     public Optional<UUID> owner = Optional.empty();
+    /** Game time of the last splicing this creature took part in. */
+    public long lastSplice = Long.MIN_VALUE / 2;
 
     public BondData() {}
 
-    private BondData(int xp, long lastPet, long lastTreat, long lastGift, int happiness, int needMask, long faintedUntil, boolean bags, Optional<GlobalPos> home, Optional<UUID> owner) {
+    private BondData(int xp, long lastPet, long lastTreat, long lastGift, int happiness, int needMask, long faintedUntil, boolean bags, Optional<GlobalPos> home, Optional<UUID> owner, long lastSplice) {
         this.xp = xp;
         this.lastPet = lastPet;
         this.lastTreat = lastTreat;
@@ -43,6 +45,7 @@ public final class BondData {
         this.bags = bags;
         this.home = home;
         this.owner = owner;
+        this.lastSplice = lastSplice;
     }
 
     public int level() {
@@ -63,7 +66,8 @@ public final class BondData {
             Codec.LONG.optionalFieldOf("fainted_until", 0L).forGetter(d -> d.faintedUntil),
             Codec.BOOL.optionalFieldOf("bags", false).forGetter(d -> d.bags),
             GlobalPos.CODEC.optionalFieldOf("home").forGetter(d -> d.home),
-            UUIDUtil.CODEC.optionalFieldOf("owner").forGetter(d -> d.owner)
+            UUIDUtil.CODEC.optionalFieldOf("owner").forGetter(d -> d.owner),
+            Codec.LONG.optionalFieldOf("last_splice", Long.MIN_VALUE / 2).forGetter(d -> d.lastSplice)
     ).apply(i, BondData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, BondData> STREAM_CODEC = StreamCodec.of(

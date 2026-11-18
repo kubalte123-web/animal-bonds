@@ -98,7 +98,7 @@ public final class RideControl {
             mob.goalSelector.disableControlFlag(Goal.Flag.JUMP);
             mob.goalSelector.disableControlFlag(Goal.Flag.LOOK);
             mob.targetSelector.disableControlFlag(Goal.Flag.TARGET);
-            if (canFly(mob)) mob.setNoGravity(true);
+            if (canFly(Hybrids.movementSource(mob))) mob.setNoGravity(true);
         } else if (!ridden && was) {
             Boolean noGravity = RIDDEN.remove(mob);
             mob.goalSelector.enableControlFlag(Goal.Flag.MOVE);
@@ -111,7 +111,7 @@ public final class RideControl {
             mob.getNavigation().stop();
             mob.setTarget(null);
             if (mob.getBrain().hasMemoryValue(MemoryModuleType.WALK_TARGET)) mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-            if (canFly(mob)) mob.setNoGravity(true);
+            if (canFly(Hybrids.movementSource(mob))) mob.setNoGravity(true);
         }
     }
 
@@ -139,7 +139,8 @@ public final class RideControl {
         Vec3 flat = new Vec3(fx * forward + lx * strafe, 0, fz * forward + lz * strafe);
         if (flat.lengthSqr() > 1e-6) flat = flat.normalize();
 
-        Mode mode = mode(mob);
+        Mob src = Hybrids.movementSource(mob); // a hybrid may move like its other parent
+        Mode mode = canFly(src) ? Mode.FLY : canSwim(src) && mob.isInWater() ? Mode.SWIM : canClimb(src) ? Mode.CLIMB : Mode.WALK;
         Vec3 v = mob.getDeltaMovement();
         switch (mode) {
             case FLY, SWIM -> {
@@ -160,7 +161,7 @@ public final class RideControl {
                 if (forward != 0 || strafe != 0) v = new Vec3(flat.x * speed, v.y, flat.z * speed);
                 // walk up walls like a spider does
                 if (mob.horizontalCollision && (forward != 0 || strafe != 0)) v = new Vec3(v.x, 0.25, v.z);
-                if (in.jump() && mob.onGround()) v = new Vec3(v.x, jumpPower(mob), v.z);
+                if (in.jump() && mob.onGround()) v = new Vec3(v.x, jumpPower(src), v.z);
                 mob.resetFallDistance();
             }
             case WALK -> {
@@ -169,7 +170,7 @@ public final class RideControl {
                     v = new Vec3(flat.x * s, v.y, flat.z * s);
                 }
                 if (in.jump() && (mob.onGround() || mob.isInWater())) {
-                    v = new Vec3(v.x * 1.2, mob.isInWater() ? 0.3 : jumpPower(mob), v.z * 1.2);
+                    v = new Vec3(v.x * 1.2, mob.isInWater() ? 0.3 : jumpPower(src), v.z * 1.2);
                 }
             }
         }

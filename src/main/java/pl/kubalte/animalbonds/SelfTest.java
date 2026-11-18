@@ -334,6 +334,51 @@ public final class SelfTest {
         check(maxS - minS > 0.08, "sizes vary between creatures (" + minS + " .. " + maxS + ")");
         sized.discard();
 
+        // ---- Splicing (hybrids) ----
+        Mob pa = EntityTypes.COW.spawn(level, origin.offset(2, 0, 2), EntitySpawnReason.COMMAND);
+        Mob pb = EntityTypes.SPIDER.spawn(level, origin.offset(3, 0, 2), EntitySpawnReason.COMMAND);
+        for (Mob m : new Mob[] {pa, pb}) {
+            BondData md = BondLogic.bond(m);
+            md.owner = java.util.Optional.of(alice.getUUID());
+            BondLogic.addXp(m, md, BondLevels.xpForLevel(6));
+        }
+        alice.getInventory().add(new ItemStack(Items.GOLDEN_APPLE, 3));
+        var ch = new pl.kubalte.animalbonds.bond.Hybrids.Choices(false, true, true, false, 2, true);
+        Mob hybrid = pl.kubalte.animalbonds.bond.Hybrids.splice(level, alice, origin.offset(4, 0, 4), pa, pb, ch);
+        check(hybrid != null, "splicing cow + spider creates a hybrid");
+        if (hybrid != null) {
+            var hd = pl.kubalte.animalbonds.bond.Hybrids.get(hybrid);
+            check(hybrid.getType() == EntityTypes.COW, "hybrid has the cow's body");
+            check(hd != null && hd.donorType().equals("minecraft:spider") && hd.head() && hd.legs() && !hd.extras() && hd.movement(),
+                    "hybrid remembers the chosen parts (" + hd + ")");
+            check(SpeciesProfiles.get(hybrid).needs().contains(Need.DARKNESS) && SpeciesProfiles.get(hybrid).needs().contains(Need.GRASS),
+                    "hybrid has the needs of both parents");
+            check(SpeciesProfiles.isFavourite(hybrid, new ItemStack(Items.WHEAT)) && SpeciesProfiles.isFavourite(hybrid, new ItemStack(Items.SPIDER_EYE)),
+                    "hybrid likes the food of both parents");
+            check(pl.kubalte.animalbonds.bond.RideControl.canClimb(pl.kubalte.animalbonds.bond.Hybrids.movementSource(hybrid)),
+                    "cow-spider hybrid climbs walls like a spider");
+            check(BondLogic.isBonded(hybrid) && BondLogic.get(hybrid).owner.equals(java.util.Optional.of(alice.getUUID())), "hybrid is bonded to its maker");
+            check(pl.kubalte.animalbonds.bond.Hybrids.splice(level, alice, origin.offset(4, 0, 4), pa, pb, ch) == null, "parents must rest before splicing again");
+            check(pl.kubalte.animalbonds.bond.Hybrids.problem(alice, hybrid, pa) != null, "hybrids can't be spliced again");
+            var json2 = pl.kubalte.animalbonds.bond.HybridData.MAP_CODEC.codec().encodeStart(JsonOps.INSTANCE, hd).getOrThrow();
+            check(pl.kubalte.animalbonds.bond.HybridData.MAP_CODEC.codec().parse(JsonOps.INSTANCE, json2).getOrThrow().equals(hd), "hybrid data save/load");
+            hybrid.discard();
+        }
+        Mob pc = EntityTypes.PIG.spawn(level, origin.offset(2, 0, 3), EntitySpawnReason.COMMAND);
+        Mob pd = EntityTypes.PHANTOM.spawn(level, origin.offset(3, 0, 3), EntitySpawnReason.COMMAND);
+        for (Mob m : new Mob[] {pc, pd}) {
+            BondData md = BondLogic.bond(m);
+            md.owner = java.util.Optional.of(alice.getUUID());
+            BondLogic.addXp(m, md, BondLevels.xpForLevel(6));
+        }
+        Mob flyingPig = pl.kubalte.animalbonds.bond.Hybrids.splice(level, alice, origin.offset(4, 0, 4), pc, pd,
+                new pl.kubalte.animalbonds.bond.Hybrids.Choices(false, false, false, true, 0, true));
+        check(flyingPig != null && pl.kubalte.animalbonds.bond.RideControl.canFly(pl.kubalte.animalbonds.bond.Hybrids.movementSource(flyingPig)),
+                "pig with phantom wings and movement flies");
+        Mob noCost = pl.kubalte.animalbonds.bond.Hybrids.splice(level, bob, origin.offset(4, 0, 4), pa, pb, ch);
+        check(noCost == null, "splicing is refused for strangers");
+        for (Mob m : new Mob[] {pa, pb, pc, pd, flyingPig}) if (m != null) m.discard();
+
         // ---- Serialization ----
         var json = BondData.MAP_CODEC.codec().encodeStart(JsonOps.INSTANCE, d).getOrThrow();
         BondData back = BondData.MAP_CODEC.codec().parse(JsonOps.INSTANCE, json).getOrThrow();

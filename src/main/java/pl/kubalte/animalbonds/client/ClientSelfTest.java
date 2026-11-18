@@ -110,9 +110,65 @@ public final class ClientSelfTest {
             case 1340 -> server.execute(() -> cmd(server, "tp @p 600 -60 652 180 15"));
             case 1440 -> shot("bagsfit");
             default -> {
-                if (ticks >= 1500) rideTests(mc, server);
+                if (ticks == 1500) server.execute(() -> hybridShowcase(server));
+                if (ticks == 1600) shot("hybrids");
+                if (ticks == 1620) server.execute(() -> {
+                    ServerPlayer sp = player(server);
+                    pl.kubalte.animalbonds.block.SplicingAltarBlock.open(sp, (ServerLevel) sp.level(), altarPos);
+                });
+                if (ticks == 1660 && mc.gui.screen() instanceof AltarScreen a) a.testChoose(true, true, false, true);
+                if (ticks == 1700) shot("altar");
+                if (ticks == 1720 && mc.gui.screen() instanceof AltarScreen a) a.testSplice();
+                if (ticks == 1760) {
+                    mc.gui.setScreen(null);
+                    server.execute(() -> {
+                        ServerPlayer sp = player(server);
+                        long n = ((ServerLevel) sp.level()).getEntitiesOfClass(Mob.class, sp.getBoundingBox().inflate(16),
+                                m -> pl.kubalte.animalbonds.bond.Hybrids.isHybrid(m)).size();
+                        AnimalBonds.LOGGER.info("ABCLIENT RIDETEST altar_splice {} hybrids={}", n >= 7 ? "PASS" : "FAIL", n);
+                    });
+                }
+                if (ticks == 1800) shot("spliced");
+                if (ticks >= 1820) rideTests(mc, server);
             }
         }
+    }
+
+    private static BlockPos altarPos;
+
+    private static void hybrid(ServerLevel level, net.minecraft.world.entity.EntityType<? extends Mob> body, String donor, BlockPos pos,
+                               boolean head, boolean legs, boolean extras, int colors) {
+        Mob m = body.spawn(level, pos, EntitySpawnReason.COMMAND);
+        if (m == null) return;
+        m.setData(pl.kubalte.animalbonds.ModRegistry.HYBRID.get(), new pl.kubalte.animalbonds.bond.HybridData(donor, head, legs, extras, colors, false, "test"));
+        m.setNoAi(true);
+        m.setYRot(150);
+        m.yBodyRot = 150;
+        m.yHeadRot = 150;
+    }
+
+    /** A row of hybrids in front of the player, plus an altar with two bonded parents. */
+    private static void hybridShowcase(MinecraftServer server) {
+        ServerPlayer sp = player(server);
+        ServerLevel level = (ServerLevel) sp.level();
+        cmd(server, "time set 1000");
+        BlockPos b = new BlockPos(800, -60, 800);
+        for (int x = -6; x <= 14; x++) for (int z = -6; z <= 10; z++) for (int y = 0; y < 6; y++)
+            level.setBlockAndUpdate(b.offset(x, y, z), Blocks.AIR.defaultBlockState());
+        hybrid(level, EntityTypes.COW, "minecraft:zombie", b.offset(0, 0, 4), true, false, false, 2);
+        hybrid(level, EntityTypes.PIG, "minecraft:chicken", b.offset(2, 0, 4), false, true, true, 2);
+        hybrid(level, EntityTypes.SHEEP, "minecraft:spider", b.offset(4, 0, 4), false, true, false, 2);
+        hybrid(level, EntityTypes.CHICKEN, "minecraft:cow", b.offset(6, 0, 4), true, false, false, 0);
+        hybrid(level, EntityTypes.WOLF, "minecraft:phantom", b.offset(8, 0, 4), false, false, true, 2);
+        hybrid(level, EntityTypes.HORSE, "minecraft:goat", b.offset(10, 0, 4), true, false, false, 2);
+        altarPos = b.offset(4, 0, -3);
+        level.setBlockAndUpdate(altarPos, pl.kubalte.animalbonds.ModRegistry.ALTAR.get().defaultBlockState());
+        Mob cow = spawn(level, EntityTypes.COW, b.offset(2, 0, -3), 6, false);
+        Mob spider = spawn(level, EntityTypes.SPIDER, b.offset(6, 0, -3), 6, false);
+        for (Mob m : new Mob[] {cow, spider}) if (m != null) m.setNoAi(true);
+        sp.getInventory().add(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.GOLDEN_APPLE, 2));
+        cmd(server, "gamemode survival @a");
+        cmd(server, String.format("tp @p %d %d %d -25 20", b.getX() + 5, b.getY(), b.getZ() - 1));
     }
 
     // ---------------- riding movement tests ----------------

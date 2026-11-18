@@ -222,6 +222,39 @@ w(f'{D}/recipe/saddlebags.json', {
     'pattern': ['LSL', 'C C', 'L L'],
     'result': {'id': 'animalbonds:saddlebags'}})
 
+# splicing altar
+altar = {
+    'parent': 'minecraft:block/block',
+    'textures': {'particle': 'minecraft:block/polished_blackstone', 'base': 'minecraft:block/polished_blackstone',
+                 'pillar': 'minecraft:block/crying_obsidian', 'top': 'minecraft:block/purpur_block',
+                 'crystal': 'minecraft:block/amethyst_cluster', 'gem': 'minecraft:block/amethyst_block'},
+    'elements': [
+        cube([0, 0, 0], [16, 4, 16], '#base'),
+        cube([3, 4, 3], [13, 12, 13], '#pillar'),
+        cube([1, 12, 1], [15, 15, 15], '#top'),
+        cube([6, 15, 6], [10, 16, 10], '#gem'),
+        {'from': [3, 15, 8], 'to': [13, 25, 8], 'rotation': {'origin': [8, 15, 8], 'axis': 'y', 'angle': 45},
+         'shade': False, 'faces': {'north': face('#crystal', [0, 0, 16, 16]), 'south': face('#crystal', [0, 0, 16, 16])}},
+        {'from': [8, 15, 3], 'to': [8, 25, 13], 'rotation': {'origin': [8, 15, 8], 'axis': 'y', 'angle': 45},
+         'shade': False, 'faces': {'east': face('#crystal', [0, 0, 16, 16]), 'west': face('#crystal', [0, 0, 16, 16])}},
+    ],
+    'display': pedestal['display'],
+}
+w(f'{A}/models/block/splicing_altar.json', altar)
+w(f'{A}/blockstates/splicing_altar.json', {'variants': {'': {'model': 'animalbonds:block/splicing_altar'}}})
+w(f'{A}/items/splicing_altar.json', {'model': {'type': 'minecraft:model', 'model': 'animalbonds:block/splicing_altar'}})
+w(f'{D}/loot_table/blocks/splicing_altar.json', {
+    'type': 'minecraft:block',
+    'pools': [{'rolls': 1.0, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+               'entries': [{'type': 'minecraft:item', 'name': 'animalbonds:splicing_altar'}]}],
+    'random_sequence': 'animalbonds:blocks/splicing_altar'})
+w(f'{D}/recipe/splicing_altar.json', {
+    'type': 'minecraft:crafting_shaped', 'category': 'misc',
+    'key': {'S': 'minecraft:amethyst_shard', 'G': 'minecraft:golden_apple', 'B': 'minecraft:book', 'O': 'minecraft:obsidian'},
+    'pattern': ['SGS', 'OBO', 'OOO'],
+    'result': {'id': 'animalbonds:splicing_altar'}})
+w(f'{R}/data/minecraft/tags/block/mineable/pickaxe.json', {'values': ['animalbonds:splicing_altar']})
+
 # mineable tag
 w(f'{R}/data/minecraft/tags/block/mineable/axe.json', {'values': ['animalbonds:bond_pedestal', 'animalbonds:feeding_trough']})
 print('assets generated')
