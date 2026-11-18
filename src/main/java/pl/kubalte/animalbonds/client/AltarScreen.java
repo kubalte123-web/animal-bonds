@@ -153,6 +153,7 @@ public class AltarScreen extends Screen {
         if (type.isEmpty()) return null;
         Entity e = type.get().create(Minecraft.getInstance().level, EntitySpawnReason.LOAD);
         if (!(e instanceof Mob m)) return null;
+        m.setId(HybridRendering.fakeId());
         boolean head = headB != bodyB, legs = legsB != bodyB, extras = extrasB != bodyB, move = movementB != bodyB;
         int col = colors == 2 ? 2 : ((colors == 1) != bodyB ? 1 : 0);
         m.setData(ModRegistry.HYBRID.get(), new HybridData(donor.typeId(), head, legs, extras, col, move, ""));

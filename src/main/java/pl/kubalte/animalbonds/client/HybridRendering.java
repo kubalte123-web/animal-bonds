@@ -106,6 +106,7 @@ public final class HybridRendering {
                 if (type.isEmpty() || mc.level == null) return Optional.empty();
                 Entity e = type.get().create(mc.level, EntitySpawnReason.LOAD);
                 if (!(e instanceof LivingEntity)) return Optional.empty();
+                e.setId(fakeId());
                 EntityRenderer r = mc.getEntityRenderDispatcher().getRenderer(e);
                 if (!(r instanceof LivingEntityRenderer lr)) return Optional.empty();
                 LivingEntityRenderState st = (LivingEntityRenderState) lr.createRenderState(e, 0F);
@@ -115,6 +116,13 @@ public final class HybridRendering {
                 return Optional.empty();
             }
         }).orElse(null);
+    }
+
+    private static int nextFakeId = -100_000;
+
+    /** Client-only helper creatures (donor models, previews) need an id; negative ids never clash with real ones. */
+    public static int fakeId() {
+        return nextFakeId--;
     }
 
     /** Clears cached models (on resource reload / world change). */
