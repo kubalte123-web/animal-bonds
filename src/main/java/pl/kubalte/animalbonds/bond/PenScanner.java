@@ -182,7 +182,12 @@ public final class PenScanner {
                 if (seen.containsKey(n)) continue;
                 if (!level.isLoaded(new BlockPos(nx, y, nz))) return null;
                 int f = findFloor(level, nx, nz, y, step);
-                if (f == Integer.MIN_VALUE) continue; // fence, wall or cliff: boundary
+                if (f == Integer.MIN_VALUE) {
+                    // No floor: either a fence/wall/rock face (boundary) or a drop deeper than allowed (open edge).
+                    BlockPos np = new BlockPos(nx, y, nz);
+                    if (passable(level, np) && !isBoundaryBlock(level.getBlockState(np.below()))) return null;
+                    continue;
+                }
                 seen.put(n, f);
                 if (seen.size() > max) return null; // not enclosed (or too big)
                 queue.enqueue(n);

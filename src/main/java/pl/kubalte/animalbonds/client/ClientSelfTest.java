@@ -105,7 +105,7 @@ public final class ClientSelfTest {
             case 1160 -> server.execute(() -> showcase(server));
             case 1260 -> shot("variety");
             case 1280 -> server.execute(() -> cmd(server, "tp @p 600 -60 652 180 15"));
-            case 1360 -> shot("bags_fit");
+            case 1360 -> shot("bagsfit");
             case 1420 -> {
                 AnimalBonds.LOGGER.info("ABCLIENT DONE");
                 mc.stop();
