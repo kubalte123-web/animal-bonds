@@ -77,7 +77,7 @@ public final class VariantTextures {
      * The colouring is computed from the creature's UUID hash, so every creature is unique, stable across
      * sessions and identical for every player - and it works for creatures from any mod.
      */
-    public static Identifier resolve(Identifier base, LivingEntityRenderState state) {
+    public static Identifier resolve(Identifier base, net.minecraft.client.renderer.entity.state.EntityRenderState state) {
         Long seed = state.getRenderData(SEED);
         String type = state.getRenderData(TYPE);
         Boolean natural = state.getRenderData(NATURAL);

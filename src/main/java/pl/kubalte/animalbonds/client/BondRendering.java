@@ -23,8 +23,8 @@ import pl.kubalte.animalbonds.bond.BondLogic;
 public final class BondRendering {
     private BondRendering() {}
 
-    private static final ContextKey<Boolean> FAINTED = new ContextKey<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "fainted"));
-    private static final ContextKey<float[]> BAGS = new ContextKey<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "bags"));
+    public static final ContextKey<Boolean> FAINTED = new ContextKey<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "fainted"));
+    public static final ContextKey<float[]> BAGS = new ContextKey<>(Identifier.fromNamespaceAndPath(AnimalBonds.MODID, "bags"));
 
     public static void register(IEventBus modBus) {
         modBus.addListener(BondRendering::registerModifiers);
@@ -34,7 +34,8 @@ public final class BondRendering {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     static void registerModifiers(RegisterRenderStateModifiersEvent event) {
-        event.registerEntityModifier((Class) LivingEntityRenderer.class, (java.util.function.BiConsumer<LivingEntity, LivingEntityRenderState>) (entity, state) -> {
+        // EntityRenderer (not only LivingEntityRenderer): also covers GeckoLib renderers
+        event.registerEntityModifier((Class) net.minecraft.client.renderer.entity.EntityRenderer.class, (java.util.function.BiConsumer<net.minecraft.world.entity.Entity, net.minecraft.client.renderer.entity.state.EntityRenderState>) (entity, state) -> {
             if (!(entity instanceof Mob mob)) return;
             String type = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();
             if (VariantTextures.applies(type)) {
@@ -67,7 +68,7 @@ public final class BondRendering {
         if (fainted) e.getPoseStack().popPose();
     }
 
-    private static final Identifier CHEST_TEXTURE = Identifier.withDefaultNamespace("textures/entity/chest/normal.png");
+    public static final Identifier CHEST_TEXTURE = Identifier.withDefaultNamespace("textures/entity/chest/normal.png");
     /** Per creature type (and baby/adult): body box from the model's rest pose, in blocks: minX,minY,minZ,maxX,maxY,maxZ. */
     private static final java.util.Map<String, float[]> BODY_CACHE = new java.util.HashMap<>();
     private static final String[] BODY_PARTS = {"body", "body1", "torso", "upper_body", "cube", "main"};
@@ -156,7 +157,7 @@ public final class BondRendering {
     }
 
     /** A small vanilla-looking chest lying against the flank: base + lid + latch, using the chest texture. */
-    private static void chest(PoseStack.Pose pose, VertexConsumer vc, int light, float x0, float x1, float y0, float y1, float z0, float z1, boolean right) {
+    public static void chest(PoseStack.Pose pose, VertexConsumer vc, int light, float x0, float x1, float y0, float y1, float z0, float z1, boolean right) {
         float split = y0 + (y1 - y0) * (10F / 15F);
         // base: texOffs(0,19) 14x10x14 ; lid: texOffs(0,0) 14x5x14 (64x64 texture)
         texturedBox(pose, vc, light, x0, y0, z0, x1, split, z1, 0, 19, 14, 10, 14, right);

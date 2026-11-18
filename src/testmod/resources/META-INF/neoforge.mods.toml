@@ -1,0 +1,15 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="abtestgeo"
+version="1.0.0"
+displayName="Animal Bonds GeckoLib test creature (CI only)"
+
+[[dependencies.abtestgeo]]
+    modId="geckolib"
+    type="required"
+    versionRange="[5.5,)"
+    ordering="AFTER"
+    side="BOTH"

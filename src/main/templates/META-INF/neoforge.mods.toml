@@ -88,3 +88,13 @@ Więzi ze zwierzętami: przywiązanie 1-10, piedestał z Kroniką Zagrody, potrz
 
 [[mixins]]
 config="animalbonds.mixins.json"
+
+[[mixins]]
+config="animalbonds.geckolib.mixins.json"
+
+[[dependencies.${mod_id}]]
+    modId="geckolib"
+    type="optional"
+    versionRange="[5.5,)"
+    ordering="NONE"
+    side="CLIENT"

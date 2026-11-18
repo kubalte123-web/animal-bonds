@@ -177,7 +177,27 @@ public final class ClientSelfTest {
                 m.yHeadRot = 90;
             }
         }
-        cmd(server, "tp @p 600 -60 624 0 15");
+        // GeckoLib test creatures (CI test mod): unique textures, saddlebags, fainting
+        var geo = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getOptional(net.minecraft.resources.Identifier.parse("abtestgeo:cubeling"));
+        AnimalBonds.LOGGER.info("ABCLIENT geckolib test creature available: {}", geo.isPresent());
+        if (geo.isPresent()) {
+            for (int i = 0; i < 4; i++) {
+                net.minecraft.world.entity.Entity ent = geo.get().spawn(level, new BlockPos(596 + i * 3, -60, 627), EntitySpawnReason.COMMAND);
+                if (ent instanceof Mob m) {
+                    m.setNoAi(true);
+                    m.setYRot(i == 3 ? 90 : 180);
+                    m.yBodyRot = m.getYRot();
+                    if (i >= 2) {
+                        BondData d = BondLogic.bond(m);
+                        BondLogic.addXp(m, d, BondLevels.xpForLevel(8));
+                        d.bags = true;
+                        BondLogic.sync(m, d);
+                        if (i == 2) BondEvents.faint(level, m, d);
+                    }
+                }
+            }
+        }
+        cmd(server, "tp @p 600 -60 621 0 15");
     }
 
     private static void cmd(MinecraftServer server, String c) {

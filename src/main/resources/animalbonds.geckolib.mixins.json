@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "pl.kubalte.animalbonds.client.mixin.geckolib",
+  "plugin": "pl.kubalte.animalbonds.client.mixin.geckolib.GeckoLibMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "GeoEntityRendererMixin",
+    "GeoReplacedEntityRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

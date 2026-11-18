@@ -29,6 +29,7 @@ public class AnimalBondsClient {
         BondRendering.register(modBus);
         NeoForge.EVENT_BUS.addListener(AnimalBondsClient::onScreenOpening);
         ClientSelfTest.register(modBus);
+        if (net.neoforged.fml.ModList.get().isLoaded("geckolib")) pl.kubalte.animalbonds.client.compat.GeckoLibCompat.init();
     }
 
     static void registerPayloads(RegisterClientPayloadHandlersEvent event) {
