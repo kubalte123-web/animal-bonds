@@ -73,7 +73,7 @@ public final class SelfTest {
 
     /** A pen with trough, bed and pedestal right next to the fence: nobody may jump out. */
     private static void setupEscapeTest(ServerLevel level) {
-        BlockPos origin = new BlockPos(2008, 250, 40);
+        BlockPos origin = new BlockPos(8, 250, 40);
         forceChunks(level, origin);
         escapePedestal = buildPen(level, origin);
         level.setBlockAndUpdate(origin.offset(1, 0, 3), ModRegistry.TROUGH.get().defaultBlockState().setValue(TroughBlock.FILL, 4));
@@ -144,7 +144,7 @@ public final class SelfTest {
     }
 
     private static void run(ServerLevel level) {
-        BlockPos origin = new BlockPos(2008, 250, 8);
+        BlockPos origin = new BlockPos(8, 250, 8);
         forceChunks(level, origin);
 
         // ---- Pen detection ----

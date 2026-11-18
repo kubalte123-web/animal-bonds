@@ -47,7 +47,9 @@ public final class ClientSelfTest {
         if (mc.player == null || server == null) return;
         ticks++;
         switch (ticks) {
-            case 60 -> server.execute(() -> setup(server));
+            // Move to a clean spot (the server self-test left its test pens near spawn), let chunks load, build the scene.
+            case 40 -> server.execute(() -> cmd(server, "tp @p 600 -60 600"));
+            case 120 -> server.execute(() -> setup(server));
             case 200 -> shot("world");
             case 300 -> server.execute(() -> {
                 ServerPlayer sp = player(server);
