@@ -111,7 +111,7 @@ public final class ElementVisuals {
             ParticleOptions p = switch (el) {
                 case FIRE -> r.nextInt(3) == 0 ? ParticleTypes.SMALL_FLAME : ParticleTypes.FLAME;
                 case ICE -> ParticleTypes.SNOWFLAKE;
-                case DARK -> r.nextBoolean() ? ParticleTypes.SMOKE : ParticleTypes.SQUID_INK;
+                case DARK -> ParticleTypes.REVERSE_PORTAL;
                 case ELECTRIC -> ParticleTypes.ELECTRIC_SPARK;
                 case DRAGON -> ParticleTypes.END_ROD;
                 default -> null;

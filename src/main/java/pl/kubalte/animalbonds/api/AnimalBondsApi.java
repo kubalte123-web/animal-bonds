@@ -13,6 +13,16 @@ public final class AnimalBondsApi {
     private AnimalBondsApi() {}
 
     private static final List<Function<Mob, Component>> BOOK_LINES = new CopyOnWriteArrayList<>();
+    private static final java.util.Set<String> NO_VARIETY = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /** Creatures whose own textures carry meaning (e.g. element colours) keep them: no unique recolouring. */
+    public static void excludeFromTextureVariety(String entityTypeId) {
+        NO_VARIETY.add(entityTypeId);
+    }
+
+    public static boolean isExcludedFromTextureVariety(String entityTypeId) {
+        return NO_VARIETY.contains(entityTypeId);
+    }
 
     /**
      * Registers needs, favourite food (item ids or "#tag") and gifts for a creature type.

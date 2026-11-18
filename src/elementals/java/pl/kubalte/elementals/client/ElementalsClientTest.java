@@ -47,13 +47,17 @@ public final class ElementalsClientTest {
                 cmd(server, "gamemode creative @a");
                 cmd(server, "time set 6000");
                 cmd(server, "weather clear");
-                cmd(server, String.format("tp @p %d %d %d", BASE.getX(), BASE.getY(), BASE.getZ() - 6));
+                cmd(server, "kill @e[type=!player,distance=..200]");
+                view(server, 4);
             });
-            case 120 -> server.execute(() -> lineup(server));
+            case 120 -> server.execute(() -> {
+                lineup(server);
+                view(server, 4);
+            });
             case 220 -> shot(mode + "creatures");
-            case 240 -> server.execute(() -> cmd(server, String.format("tp @p %d %d %d 0 20", BASE.getX() + 4, BASE.getY() + 1, BASE.getZ() + 1)));
+            case 240 -> server.execute(() -> view(server, 24));
             case 320 -> shot(mode + "elements");
-            case 340 -> server.execute(() -> cmd(server, String.format("tp @p %d %d %d 0 10", BASE.getX() + 4, BASE.getY(), BASE.getZ() + 8)));
+            case 340 -> server.execute(() -> view(server, 44));
             case 400 -> shot(mode + "variants");
             case 420 -> server.execute(() -> cmd(server, "time set 18000"));
             case 480 -> shot(mode + "night");
@@ -80,6 +84,11 @@ public final class ElementalsClientTest {
         return server.getPlayerList().getPlayers().get(0);
     }
 
+    /** Stands 5 blocks in front of a row (rows face north, the player looks south at them). */
+    private static void view(MinecraftServer server, int x) {
+        cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 18", BASE.getX() + x + 0.5, BASE.getY() + 1, BASE.getZ() - 4.5));
+    }
+
     private static Mob put(ServerLevel level, EntityType<? extends Mob> type, BlockPos pos, Element el, boolean baby) {
         Mob m = type.spawn(level, pos, EntitySpawnReason.COMMAND);
         if (m == null) return null;
@@ -93,10 +102,10 @@ public final class ElementalsClientTest {
         return m;
     }
 
-    /** Row 1: the four creatures (+ a baby). Row 2: vanilla mobs with each element. Row 3: Mchowiec in all six elements. */
+    /** Row 1 (x 0-10): the four creatures (+ a baby). Row 2 (x 20-28): vanilla mobs with each element. Row 3 (x 39-49): all six elements. */
     private static void lineup(MinecraftServer server) {
         ServerLevel level = (ServerLevel) player(server).level();
-        for (int x = -4; x <= 14; x++) for (int z = -8; z <= 12; z++) for (int y = 0; y < 6; y++)
+        for (int x = -6; x <= 58; x++) for (int z = -10; z <= 4; z++) for (int y = 0; y < 6; y++)
             level.setBlockAndUpdate(BASE.offset(x, y, z), Blocks.AIR.defaultBlockState());
         put(level, Elementals.MOSSLING.get(), BASE, Element.NONE, false);
         put(level, Elementals.PUFFOWL.get(), BASE.offset(2, 0, 0), Element.NONE, false);
@@ -105,15 +114,16 @@ public final class ElementalsClientTest {
         put(level, Elementals.MOSSLING.get(), BASE.offset(8, 0, 0), Element.NONE, true);
         put(level, Elementals.PUFFOWL.get(), BASE.offset(9, 0, 0), Element.ELECTRIC, false);
 
-        put(level, EntityTypes.COW, BASE.offset(0, 0, 4), Element.FIRE, false);
-        put(level, EntityTypes.SHEEP, BASE.offset(2, 0, 4), Element.ICE, false);
-        put(level, EntityTypes.ZOMBIE, BASE.offset(4, 0, 4), Element.DARK, false);
-        put(level, EntityTypes.CREEPER, BASE.offset(6, 0, 4), Element.ELECTRIC, false);
-        put(level, EntityTypes.PIG, BASE.offset(8, 0, 4), Element.DRAGON, false);
+        put(level, EntityTypes.COW, BASE.offset(20, 0, 0), Element.FIRE, false);
+        put(level, EntityTypes.SHEEP, BASE.offset(22, 0, 0), Element.ICE, false);
+        put(level, EntityTypes.ZOMBIE, BASE.offset(24, 0, 0), Element.DARK, false);
+        put(level, EntityTypes.CREEPER, BASE.offset(26, 0, 0), Element.ELECTRIC, false);
+        put(level, EntityTypes.PIG, BASE.offset(28, 0, 0), Element.DRAGON, false);
 
         Element[] all = Element.values();
         for (int i = 0; i < all.length; i++) {
-            put(level, i % 2 == 0 ? Elementals.MOSSLING.get() : Elementals.EMBERLIZARD.get(), BASE.offset(i * 2 - 1, 0, 11), all[i], false);
+            put(level, Elementals.MOSSLING.get(), BASE.offset(39 + i * 2, 0, 0), all[i], false);
+            put(level, Elementals.EMBERLIZARD.get(), BASE.offset(39 + i * 2, 0, 3), all[i], false);
         }
     }
 
@@ -121,7 +131,7 @@ public final class ElementalsClientTest {
     private static void pen(MinecraftServer server) {
         ServerPlayer sp = player(server);
         ServerLevel level = (ServerLevel) sp.level();
-        BlockPos o = BASE.offset(30, 0, 0);
+        BlockPos o = BASE.offset(0, 0, 40);
         BlockPos ped = pl.kubalte.animalbonds.SelfTest.buildPen(level, o);
         Mob moss = put(level, Elementals.MOSSLING.get(), o.offset(3, 0, 3), Element.DRAGON, false);
         if (moss != null) {

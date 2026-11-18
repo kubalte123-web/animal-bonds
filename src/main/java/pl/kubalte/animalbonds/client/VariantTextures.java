@@ -47,7 +47,7 @@ public final class VariantTextures {
     private static final Map<Identifier, NativeImage> BASE_IMAGES = new HashMap<>();
 
     public static boolean applies(String type) {
-        return BondConfig.TEXTURE_VARIETY.get() && !EXCLUDED.contains(type);
+        return BondConfig.TEXTURE_VARIETY.get() && !EXCLUDED.contains(type) && !pl.kubalte.animalbonds.api.AnimalBondsApi.isExcludedFromTextureVariety(type);
     }
 
     // ---- palettes (RGB) ----

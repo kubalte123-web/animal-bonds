@@ -53,6 +53,8 @@ public final class AnimalBondsCompat {
         modBus.addListener((FMLCommonSetupEvent e) -> e.enqueueWork(AnimalBondsCompat::registerProfiles));
         NeoForge.EVENT_BUS.addListener(AnimalBondsCompat::onPenTick);
         NeoForge.EVENT_BUS.addListener(AnimalBondsCompat::onGift);
+        for (String c : new String[] {"mossling", "puffowl", "emberlizard", "frostling"})
+            AnimalBondsApi.excludeFromTextureVariety(Elementals.MODID + ":" + c); // their colours show the element
         AnimalBondsApi.registerBookLine(mob -> {
             Element el = Elementals.element(mob);
             return el == Element.NONE ? null : Component.translatable("element.elementals.label", el.displayName());
