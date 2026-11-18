@@ -93,6 +93,7 @@ public final class SelfTest {
             i++;
         }
         escapeMobs = list;
+        if (level.getBlockEntity(escapePedestal) instanceof PedestalBlockEntity be) be.updatePen(level); // register residents
     }
 
     static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post e) {
@@ -100,6 +101,8 @@ public final class SelfTest {
         if (--waitTicks > 0) return;
         waitTicks = -1;
         ServerLevel level = e.getServer().overworld();
+        // a regular pedestal scan brings back any runaway (goats can jump fences in vanilla)
+        if (level.getBlockEntity(escapePedestal) instanceof PedestalBlockEntity be) be.updatePen(level);
         PenScanner.Pen pen = PenScanner.scan(level, escapePedestal);
         check(pen != null, "escape-test pen still detected");
         if (pen != null) {

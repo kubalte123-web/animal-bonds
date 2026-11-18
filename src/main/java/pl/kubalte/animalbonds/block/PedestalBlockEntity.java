@@ -20,6 +20,8 @@ import pl.kubalte.animalbonds.network.OpenBookPayload;
 
 public class PedestalBlockEntity extends BlockEntity {
     private int timer;
+    /** Bonded creatures that lived in the pen at the last scan (not saved: rebuilt on the first scan). */
+    private final java.util.Set<java.util.UUID> residents = new java.util.HashSet<>();
 
     public PedestalBlockEntity(BlockPos pos, BlockState state) {
         super(ModRegistry.PEDESTAL_BE.get(), pos, state);
@@ -35,12 +37,35 @@ public class PedestalBlockEntity extends BlockEntity {
     public PenScanner.Pen updatePen(ServerLevel level) {
         PenScanner.Pen pen = PenScanner.scan(level, worldPosition);
         if (pen == null) return null;
+        returnRunaways(level, pen);
         List<Mob> mobs = pen.mobs(level);
+        residents.clear();
         for (Mob mob : mobs) {
             BondData d = BondLogic.getOrAutoBond(mob);
-            if (d != null) BondLogic.penTick(level, worldPosition, mob, d, pen, mobs);
+            if (d != null) {
+                BondLogic.penTick(level, worldPosition, mob, d, pen, mobs);
+                residents.add(mob.getUUID());
+            }
         }
         return pen;
+    }
+
+    /**
+     * Goats, spiders and others can sometimes get over a fence. Bonded residents found just outside the pen
+     * (not ridden, not on a lead) are led back in. Creatures taken further away by the player stay free.
+     */
+    private void returnRunaways(ServerLevel level, PenScanner.Pen pen) {
+        if (residents.isEmpty()) return;
+        net.minecraft.world.phys.AABB near = pen.box().inflate(8, 2, 8);
+        for (Mob mob : level.getEntitiesOfClass(Mob.class, near, m -> residents.contains(m.getUUID()))) {
+            if (pen.contains(mob.getBlockX(), mob.getBlockZ()) && mob.getBlockY() <= pen.y + 1) continue;
+            if (mob.isPassenger() || mob.isVehicle() || mob.isLeashed()) continue;
+            BondData d = BondLogic.get(mob);
+            if (d == null || d.isFainted()) continue;
+            net.minecraft.core.BlockPos dest = pen.randomCell(level.getRandom());
+            mob.getNavigation().stop();
+            mob.teleportTo(dest.getX() + 0.5, dest.getY(), dest.getZ() + 0.5);
+        }
     }
 
     public void openBook(ServerPlayer player) {
