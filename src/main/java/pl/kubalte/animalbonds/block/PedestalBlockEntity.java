@@ -64,9 +64,9 @@ public class PedestalBlockEntity extends BlockEntity {
     public PenScanner.Pen updatePen(ServerLevel level) {
         PenScanner.Pen pen = PenScanner.scan(level, worldPosition);
         if (pen == null) return null;
-        returnRunaways(level, pen);
+        java.util.Set<java.util.UUID> nearby = returnRunaways(level, pen);
         List<Mob> mobs = pen.mobs(level);
-        residents.clear();
+        residents.retainAll(nearby); // creatures taken far away (or gone) stop being residents
         for (Mob mob : mobs) {
             BondData d = BondLogic.getOrAutoBond(mob);
             if (d != null) {
@@ -82,10 +82,12 @@ public class PedestalBlockEntity extends BlockEntity {
      * Goats, spiders and others can sometimes get over a fence. Bonded residents found just outside the pen
      * (not ridden, not on a lead) are led back in. Creatures taken further away by the player stay free.
      */
-    private void returnRunaways(ServerLevel level, PenScanner.Pen pen) {
-        if (residents.isEmpty()) return;
+    private java.util.Set<java.util.UUID> returnRunaways(ServerLevel level, PenScanner.Pen pen) {
+        java.util.Set<java.util.UUID> nearby = new java.util.HashSet<>();
+        if (residents.isEmpty()) return nearby;
         net.minecraft.world.phys.AABB near = pen.box().inflate(8, 2, 8);
         for (Mob mob : level.getEntitiesOfClass(Mob.class, near, m -> residents.contains(m.getUUID()))) {
+            nearby.add(mob.getUUID());
             if (pen.isInside(mob)) continue;
             if (mob.isPassenger() || mob.isVehicle() || mob.isLeashed()) continue;
             BondData d = BondLogic.get(mob);
@@ -94,6 +96,7 @@ public class PedestalBlockEntity extends BlockEntity {
             mob.getNavigation().stop();
             mob.teleportTo(dest.getX() + 0.5, dest.getY(), dest.getZ() + 0.5);
         }
+        return nearby;
     }
 
     public void openBook(ServerPlayer player) {
