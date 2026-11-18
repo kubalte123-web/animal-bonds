@@ -85,6 +85,8 @@ public final class SelfTest {
         for (var t : types) {
             Mob m = t.spawn(level, origin.offset(2 + i % 4, 0, 2 + i / 4 * 2), EntitySpawnReason.COMMAND);
             if (m != null) {
+                // no roof in this test pen: protect the zombie from burning in the sun
+                m.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new ItemStack(Items.LEATHER_HELMET));
                 BondLogic.bond(m);
                 list.add(m);
             }
@@ -103,7 +105,7 @@ public final class SelfTest {
         if (pen != null) {
             for (Mob m : escapeMobs) {
                 boolean in = m.isAlive() && pen.contains(m.getBlockX(), m.getBlockZ()) && m.getBlockY() <= pen.y;
-                check(in, "after 60 s " + m.getType() + " still in pen (at " + m.blockPosition() + ")");
+                check(in, "after 60 s " + m.getType() + " still in pen (at " + m.blockPosition() + ", alive=" + m.isAlive() + ")");
             }
         }
         finish(e.getServer());
