@@ -486,7 +486,7 @@ public final class GSelfTest {
         wolf.tame(player);
         player.setPos(O.getX() + 4.5, O.getY(), O.getZ() + 24.5);
         int called = pl.kubalte.gospodarstwo.tools.HornItem.call(level, player);
-        check(called == 1 && !wolf.getNavigation().isDone(), "the hunting horn calls your wolf (" + called + ")");
+        check(called == 1 && (!wolf.getNavigation().isDone() || wolf.distanceTo(player) < 5), "the hunting horn calls your wolf (" + called + ")");
         wolf.discard();
         Mob zombie = EntityTypes.ZOMBIE.spawn(level, O.offset(8, 0, 24), EntitySpawnReason.COMMAND);
         int scared = pl.kubalte.gospodarstwo.tools.HornItem.scare(level, player);

@@ -53,7 +53,12 @@ public class HornItem extends Item {
                 t.setOrderedToSit(false);
                 t.setInSittingPose(false);
             }
-            m.getNavigation().moveTo(player, 1.4);
+            // too far to find a path (beyond the animal's follow range): it comes running out of the bushes next to you
+            if (!m.getNavigation().moveTo(player, 1.4)) {
+                double a = level.getRandom().nextDouble() * Math.PI * 2;
+                m.teleportTo(player.getX() + Math.cos(a) * 2.5, player.getY(), player.getZ() + Math.sin(a) * 2.5);
+                m.getNavigation().stop();
+            }
             level.sendParticles(ParticleTypes.NOTE, m.getX(), m.getEyeY() + 0.5, m.getZ(), 1, 0, 0, 0, 0.5);
             n++;
         }
