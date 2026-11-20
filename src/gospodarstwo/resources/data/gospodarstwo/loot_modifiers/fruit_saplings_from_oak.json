@@ -1,0 +1,19 @@
+{
+ "type": "neoforge:add_table",
+ "conditions": [
+  {
+   "condition": "neoforge:loot_table_id",
+   "loot_table_id": "minecraft:blocks/oak_leaves"
+  },
+  {
+   "condition": "minecraft:inverted",
+   "term": {
+    "condition": "minecraft:match_tool",
+    "predicate": {
+     "items": "minecraft:shears"
+    }
+   }
+  }
+ ],
+ "table": "gospodarstwo:gameplay/fruit_saplings"
+}

@@ -1,0 +1,8 @@
+{
+ "replace": false,
+ "values": [
+  "gospodarstwo:flax_seeds",
+  "gospodarstwo:cabbage_seeds",
+  "gospodarstwo:onion"
+ ]
+}

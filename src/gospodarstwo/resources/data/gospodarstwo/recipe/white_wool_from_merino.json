@@ -1,0 +1,12 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "building",
+ "ingredients": [
+  "gospodarstwo:merino_wool",
+  "gospodarstwo:merino_wool"
+ ],
+ "result": {
+  "id": "minecraft:white_wool",
+  "count": 1
+ }
+}

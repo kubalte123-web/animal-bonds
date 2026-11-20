@@ -1,0 +1,10 @@
+{
+ "variants": {
+  "stage=0": {
+   "model": "gospodarstwo:block/plum_sapling"
+  },
+  "stage=1": {
+   "model": "gospodarstwo:block/plum_sapling"
+  }
+ }
+}

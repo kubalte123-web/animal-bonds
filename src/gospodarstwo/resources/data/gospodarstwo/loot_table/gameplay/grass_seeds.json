@@ -1,0 +1,41 @@
+{
+ "type": "minecraft:block",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:flax_seeds",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:cabbage_seeds",
+     "weight": 4
+    },
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:onion",
+     "weight": 2
+    },
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:strawberry_runner",
+     "weight": 2
+    },
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:gooseberries",
+     "weight": 2
+    }
+   ],
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance",
+     "chance": 0.06
+    }
+   ]
+  }
+ ]
+}

@@ -36,7 +36,7 @@ public class Duck extends FarmBird {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.CHICKEN_AMBIENT;
+        return SoundEvents.PARROT_AMBIENT;
     }
 
     @Override

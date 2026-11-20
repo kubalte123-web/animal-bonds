@@ -1,0 +1,790 @@
+#!/usr/bin/env python3
+"""Assets of Swojskie Gospodarstwo: animal models/animations/textures, item and block textures, models, blockstates,
+loot tables, recipes, tags, worldgen, spawns and language files."""
+import importlib.util, json, math, os, random
+from PIL import Image, ImageDraw
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+spec = importlib.util.spec_from_file_location('ge', os.path.join(HERE, 'gen_elementals.py'))
+ge = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(ge)
+
+RES = os.path.join(HERE, '..', 'src', 'gospodarstwo', 'resources')
+A = os.path.join(RES, 'assets', 'gospodarstwo')
+D = os.path.join(RES, 'data')
+NS = 'gospodarstwo'
+
+
+def wj(path, obj):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(obj, f, indent=1, ensure_ascii=False)
+
+
+def wi(path, img):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    img.save(path)
+
+
+def rgb(h):
+    return ((h >> 16) & 255, (h >> 8) & 255, h & 255)
+
+
+def shade(c, k):
+    return tuple(max(0, min(255, int(v * k))) for v in c[:3])
+
+
+def mix(a, b, t):
+    return tuple(int(a[i] * (1 - t) + b[i] * t) for i in range(3))
+
+
+# =====================================================================================  animals
+ANIMALS = {
+    'duck': {
+        'colors': {'body': rgb(0x8C7B66), 'belly': rgb(0xB8A88E), 'head': rgb(0x2F6B3A), 'neck': rgb(0x2F6B3A), 'beak': rgb(0xE0B020),
+                   'leg': rgb(0xF08A24), 'wing': rgb(0x6E5E4C), 'tail': rgb(0x3C3430), 'eye': rgb(0x101010), 'accent': rgb(0x3050C0)},
+        'bones': {'body': (None, (0, 4, 0), (0, 0, 0)), 'head': ('body', (0, 7, -3), (0, 0, 0)),
+                  'wing_left': ('body', (3, 6, 0), (0, 0, 0)), 'wing_right': ('body', (-3, 6, 0), (0, 0, 0)),
+                  'leg_left': ('body', (1.5, 2, 0), (0, 0, 0)), 'leg_right': ('body', (-1.5, 2, 0), (0, 0, 0)), 'tail': ('body', (0, 6, 4), (-15, 0, 0))},
+        'cubes': [('body', (-3, 2, -4), (6, 5, 8), 'body'), ('tail', (-2, 5, 4), (4, 2, 2), 'tail'),
+                  ('head', (-1.5, 6, -4.5), (3, 3, 3), 'neck'), ('head', (-2, 8, -6), (4, 4, 4), 'head'), ('head', (-1.5, 8, -8.5), (3, 1, 3), 'beak'),
+                  ('wing_left', (3, 3, -3), (1, 4, 6), 'wing'), ('wing_right', (-4, 3, -3), (1, 4, 6), 'wing'),
+                  ('leg_left', (1, 0, -1), (1, 2, 1), 'leg'), ('leg_left', (0.5, 0, -2), (2, 1, 1), 'leg'),
+                  ('leg_right', (-2, 0, -1), (1, 2, 1), 'leg'), ('leg_right', (-2.5, 0, -2), (2, 1, 1), 'leg')],
+    },
+    'goose': {
+        'colors': {'body': rgb(0xF2F0EA), 'belly': rgb(0xFFFFFF), 'head': rgb(0xF6F4EE), 'neck': rgb(0xF6F4EE), 'beak': rgb(0xF08A24),
+                   'leg': rgb(0xF08A24), 'wing': rgb(0xDCD8CE), 'tail': rgb(0xE6E2D8), 'eye': rgb(0x202020), 'accent': rgb(0xC8C4BA)},
+        'bones': {'body': (None, (0, 5, 0), (0, 0, 0)), 'head': ('body', (0, 8, -4), (0, 0, 0)),
+                  'wing_left': ('body', (3.5, 8, 0), (0, 0, 0)), 'wing_right': ('body', (-3.5, 8, 0), (0, 0, 0)),
+                  'leg_left': ('body', (1.5, 3, 0), (0, 0, 0)), 'leg_right': ('body', (-1.5, 3, 0), (0, 0, 0)), 'tail': ('body', (0, 7, 5), (-20, 0, 0))},
+        'cubes': [('body', (-3.5, 3, -4.5), (7, 6, 10), 'body'), ('tail', (-2, 6, 5), (4, 2, 3), 'tail'),
+                  ('head', (-1, 8, -5), (2, 7, 2), 'neck'), ('head', (-1.5, 14, -7), (3, 3, 4), 'head'), ('head', (-1, 14, -9), (2, 1, 2), 'beak'),
+                  ('wing_left', (3.5, 4, -3.5), (1, 5, 8), 'wing'), ('wing_right', (-4.5, 4, -3.5), (1, 5, 8), 'wing'),
+                  ('leg_left', (1, 0, -0.5), (1, 3, 1), 'leg'), ('leg_left', (0.5, 0, -2), (2, 1, 2), 'leg'),
+                  ('leg_right', (-2, 0, -0.5), (1, 3, 1), 'leg'), ('leg_right', (-2.5, 0, -2), (2, 1, 2), 'leg')],
+    },
+    'turkey': {
+        'colors': {'body': rgb(0x4A3A2C), 'belly': rgb(0x3A2C22), 'head': rgb(0xB8C8D8), 'neck': rgb(0xC85A5A), 'beak': rgb(0xC8B080),
+                   'leg': rgb(0xC09A8A), 'wing': rgb(0x5A4836), 'tail': rgb(0x5C4632), 'eye': rgb(0x101010), 'accent': rgb(0xE8D8B0),
+                   'wattle': rgb(0xC0303A)},
+        'bones': {'body': (None, (0, 5, 0), (0, 0, 0)), 'head': ('body', (0, 10, -4), (0, 0, 0)), 'tail': ('body', (0, 9, 5), (-10, 0, 0)),
+                  'wing_left': ('body', (4, 9, 0), (0, 0, 0)), 'wing_right': ('body', (-4, 9, 0), (0, 0, 0)),
+                  'leg_left': ('body', (1.5, 4, 0), (0, 0, 0)), 'leg_right': ('body', (-1.5, 4, 0), (0, 0, 0))},
+        'cubes': [('body', (-4, 4, -4), (8, 7, 9), 'body'), ('tail', (-7, 7, 5), (14, 11, 1), 'fan'),
+                  ('head', (-1, 9, -6), (2, 6, 2), 'neck'), ('head', (-1.5, 14, -7), (3, 3, 3), 'head'), ('head', (-0.5, 14, -8), (1, 1, 1), 'beak'),
+                  ('head', (-0.5, 11, -7.5), (1, 4, 1), 'wattle'),
+                  ('wing_left', (4, 5, -3), (1, 5, 7), 'wing'), ('wing_right', (-5, 5, -3), (1, 5, 7), 'wing'),
+                  ('leg_left', (1, 0, -0.5), (1, 4, 1), 'leg'), ('leg_right', (-2, 0, -0.5), (1, 4, 1), 'leg')],
+    },
+    'snail': {
+        'colors': {'body': rgb(0xC8A878), 'belly': rgb(0xB0905E), 'head': rgb(0xC8A878), 'shell': rgb(0x9A6A36), 'band': rgb(0x5E3A1C),
+                   'eye': rgb(0x202020), 'stalk': rgb(0xB89868)},
+        'bones': {'body': (None, (0, 0, 0), (0, 0, 0)), 'head': ('body', (0, 2, -4), (0, 0, 0)), 'shell': ('body', (0, 2, 1), (0, 0, 0))},
+        'cubes': [('body', (-2, 0, -5), (4, 2, 11), 'body'), ('head', (-1.5, 1, -7), (3, 3, 3), 'head'),
+                  ('head', (-1.5, 4, -6.5), (1, 3, 1), 'stalk'), ('head', (0.5, 4, -6.5), (1, 3, 1), 'stalk'),
+                  ('shell', (-3, 2, -3), (6, 7, 7), 'shell')],
+    },
+}
+
+
+def paint_animal(name, a, uvs, th):
+    rnd = random.Random(name)
+    img = Image.new('RGBA', (64, th), (0, 0, 0, 0))
+    px = img.load()
+    col = a['colors']
+
+    def put(x, y, c):
+        if 0 <= x < 64 and 0 <= y < th:
+            px[x, y] = tuple(c[:3]) + (255,)
+
+    for ci, (bone, origin, size, role) in enumerate(a['cubes']):
+        u, v = uvs[ci]
+        for fname, (fu, fv, fw, fh) in ge.faces(u, v, size).items():
+            for yy in range(fh):
+                for xx in range(fw):
+                    n = rnd.uniform(0.92, 1.06)
+                    c = col.get(role, col['body'])
+                    if role == 'body':
+                        if fname == 'down' or (fname in ('north', 'south', 'east', 'west') and yy >= fh - max(1, fh // 3)):
+                            c = col['belly']
+                        if name == 'turkey' and fname in ('east', 'west', 'up') and (xx + yy) % 3 == 0:
+                            c = mix(c, (90, 120, 80), 0.35)  # bronze-green sheen
+                        if name == 'duck' and fname in ('east', 'west') and yy < 2:
+                            c = col['wing']
+                    elif role == 'wing':
+                        c = col['wing'] if (xx + yy) % 4 else shade(col['wing'], 0.8)
+                        if name == 'duck' and fname in ('east', 'west') and fh - 2 <= yy < fh - 1 and xx > 1:
+                            c = col['accent']  # blue speculum
+                        if name == 'turkey' and yy % 2 == 0:
+                            c = col['accent'] if xx % 3 == 0 else c
+                    elif role == 'fan':
+                        # banded tail feathers with pale tips
+                        band = (yy * 3) // max(1, fh)
+                        c = col['accent'] if yy < 2 else (col['tail'] if band % 2 == 0 else shade(col['tail'], 0.7))
+                        if xx % 2 == 0:
+                            c = shade(c, 0.9)
+                    elif role == 'neck':
+                        c = col['neck']
+                        if name == 'duck' and yy == fh - 1:
+                            c = (240, 240, 235)  # white collar
+                    elif role == 'shell':
+                        ring = int(math.hypot(xx - fw / 2 + 0.5, yy - fh / 2 + 0.5))
+                        c = col['band'] if ring % 2 == 1 else col['shell']
+                        if fname == 'down':
+                            c = col['belly']
+                    elif role == 'stalk':
+                        c = col['eye'] if yy == 0 else col['stalk']
+                    put(fu + xx, fv + yy, shade(c, n))
+        if role == 'head':
+            fu, fv, fw, fh = ge.faces(u, v, size)['north']
+            # eyes sit on the sides of a bird's head
+            for side in ('east', 'west'):
+                su, sv, sw, sh = ge.faces(u, v, size)[side]
+                put(su + sw // 2, sv + max(0, sh // 3), col['eye'])
+            if name == 'snail':
+                put(fu + 1, fv + fh - 1, shade(col['body'], 0.7))
+    return img
+
+
+def animal_assets():
+    for name, a in ANIMALS.items():
+        uvs, th = ge.pack(a['cubes'])
+        wj(f'{A}/geckolib/models/entity/{name}.geo.json', ge.geo(name, a, uvs, th))
+        wj(f'{A}/geckolib/animations/entity/{name}.animation.json', ge.animations(name, a))
+        wi(f'{A}/textures/entity/{name}.png', paint_animal(name, a, uvs, th))
+
+
+# =====================================================================================  pixel-art helpers
+def canvas():
+    return Image.new('RGBA', (16, 16), (0, 0, 0, 0))
+
+
+def blob(img, cx, cy, rx, ry, c, outline=0.7, light=1.18, seed=0, speck=None):
+    p = img.load()
+    rnd = random.Random(seed)
+    for y in range(16):
+        for x in range(16):
+            dx, dy = (x - cx) / rx, (y - cy) / ry
+            d = dx * dx + dy * dy
+            if d <= 1:
+                k = rnd.uniform(0.93, 1.05)
+                cc = shade(c, k)
+                if d > 0.7:
+                    cc = shade(c, outline)
+                elif dx < -0.2 and dy < -0.2 and d < 0.35:
+                    cc = shade(c, light)
+                if speck and rnd.random() < speck[1]:
+                    cc = speck[0]
+                p[x, y] = cc + (255,)
+
+
+def line(img, pts, c, w=1):
+    ImageDraw.Draw(img).line(pts, fill=tuple(c) + (255,), width=w)
+
+
+def px(img, x, y, c):
+    if 0 <= x < 16 and 0 <= y < 16:
+        img.load()[x, y] = tuple(c[:3]) + (255,)
+
+
+def seeds(c, seed):
+    img = canvas()
+    rnd = random.Random(seed)
+    for (x, y) in [(4, 5), (9, 4), (7, 8), (11, 9), (5, 11), (9, 12), (12, 6)]:
+        px(img, x, y, shade(c, 1.1))
+        px(img, x + 1, y, c)
+        px(img, x, y + 1, shade(c, 0.7))
+    return img
+
+
+def egg(c, big=False, spots=None):
+    img = canvas()
+    blob(img, 7.5, 8.5, 4.5 if big else 3.8, 6 if big else 5.2, c, seed=3, speck=spots)
+    return img
+
+
+def meat(raw):
+    img = canvas()
+    c = (230, 140, 130) if raw else (176, 108, 54)
+    blob(img, 9, 7, 5, 4.5, c, seed=5)
+    line(img, [(5, 10), (2, 13)], (240, 236, 220), 2)
+    px(img, 1, 14, (250, 248, 240))
+    px(img, 2, 14, (250, 248, 240))
+    return img
+
+
+def skein(c, seed):
+    img = canvas()
+    blob(img, 8, 8, 6, 5.5, c, seed=seed)
+    for i in range(-6, 7, 3):
+        line(img, [(3, 8 + i // 2), (13, 7 + i // 2)], shade(c, 0.8))
+    return img
+
+
+def cloth(c, stripes=None, seed=0):
+    img = canvas()
+    d = ImageDraw.Draw(img)
+    d.polygon([(2, 5), (13, 3), (14, 11), (3, 13)], fill=c + (255,), outline=shade(c, 0.65) + (255,))
+    d.line([(3, 9), (13, 7)], fill=shade(c, 0.85) + (255,))
+    if stripes:
+        d.line([(3, 6), (13, 4)], fill=stripes + (255,))
+        d.line([(3, 12), (14, 10)], fill=stripes + (255,))
+    rnd = random.Random(seed)
+    p = img.load()
+    for y in range(16):
+        for x in range(16):
+            if p[x, y][3] and (x + y) % 2 == 0:
+                p[x, y] = shade(p[x, y], rnd.uniform(0.92, 1.0)) + (255,)
+    return img
+
+
+def item_textures():
+    T = f'{A}/textures/item'
+    wi(f'{T}/flax_seeds.png', seeds((150, 110, 60), 1))
+    wi(f'{T}/cabbage_seeds.png', seeds((70, 60, 50), 2))
+    img = canvas()
+    for i in range(5):
+        line(img, [(4 + i, 14), (7 + i * 2 // 2, 2)], (200 - i * 6, 180 - i * 5, 120))
+    line(img, [(4, 9), (12, 8)], (120, 90, 50), 2)
+    wi(f'{T}/flax_fiber.png', img)
+    img = canvas()
+    blob(img, 8, 8.5, 6, 5.5, (110, 170, 70), seed=4)
+    for i in range(3):
+        line(img, [(8, 9), (3 + i * 5, 5)], (180, 220, 140))
+    wi(f'{T}/cabbage.png', img)
+    img = canvas()
+    blob(img, 8, 10, 4.5, 4.5, (176, 110, 140), seed=6)
+    line(img, [(8, 6), (7, 1)], (90, 160, 60))
+    line(img, [(9, 6), (11, 2)], (90, 160, 60))
+    wi(f'{T}/onion.png', img)
+    img = canvas()
+    blob(img, 8, 9, 4.5, 5, (214, 40, 50), seed=7, speck=((250, 220, 120), 0.12))
+    line(img, [(5, 4), (11, 4)], (70, 150, 50), 2)
+    px(img, 8, 2, (70, 150, 50))
+    wi(f'{T}/strawberry.png', img)
+    img = canvas()
+    line(img, [(2, 13), (13, 10)], (110, 150, 70))
+    for (x, y) in [(4, 9), (8, 8), (11, 6)]:
+        blob_small = canvas()
+        blob(img, x, y, 2.2, 1.6, (70, 150, 50), seed=x)
+    wi(f'{T}/strawberry_runner.png', img)
+    img = canvas()
+    for (x, y) in [(5, 6), (10, 7), (7, 11)]:
+        blob(img, x, y, 3, 3, (150, 190, 90), seed=x, light=1.3)
+        line(img, [(x, y - 2), (x, y + 2)], (200, 220, 150))
+    wi(f'{T}/gooseberries.png', img)
+    img = canvas()
+    blob(img, 8, 9, 4.8, 5.4, (110, 50, 120), seed=8)
+    line(img, [(8, 4), (9, 1)], (90, 70, 40))
+    px(img, 10, 2, (80, 150, 60))
+    wi(f'{T}/plum.png', img)
+    wi(f'{T}/duck_egg.png', egg((200, 225, 215)))
+    wi(f'{T}/goose_egg.png', egg((246, 244, 236), big=True))
+    wi(f'{T}/green_egg.png', egg((150, 200, 150), spots=((120, 170, 120), 0.08)))
+    for n, raw in [('raw_duck', True), ('cooked_duck', False), ('raw_goose', True), ('cooked_goose', False), ('raw_turkey', True), ('cooked_turkey', False)]:
+        wi(f'{T}/{n}.png', meat(raw))
+    img = canvas()
+    for (x, y, r) in [(6, 8, 3.6), (10, 7, 3.2), (8, 10, 3.4)]:
+        blob(img, x, y, r, r * 0.9, (248, 248, 244), seed=int(x * y), outline=0.88)
+    wi(f'{T}/down.png', img)
+    img = canvas()
+    line(img, [(3, 14), (12, 2)], (90, 70, 50))
+    for i in range(10):
+        c = (110, 80, 50) if i % 3 else (230, 220, 190)
+        line(img, [(4 + i, 12 - i), (7 + i, 13 - i)], c)
+        line(img, [(3 + i, 11 - i), (2 + i, 8 - i)], c)
+    wi(f'{T}/turkey_feather.png', img)
+    img = canvas()
+    blob(img, 8, 8, 6, 6, (154, 106, 54), seed=9)
+    for r in (4, 2):
+        ImageDraw.Draw(img).ellipse([8 - r, 8 - r, 8 + r, 8 + r], outline=(94, 58, 28, 255))
+    wi(f'{T}/snail_shell.png', img)
+    img = canvas()
+    d = ImageDraw.Draw(img)
+    d.rectangle([6, 2, 9, 4], fill=(150, 110, 70, 255))
+    d.polygon([(5, 5), (10, 5), (12, 9), (12, 14), (3, 14), (3, 9)], fill=(200, 220, 230, 160), outline=(150, 170, 190, 255))
+    d.rectangle([4, 9, 11, 13], fill=(170, 210, 120, 220))
+    wi(f'{T}/snail_slime.png', img)
+    wi(f'{T}/highland_hair.png', skein((192, 106, 52), 1))
+    wi(f'{T}/merino_wool.png', skein((244, 236, 214), 2))
+    wi(f'{T}/mangalica_wool.png', skein((214, 196, 156), 3))
+    wi(f'{T}/angora_wool.png', skein((255, 255, 255), 4))
+    wi(f'{T}/canvas.png', cloth((217, 210, 188), seed=1))
+    wi(f'{T}/linen.png', cloth((230, 220, 192), stripes=(200, 186, 150), seed=2))
+    wi(f'{T}/woolen_cloth.png', cloth((200, 194, 184), stripes=(160, 60, 50), seed=3))
+    wi(f'{T}/merino_cloth.png', cloth((239, 227, 196), stripes=(120, 140, 190), seed=4))
+    wi(f'{T}/angora_cloth.png', cloth((250, 246, 250), stripes=(230, 180, 200), seed=5))
+    wi(f'{T}/felt.png', cloth((150, 125, 95), seed=6))
+    for name, a, b in [('duck', (140, 123, 102), (47, 107, 58)), ('goose', (242, 240, 234), (240, 138, 36)),
+                       ('turkey', (74, 58, 44), (192, 48, 58)), ('snail', (200, 168, 120), (154, 106, 54))]:
+        img = canvas()
+        blob(img, 7.5, 8.5, 5.5, 7, a, seed=len(name), speck=(b, 0.22))
+        wi(f'{T}/{name}_spawn_egg.png', img)
+
+
+def block_textures():
+    T = f'{A}/textures/block'
+    # crops: 4 stages
+    def crop(stage, stem, top, seed):
+        img = canvas()
+        rnd = random.Random(seed * 10 + stage)
+        h = [4, 8, 12, 14][stage]
+        for x in (2, 5, 8, 11, 13):
+            hh = h - rnd.randint(0, 2)
+            line(img, [(x, 15), (x + rnd.randint(-1, 1), 15 - hh)], stem)
+            if top:
+                top(img, x, 15 - hh, stage, rnd)
+        return img
+
+    def flax_top(img, x, y, st, rnd):
+        if st == 3:
+            px(img, x, y, (110, 140, 230))
+            px(img, x + 1, y, (140, 170, 240))
+            px(img, x, y - 1, (90, 120, 220))
+
+    def onion_top(img, x, y, st, rnd):
+        if st >= 2 and x in (5, 11):
+            blob(img, x, 14, 2 + st * 0.3, 1.8, (176, 110, 140), seed=x)
+
+    def straw_top(img, x, y, st, rnd):
+        px(img, x - 1, y + 1, (70, 150, 50))
+        px(img, x + 1, y + 1, (70, 150, 50))
+        if st == 2:
+            px(img, x, y, (250, 250, 250))
+        if st == 3 and x % 2:
+            px(img, x, y + 2, (214, 40, 50))
+            px(img, x, y + 3, (190, 30, 40))
+
+    for st in range(4):
+        wi(f'{T}/flax_stage{st}.png', crop(st, (110, 160, 80), flax_top, 1))
+        wi(f'{T}/onions_stage{st}.png', crop(st, (90, 170, 60), onion_top, 2))
+        wi(f'{T}/strawberries_stage{st}.png', crop(st, (80, 150, 60), straw_top if st else None, 3))
+        img = canvas()
+        r = [2.5, 4, 5.5, 6.5][st]
+        blob(img, 8, 15 - r * 0.8, r, r * 0.8, (110, 170, 70), seed=st, outline=0.8)
+        if st >= 2:
+            blob(img, 8, 15 - r * 0.8, r * 0.55, r * 0.5, (170, 210, 120), seed=st + 9, outline=0.9)
+        wi(f'{T}/cabbages_stage{st}.png', img)
+        # gooseberry bush
+        img = canvas()
+        size = [4, 6, 7, 7.5][st]
+        blob(img, 8, 15 - size * 0.9, size, size * 0.9, (60, 120, 50), seed=20 + st, outline=0.75)
+        p = img.load()
+        rnd = random.Random(st)
+        for y in range(16):
+            for x in range(16):
+                if p[x, y][3] and rnd.random() < 0.25:
+                    p[x, y] = (0, 0, 0, 0)
+        if st >= 2:
+            for (x, y) in [(5, 9), (10, 8), (8, 12), (11, 12), (4, 13)]:
+                px(img, x, y, (150, 200, 90) if st == 2 else (180, 210, 110))
+                px(img, x + 1, y, (120, 170, 70))
+        wi(f'{T}/gooseberry_bush_stage{st}.png', img)
+
+    def leaves(base, extra=None, seed=0):
+        img = canvas()
+        p = img.load()
+        rnd = random.Random(seed)
+        for y in range(16):
+            for x in range(16):
+                r = rnd.random()
+                if r < 0.18:
+                    continue
+                c = shade(base, rnd.uniform(0.7, 1.15))
+                p[x, y] = c + (255,)
+        if extra:
+            col, n, sz = extra
+            for _ in range(n):
+                x, y = rnd.randrange(1, 15), rnd.randrange(1, 15)
+                for dx in range(sz):
+                    for dy in range(sz):
+                        px(img, x + dx, y + dy, shade(col, 1.15 if dx == 0 and dy == 0 else 1.0))
+        return img
+
+    for fruit, col, leaf in [('apple', (200, 40, 40), (80, 140, 50)), ('plum', (100, 40, 110), (70, 125, 55))]:
+        wi(f'{T}/{fruit}_leaves.png', leaves(leaf, seed=1))
+        wi(f'{T}/{fruit}_leaves_blossom.png', leaves(leaf, ((250, 240, 245) if fruit == 'apple' else (255, 255, 255), 10, 1), seed=1))
+        wi(f'{T}/{fruit}_leaves_unripe.png', leaves(leaf, ((150, 190, 80), 6, 2), seed=1))
+        wi(f'{T}/{fruit}_leaves_fruit.png', leaves(leaf, (col, 6, 2), seed=1))
+        img = canvas()
+        line(img, [(8, 15), (8, 6)], (110, 80, 50), 1)
+        line(img, [(8, 9), (11, 6)], (110, 80, 50), 1)
+        blob(img, 8, 5, 4, 3.5, leaf, seed=2)
+        blob(img, 11.5, 5.5, 2.5, 2, leaf, seed=3)
+        px(img, 6, 5, col)
+        wi(f'{T}/{fruit}_sapling.png', img)
+    # misc for renderers
+    os.makedirs(f'{A}/textures/misc', exist_ok=True)
+    wi(f'{A}/textures/misc/white.png', Image.new('RGBA', (16, 16), (255, 255, 255, 255)))
+    fur = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
+    p = fur.load()
+    rnd = random.Random(5)
+    for y in range(64):
+        for x in range(64):
+            v = rnd.random()
+            if v < 0.62:
+                k = rnd.uniform(0.75, 1.0)
+                p[x, y] = (int(255 * k), int(255 * k), int(255 * k), 255)
+    fur.save(f'{A}/textures/misc/fur.png')
+
+
+# =====================================================================================  models & blockstates
+def models():
+    M = f'{A}/models'
+    BS = f'{A}/blockstates'
+    IT = f'{A}/items'
+    for crop in ('flax', 'cabbages', 'onions', 'strawberries'):
+        variants = {}
+        for st in range(4):
+            wj(f'{M}/block/{crop}_stage{st}.json', {'parent': 'minecraft:block/crop', 'textures': {'crop': f'{NS}:block/{crop}_stage{st}'}})
+        for age in range(8):
+            variants[f'age={age}'] = {'model': f'{NS}:block/{crop}_stage{[0, 0, 1, 1, 2, 2, 2, 3][age]}'}
+        wj(f'{BS}/{crop}.json', {'variants': variants})
+    for st in range(4):
+        wj(f'{M}/block/gooseberry_bush_stage{st}.json', {'parent': 'minecraft:block/cross', 'textures': {'cross': f'{NS}:block/gooseberry_bush_stage{st}'}})
+    wj(f'{BS}/gooseberry_bush.json', {'variants': {f'age={a}': {'model': f'{NS}:block/gooseberry_bush_stage{a}'} for a in range(4)}})
+    for fruit in ('apple', 'plum'):
+        names = ['', '_blossom', '_unripe', '_fruit']
+        for i, suf in enumerate(names):
+            t = f'{NS}:block/{fruit}_leaves{suf}'
+            wj(f'{M}/block/{fruit}_leaves{suf}.json', {'parent': 'minecraft:block/block', 'textures': {'particle': t, 'all': t}, 'elements': [
+                {'from': [0, 0, 0], 'to': [16, 16, 16], 'faces': {f: {'uv': [0, 0, 16, 16], 'texture': '#all', 'cullface': f}
+                                                                for f in ('down', 'up', 'north', 'south', 'west', 'east')}}]})
+        wj(f'{BS}/{fruit}_leaves.json', {'variants': {f'fruit={i}': {'model': f'{NS}:block/{fruit}_leaves{names[i]}'} for i in range(4)}})
+        wj(f'{IT}/{fruit}_leaves.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/{fruit}_leaves_fruit'}})
+        wj(f'{M}/block/{fruit}_sapling.json', {'parent': 'minecraft:block/cross', 'textures': {'cross': f'{NS}:block/{fruit}_sapling'}})
+        wj(f'{BS}/{fruit}_sapling.json', {'variants': {f'stage={s}': {'model': f'{NS}:block/{fruit}_sapling'} for s in range(2)}})
+        wj(f'{M}/item/{fruit}_sapling.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:block/{fruit}_sapling'}})
+        wj(f'{IT}/{fruit}_sapling.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{fruit}_sapling'}})
+
+    def el(fr, to, tex, faces=('north', 'south', 'east', 'west', 'up', 'down'), uvs=None):
+        f = {}
+        for face in faces:
+            if face in ('up', 'down'):
+                uv = [fr[0], fr[2], to[0], to[2]]
+            elif face in ('north', 'south'):
+                uv = [fr[0], 16 - to[1], to[0], 16 - fr[1]]
+            else:
+                uv = [fr[2], 16 - to[1], to[2], 16 - fr[1]]
+            f[face] = {'texture': tex, 'uv': [max(0, min(16, v)) for v in uv]}
+        return {'from': fr, 'to': to, 'faces': f}
+
+    # bonsai pot: a shallow rectangular tray with soil
+    wj(f'{M}/block/bonsai_pot.json', {'parent': 'minecraft:block/block', 'textures': {
+        'particle': 'minecraft:block/terracotta', 'pot': 'minecraft:block/terracotta', 'rim': 'minecraft:block/brown_terracotta',
+        'soil': 'minecraft:block/rooted_dirt', 'moss': 'minecraft:block/moss_block'},
+        'elements': [el([2, 0, 4], [14, 1, 12], '#rim'),
+                     el([1, 1, 3], [15, 4, 4], '#pot'), el([1, 1, 12], [15, 4, 13], '#pot'),
+                     el([1, 1, 4], [2, 4, 12], '#pot'), el([14, 1, 4], [15, 4, 12], '#pot'),
+                     el([2, 1, 4], [14, 3.5, 12], '#soil', faces=('up',)),
+                     el([3, 3.5, 5], [7, 3.7, 8], '#moss', faces=('up',)), el([9, 3.5, 8], [13, 3.7, 11], '#moss', faces=('up',)),
+                     el([0, 0, 2], [2, 1, 4], '#rim'), el([14, 0, 2], [16, 1, 4], '#rim'), el([0, 0, 12], [2, 1, 14], '#rim'),
+                     el([14, 0, 12], [16, 1, 14], '#rim')]})
+    wj(f'{BS}/bonsai_pot.json', {'variants': {'': {'model': f'{NS}:block/bonsai_pot'}}})
+    wj(f'{IT}/bonsai_pot.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/bonsai_pot'}})
+
+    # weaving loom frame (front = north, where the weaver sits)
+    W, L = '#wood', '#log'
+    loom = [
+        # side frames: posts and rails
+        el([0, 0, 1], [2, 15, 3], L), el([14, 0, 1], [16, 15, 3], L), el([0, 0, 13], [2, 15, 15], L), el([14, 0, 13], [16, 15, 15], L),
+        el([0, 1, 3], [2, 2.5, 13], W), el([14, 1, 3], [16, 2.5, 13], W), el([0, 13.5, 3], [2, 15, 13], W), el([14, 13.5, 3], [16, 15, 13], W),
+        # castle on top holding the heddles
+        el([0, 15, 6.5], [16, 16, 9.5], W),
+        # breast beam (front), warp beam (back), cloth beam below the front
+        el([2, 9, 1], [14, 11, 3], L), el([2, 9, 13], [14, 11, 15], L), el([2, 4, 2], [14, 5.5, 3.5], L),
+        # treadles
+        el([5, 0.5, 2], [6.5, 1.5, 10], W), el([9.5, 0.5, 2], [11, 1.5, 10], W),
+        # bench in front? no - the reed (beater) hanging from the castle
+        el([2.5, 11.2, 4.4], [13.5, 13, 4.9], W), el([2, 11.2, 4.2], [2.5, 15, 5.1], W), el([13.5, 11.2, 4.2], [14, 15, 5.1], W),
+    ]
+    wj(f'{M}/block/weaving_loom.json', {'parent': 'minecraft:block/block', 'textures': {
+        'particle': 'minecraft:block/spruce_planks', 'wood': 'minecraft:block/spruce_planks', 'log': 'minecraft:block/stripped_spruce_log'},
+        'elements': loom, 'display': {
+            'gui': {'rotation': [30, 225, 0], 'translation': [0, 0, 0], 'scale': [0.6, 0.6, 0.6]},
+            'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.25, 0.25, 0.25]},
+            'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.5, 0.5, 0.5]},
+            'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.375, 0.375, 0.375]},
+            'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}}})
+    wj(f'{BS}/weaving_loom.json', {'variants': {f'facing={f}': ({'model': f'{NS}:block/weaving_loom', 'y': y} if y else {'model': f'{NS}:block/weaving_loom'})
+                                                for f, y in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
+    wj(f'{IT}/weaving_loom.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/weaving_loom'}})
+
+    simple = ['flax_seeds', 'flax_fiber', 'cabbage_seeds', 'cabbage', 'onion', 'strawberry_runner', 'strawberry', 'gooseberries', 'plum',
+              'duck_egg', 'goose_egg', 'green_egg', 'raw_duck', 'cooked_duck', 'raw_goose', 'cooked_goose', 'raw_turkey', 'cooked_turkey',
+              'down', 'turkey_feather', 'snail_shell', 'snail_slime', 'highland_hair', 'merino_wool', 'mangalica_wool', 'angora_wool',
+              'canvas', 'linen', 'woolen_cloth', 'merino_cloth', 'angora_cloth', 'felt',
+              'duck_spawn_egg', 'goose_spawn_egg', 'turkey_spawn_egg', 'snail_spawn_egg']
+    for n in simple:
+        wj(f'{M}/item/{n}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{n}'}})
+        wj(f'{IT}/{n}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{n}'}})
+
+
+# =====================================================================================  data
+def item(i, n=None):
+    e = {'type': 'minecraft:item', 'name': i}
+    if n:
+        e['functions'] = [{'function': 'minecraft:set_count', 'count': n, 'add': False}]
+    return e
+
+
+def age_cond(block, age, prop='age'):
+    return {'condition': 'minecraft:block_state_property', 'block': block, 'properties': {prop: str(age)}}
+
+
+def loot(path, pools, extra=None):
+    o = {'type': 'minecraft:block', 'pools': pools, 'random_sequence': f'{NS}:blocks/{path}'}
+    wj(f'{D}/{NS}/loot_table/blocks/{path}.json', o)
+
+
+def data():
+    G = lambda n: f'{NS}:{n}'
+    # crops: seeds always, produce when ripe (+ bonus seeds)
+    for crop, produce, seed in [('flax', 'flax_fiber', 'flax_seeds'), ('cabbages', 'cabbage', 'cabbage_seeds')]:
+        loot(crop, [
+            {'rolls': 1, 'bonus_rolls': 0, 'entries': [{'type': 'minecraft:alternatives', 'children': [
+                dict(item(G(produce), {'type': 'minecraft:uniform', 'min': 1, 'max': 3 if crop == 'flax' else 1}), conditions=[age_cond(G(crop), 7)]),
+                item(G(seed))]}]},
+            {'rolls': 1, 'bonus_rolls': 0, 'conditions': [age_cond(G(crop), 7)], 'entries': [dict(item(G(seed)), functions=[
+                {'function': 'minecraft:apply_bonus', 'enchantment': 'minecraft:fortune', 'formula': 'minecraft:binomial_with_bonus_count',
+                 'parameters': {'extra': 3, 'probability': 0.5714286}}])]}])
+    for crop, produce, seed in [('onions', 'onion', 'onion'), ('strawberries', 'strawberry', 'strawberry_runner')]:
+        pools = [{'rolls': 1, 'bonus_rolls': 0, 'entries': [item(G(seed))]},
+                 {'rolls': 1, 'bonus_rolls': 0, 'conditions': [age_cond(G(crop), 7)], 'entries': [dict(item(G(produce)), functions=[
+                     {'function': 'minecraft:apply_bonus', 'enchantment': 'minecraft:fortune', 'formula': 'minecraft:binomial_with_bonus_count',
+                      'parameters': {'extra': 3, 'probability': 0.5714286}}])]}]
+        loot(crop, pools)
+    loot('gooseberry_bush', [{'rolls': 1, 'bonus_rolls': 0, 'entries': [item(G('gooseberries'))]}])
+    for fruit in ('apple', 'plum'):
+        loot(f'{fruit}_sapling', [{'rolls': 1, 'bonus_rolls': 0, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+                                   'entries': [item(G(f'{fruit}_sapling'))]}])
+        shears = {'condition': 'minecraft:match_tool', 'predicate': {'items': 'minecraft:shears'}}
+        loot(f'{fruit}_leaves', [
+            {'rolls': 1, 'bonus_rolls': 0, 'entries': [{'type': 'minecraft:alternatives', 'children': [
+                dict(item(G(f'{fruit}_leaves')), conditions=[shears]),
+                dict(item(G(f'{fruit}_sapling')), conditions=[{'condition': 'minecraft:survives_explosion'},
+                                                              {'condition': 'minecraft:table_bonus', 'enchantment': 'minecraft:fortune',
+                                                               'chances': [0.05, 0.0625, 0.083333336, 0.1]}])]}]},
+            {'rolls': 1, 'bonus_rolls': 0, 'conditions': [{'condition': 'minecraft:inverted', 'term': shears},
+                                                          {'condition': 'minecraft:random_chance', 'chance': 0.04}],
+             'entries': [item('minecraft:stick')]}])
+    loot('bonsai_pot', [{'rolls': 1, 'bonus_rolls': 0, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+                         'entries': [dict(item(G('bonsai_pot')), functions=[
+                             {'function': 'minecraft:copy_components', 'source': 'block_entity', 'include': [G('bonsai')]}])]}])
+    loot('weaving_loom', [{'rolls': 1, 'bonus_rolls': 0, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+                           'entries': [item(G('weaving_loom'))]}])
+
+    # entity loot
+    def eloot(name, pools):
+        wj(f'{D}/{NS}/loot_table/entities/{name}.json', {'type': 'minecraft:entity', 'pools': pools, 'random_sequence': f'{NS}:entities/{name}'})
+
+    def meat_pool(raw, cooked, lo, hi):
+        return {'rolls': 1, 'entries': [dict(item(G(raw), {'type': 'minecraft:uniform', 'min': lo, 'max': hi}), functions=[
+            {'function': 'minecraft:set_count', 'count': {'type': 'minecraft:uniform', 'min': lo, 'max': hi}},
+            {'function': 'minecraft:furnace_smelt', 'conditions': [{'condition': 'minecraft:entity_properties', 'entity': 'this',
+                                                                    'predicate': {'flags': {'is_on_fire': True}}}]}])]}
+
+    def simple_pool(i, lo, hi):
+        return {'rolls': 1, 'entries': [item(i, {'type': 'minecraft:uniform', 'min': lo, 'max': hi})]}
+
+    eloot('duck', [simple_pool('minecraft:feather', 0, 2), meat_pool('raw_duck', 'cooked_duck', 1, 1)])
+    eloot('goose', [simple_pool('minecraft:feather', 0, 2), simple_pool(G('down'), 0, 1), meat_pool('raw_goose', 'cooked_goose', 1, 2)])
+    eloot('turkey', [simple_pool(G('turkey_feather'), 0, 2), meat_pool('raw_turkey', 'cooked_turkey', 1, 3)])
+    eloot('snail', [{'rolls': 1, 'entries': [dict(item(G('snail_shell')), conditions=[{'condition': 'minecraft:random_chance', 'chance': 0.6}])]}])
+
+    # recipes
+    R = f'{D}/{NS}/recipe'
+    for raw, cooked in [('raw_duck', 'cooked_duck'), ('raw_goose', 'cooked_goose'), ('raw_turkey', 'cooked_turkey')]:
+        for kind, t, xp in [('smelting', 200, 0.35), ('smoking', 100, 0.35), ('campfire_cooking', 600, 0.35)]:
+            wj(f'{R}/{cooked}_from_{kind}.json', {'type': f'minecraft:{kind}', 'category': 'food', 'ingredient': G(raw), 'result': {'id': G(cooked)},
+                                                  'experience': xp, 'cookingtime': t})
+    wj(f'{R}/weaving_loom.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['LSL', 'P P', 'L L'],
+                                  'key': {'L': '#minecraft:logs', 'S': 'minecraft:string', 'P': '#minecraft:planks'},
+                                  'result': {'id': G('weaving_loom'), 'count': 1}})
+    wj(f'{R}/bonsai_pot.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['B B', 'TDT'],
+                                'key': {'B': 'minecraft:brick', 'T': 'minecraft:terracotta', 'D': 'minecraft:dirt'},
+                                'result': {'id': G('bonsai_pot'), 'count': 1}})
+    wj(f'{R}/string_from_flax.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                      'ingredients': [G('flax_fiber'), G('flax_fiber')], 'result': {'id': 'minecraft:string', 'count': 1}})
+    wj(f'{R}/white_wool_from_merino.json', {'type': 'minecraft:crafting_shapeless', 'category': 'building',
+                                            'ingredients': [G('merino_wool')] * 2, 'result': {'id': 'minecraft:white_wool', 'count': 1}})
+    wj(f'{R}/plum_cake_slice.json', {'type': 'minecraft:crafting_shapeless', 'category': 'food',
+                                     'ingredients': [G('plum'), 'minecraft:sugar', 'minecraft:bread'], 'result': {'id': 'minecraft:pumpkin_pie', 'count': 1}})
+    os.remove(f'{R}/plum_cake_slice.json')
+
+    # tags
+    def tag(kind, ns, name, values):
+        wj(f'{D}/{ns}/tags/{kind}/{name}.json', {'replace': False, 'values': values})
+
+    crops = [G('flax'), G('cabbages'), G('onions'), G('strawberries')]
+    tag('block', 'minecraft', 'crops', crops)
+    tag('block', 'minecraft', 'maintains_farmland', crops)
+    tag('block', 'minecraft', 'bee_attractive', [G('strawberries'), G('apple_leaves'), G('plum_leaves')])
+    tag('block', 'minecraft', 'leaves', [G('apple_leaves'), G('plum_leaves')])
+    tag('block', 'minecraft', 'saplings', [G('apple_sapling'), G('plum_sapling')])
+    tag('block', 'minecraft', 'mineable/hoe', [G('apple_leaves'), G('plum_leaves')])
+    tag('block', 'minecraft', 'mineable/axe', [G('weaving_loom')])
+    tag('block', 'minecraft', 'mineable/pickaxe', [G('bonsai_pot')])
+    tag('item', 'minecraft', 'saplings', [G('apple_sapling'), G('plum_sapling')])
+    tag('item', 'minecraft', 'leaves', [G('apple_leaves'), G('plum_leaves')])
+    tag('item', 'minecraft', 'chicken_food', [G('flax_seeds'), G('cabbage_seeds')])
+    tag('item', 'minecraft', 'villager_plantable_seeds', [G('flax_seeds'), G('cabbage_seeds'), G('onion')])
+    tag('item', 'c', 'seeds', [G('flax_seeds'), G('cabbage_seeds')])
+    tag('item', 'c', 'crops', [G('flax_fiber'), G('cabbage'), G('onion'), G('strawberry')])
+    tag('item', 'c', 'foods/fruit', [G('strawberry'), G('gooseberries'), G('plum')])
+    tag('item', 'c', 'foods/raw_meat', [G('raw_duck'), G('raw_goose'), G('raw_turkey')])
+    tag('item', 'c', 'foods/cooked_meat', [G('cooked_duck'), G('cooked_goose'), G('cooked_turkey')])
+    tag('item', 'c', 'eggs', [G('duck_egg'), G('goose_egg'), G('green_egg')])
+    tag('item', 'minecraft', 'eggs', [G('duck_egg'), G('goose_egg'), G('green_egg')])
+
+    # worldgen: fruit trees
+    WG = f'{D}/{NS}/worldgen'
+    for fruit, log in [('apple', 'minecraft:oak_log'), ('plum', 'minecraft:dark_oak_log')]:
+        wj(f'{WG}/configured_feature/{fruit}_tree.json', {'type': 'minecraft:tree', 'config': TREE_TEMPLATE(log, G(f'{fruit}_leaves'))})
+        wj(f'{WG}/placed_feature/{fruit}_tree_wild.json', {'feature': G(f'{fruit}_tree'), 'placement': [
+            {'type': 'minecraft:rarity_filter', 'chance': 48},
+            {'type': 'minecraft:in_square'},
+            {'type': 'minecraft:surface_water_depth_filter', 'max_water_depth': 0},
+            {'type': 'minecraft:heightmap', 'heightmap': 'OCEAN_FLOOR'},
+            {'type': 'minecraft:biome'},
+            {'type': 'minecraft:block_predicate_filter', 'predicate': {'type': 'minecraft:would_survive', 'state': {'Name': G(f'{fruit}_sapling'), 'Properties': {'stage': '0'}}}}]})
+    BM = f'{D}/{NS}/neoforge/biome_modifier'
+    wj(f'{BM}/apple_trees.json', {'type': 'neoforge:add_features', 'biomes': ['minecraft:plains', 'minecraft:meadow', 'minecraft:flower_forest', 'minecraft:forest'],
+                                  'features': G('apple_tree_wild'), 'step': 'vegetal_decoration'})
+    wj(f'{BM}/plum_trees.json', {'type': 'neoforge:add_features', 'biomes': ['minecraft:plains', 'minecraft:meadow', 'minecraft:birch_forest', 'minecraft:forest'],
+                                 'features': G('plum_tree_wild'), 'step': 'vegetal_decoration'})
+
+    def spawns(name, biomes, w, lo, hi):
+        wj(f'{BM}/{name}_spawns.json', {'type': 'neoforge:add_spawns', 'biomes': biomes,
+                                         'spawners': {'type': G(name), 'weight': w, 'minCount': lo, 'maxCount': hi}})
+
+    spawns('duck', ['minecraft:river', 'minecraft:swamp', 'minecraft:mangrove_swamp', 'minecraft:plains'], 8, 2, 4)
+    spawns('goose', ['minecraft:plains', 'minecraft:meadow', 'minecraft:river', 'minecraft:sunflower_plains'], 7, 2, 4)
+    spawns('turkey', ['minecraft:forest', 'minecraft:birch_forest', 'minecraft:plains', 'minecraft:old_growth_birch_forest'], 6, 2, 3)
+    spawns('snail', ['minecraft:forest', 'minecraft:swamp', 'minecraft:meadow', 'minecraft:flower_forest', 'minecraft:dark_forest'], 6, 1, 3)
+
+    # seeds and saplings from grass / leaves
+    LM = f'{D}/{NS}/loot_modifiers'
+    wj(f'{D}/{NS}/loot_table/gameplay/grass_seeds.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [
+        {'type': 'minecraft:item', 'name': G('flax_seeds'), 'weight': 6}, {'type': 'minecraft:item', 'name': G('cabbage_seeds'), 'weight': 4},
+        {'type': 'minecraft:item', 'name': G('onion'), 'weight': 2}, {'type': 'minecraft:item', 'name': G('strawberry_runner'), 'weight': 2},
+        {'type': 'minecraft:item', 'name': G('gooseberries'), 'weight': 2}],
+        'conditions': [{'condition': 'minecraft:random_chance', 'chance': 0.06}]}]})
+    wj(f'{D}/{NS}/loot_table/gameplay/fruit_saplings.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [
+        {'type': 'minecraft:item', 'name': G('apple_sapling')}, {'type': 'minecraft:item', 'name': G('plum_sapling')}],
+        'conditions': [{'condition': 'minecraft:random_chance', 'chance': 0.012}]}]})
+    no_shears = {'condition': 'minecraft:inverted', 'term': {'condition': 'minecraft:match_tool', 'predicate': {'items': 'minecraft:shears'}}}
+    for grass in ('short_grass', 'tall_grass', 'fern'):
+        wj(f'{LM}/seeds_from_{grass}.json', {'type': 'neoforge:add_table', 'conditions': [
+            {'condition': 'neoforge:loot_table_id', 'loot_table_id': f'minecraft:blocks/{grass}'}, no_shears], 'table': G('gameplay/grass_seeds')})
+    wj(f'{LM}/fruit_saplings_from_oak.json', {'type': 'neoforge:add_table', 'conditions': [
+        {'condition': 'neoforge:loot_table_id', 'loot_table_id': 'minecraft:blocks/oak_leaves'}, no_shears], 'table': G('gameplay/fruit_saplings')})
+    wj(f'{D}/neoforge/loot_modifiers/global_loot_modifiers.json', {'replace': False, 'entries': [
+        G('seeds_from_short_grass'), G('seeds_from_tall_grass'), G('seeds_from_fern'), G('fruit_saplings_from_oak')]})
+
+
+def TREE_TEMPLATE(log, leaves):
+    # filled in from the vanilla oak tree format (see .github data dump); kept in one place
+    return {
+        'below_trunk_provider': {'type': 'minecraft:rule_based_state_provider', 'rules': [{
+            'if_true': {'type': 'minecraft:not', 'predicate': {'type': 'minecraft:matching_block_tag', 'tag': 'minecraft:cannot_replace_below_tree_trunk'}},
+            'then': {'type': 'minecraft:simple_state_provider', 'state': {'Name': 'minecraft:dirt'}}}]},
+        'decorators': [],
+        'foliage_placer': {'type': 'minecraft:blob_foliage_placer', 'height': 3, 'offset': 0, 'radius': 2},
+        'foliage_provider': {'type': 'minecraft:simple_state_provider',
+                             'state': {'Name': leaves, 'Properties': {'distance': '7', 'fruit': '0', 'persistent': 'false', 'waterlogged': 'false'}}},
+        'ignore_vines': True,
+        'minimum_size': {'type': 'minecraft:two_layers_feature_size'},
+        'trunk_placer': {'type': 'minecraft:straight_trunk_placer', 'base_height': 4, 'height_rand_a': 1, 'height_rand_b': 0},
+        'trunk_provider': {'type': 'minecraft:simple_state_provider', 'state': {'Name': log, 'Properties': {'axis': 'y'}}},
+    }
+
+
+# =====================================================================================  language
+def lang():
+    pl = {
+        'itemGroup.gospodarstwo': 'Swojskie Gospodarstwo',
+        'entity.gospodarstwo.duck': 'Kaczka', 'entity.gospodarstwo.goose': 'Gęś', 'entity.gospodarstwo.turkey': 'Indyk',
+        'entity.gospodarstwo.snail': 'Ślimak winniczek',
+        'block.gospodarstwo.flax': 'Len', 'block.gospodarstwo.cabbages': 'Kapusta', 'block.gospodarstwo.onions': 'Cebula',
+        'block.gospodarstwo.strawberries': 'Truskawki', 'block.gospodarstwo.gooseberry_bush': 'Krzew agrestu',
+        'block.gospodarstwo.apple_leaves': 'Liście jabłoni', 'block.gospodarstwo.plum_leaves': 'Liście śliwy',
+        'block.gospodarstwo.apple_sapling': 'Sadzonka jabłoni', 'block.gospodarstwo.plum_sapling': 'Sadzonka śliwy',
+        'block.gospodarstwo.bonsai_pot': 'Doniczka bonsai', 'block.gospodarstwo.weaving_loom': 'Krosno tkackie',
+        'item.gospodarstwo.flax_seeds': 'Nasiona lnu', 'item.gospodarstwo.flax_fiber': 'Włókno lniane',
+        'item.gospodarstwo.cabbage_seeds': 'Nasiona kapusty', 'item.gospodarstwo.cabbage': 'Kapusta', 'item.gospodarstwo.onion': 'Cebula',
+        'item.gospodarstwo.strawberry_runner': 'Sadzonka truskawki', 'item.gospodarstwo.strawberry': 'Truskawka',
+        'item.gospodarstwo.gooseberries': 'Agrest', 'item.gospodarstwo.plum': 'Śliwka',
+        'item.gospodarstwo.duck_egg': 'Kacze jajo', 'item.gospodarstwo.goose_egg': 'Gęsie jajo', 'item.gospodarstwo.green_egg': 'Zielone jajo',
+        'item.gospodarstwo.raw_duck': 'Surowa kaczka', 'item.gospodarstwo.cooked_duck': 'Pieczona kaczka',
+        'item.gospodarstwo.raw_goose': 'Surowa gęsina', 'item.gospodarstwo.cooked_goose': 'Pieczona gęś',
+        'item.gospodarstwo.raw_turkey': 'Surowy indyk', 'item.gospodarstwo.cooked_turkey': 'Pieczony indyk',
+        'item.gospodarstwo.down': 'Puch', 'item.gospodarstwo.turkey_feather': 'Pióro indyka', 'item.gospodarstwo.snail_shell': 'Muszla ślimaka',
+        'item.gospodarstwo.snail_slime': 'Śluz ślimaka', 'item.gospodarstwo.highland_hair': 'Sierść krowy górskiej',
+        'item.gospodarstwo.merino_wool': 'Wełna merynosowa', 'item.gospodarstwo.mangalica_wool': 'Wełna mangalicy',
+        'item.gospodarstwo.angora_wool': 'Wełna angorska',
+        'item.gospodarstwo.canvas': 'Płótno', 'item.gospodarstwo.linen': 'Płótno lniane', 'item.gospodarstwo.woolen_cloth': 'Sukno',
+        'item.gospodarstwo.merino_cloth': 'Sukno merynosowe', 'item.gospodarstwo.angora_cloth': 'Tkanina angorska', 'item.gospodarstwo.felt': 'Filc',
+        'item.gospodarstwo.duck_spawn_egg': 'Jajo spawnu kaczki', 'item.gospodarstwo.goose_spawn_egg': 'Jajo spawnu gęsi',
+        'item.gospodarstwo.turkey_spawn_egg': 'Jajo spawnu indyka', 'item.gospodarstwo.snail_spawn_egg': 'Jajo spawnu ślimaka',
+        'breed.gospodarstwo.highland': 'Krowa górska', 'breed.gospodarstwo.merino': 'Merynos', 'breed.gospodarstwo.silkie': 'Kura jedwabista',
+        'breed.gospodarstwo.greenleg': 'Zielononóżka', 'breed.gospodarstwo.mangalica': 'Mangalica', 'breed.gospodarstwo.angora': 'Królik angorski',
+        'breed.gospodarstwo.is': 'Rasa: %s', 'breed.gospodarstwo.label': 'Rasa: %s', 'breed.gospodarstwo.regrowing': 'Sierść jeszcze nie odrosła',
+        'bonsai.gospodarstwo.empty': 'Posadź tu sadzonkę dowolnego drzewa',
+        'bonsai.gospodarstwo.status': 'Bonsai: %s%%, %s, przycięte %s/%s razy',
+        'bonsai.gospodarstwo.needs_trim': 'Drzewko zdziczało (%s%%, %s) – przytnij je nożycami (%s/%s), żeby rosło dalej jako bonsai',
+        'bonsai.gospodarstwo.done': 'Gotowe bonsai! (%s%%, %s, przycięte %s/%s razy)',
+        'bonsai.gospodarstwo.watered': 'podlane', 'bonsai.gospodarstwo.dry': 'sucha ziemia – podlej',
+        'bonsai.gospodarstwo.no_trim': 'Jeszcze nie ma czego przycinać – niech podrośnie',
+        'loom.gospodarstwo.empty': 'Krosno jest puste – włóż nici, włókno lniane albo wełnę',
+        'loom.gospodarstwo.other_yarn': 'Na krośnie jest już inna przędza – zabierz ją (kucnij + PPM)',
+        'gospodarstwo.configuration.title': 'Swojskie Gospodarstwo – ustawienia',
+    }
+    en = {
+        'itemGroup.gospodarstwo': 'Homestead',
+        'entity.gospodarstwo.duck': 'Duck', 'entity.gospodarstwo.goose': 'Goose', 'entity.gospodarstwo.turkey': 'Turkey',
+        'entity.gospodarstwo.snail': 'Roman Snail',
+        'block.gospodarstwo.flax': 'Flax', 'block.gospodarstwo.cabbages': 'Cabbages', 'block.gospodarstwo.onions': 'Onions',
+        'block.gospodarstwo.strawberries': 'Strawberries', 'block.gospodarstwo.gooseberry_bush': 'Gooseberry Bush',
+        'block.gospodarstwo.apple_leaves': 'Apple Leaves', 'block.gospodarstwo.plum_leaves': 'Plum Leaves',
+        'block.gospodarstwo.apple_sapling': 'Apple Sapling', 'block.gospodarstwo.plum_sapling': 'Plum Sapling',
+        'block.gospodarstwo.bonsai_pot': 'Bonsai Pot', 'block.gospodarstwo.weaving_loom': 'Weaving Loom',
+        'item.gospodarstwo.flax_seeds': 'Flax Seeds', 'item.gospodarstwo.flax_fiber': 'Flax Fibre',
+        'item.gospodarstwo.cabbage_seeds': 'Cabbage Seeds', 'item.gospodarstwo.cabbage': 'Cabbage', 'item.gospodarstwo.onion': 'Onion',
+        'item.gospodarstwo.strawberry_runner': 'Strawberry Runner', 'item.gospodarstwo.strawberry': 'Strawberry',
+        'item.gospodarstwo.gooseberries': 'Gooseberries', 'item.gospodarstwo.plum': 'Plum',
+        'item.gospodarstwo.duck_egg': 'Duck Egg', 'item.gospodarstwo.goose_egg': 'Goose Egg', 'item.gospodarstwo.green_egg': 'Green Egg',
+        'item.gospodarstwo.raw_duck': 'Raw Duck', 'item.gospodarstwo.cooked_duck': 'Roast Duck', 'item.gospodarstwo.raw_goose': 'Raw Goose',
+        'item.gospodarstwo.cooked_goose': 'Roast Goose', 'item.gospodarstwo.raw_turkey': 'Raw Turkey', 'item.gospodarstwo.cooked_turkey': 'Roast Turkey',
+        'item.gospodarstwo.down': 'Down', 'item.gospodarstwo.turkey_feather': 'Turkey Feather', 'item.gospodarstwo.snail_shell': 'Snail Shell',
+        'item.gospodarstwo.snail_slime': 'Snail Slime', 'item.gospodarstwo.highland_hair': 'Highland Hair',
+        'item.gospodarstwo.merino_wool': 'Merino Wool', 'item.gospodarstwo.mangalica_wool': 'Mangalica Wool', 'item.gospodarstwo.angora_wool': 'Angora Wool',
+        'item.gospodarstwo.canvas': 'Canvas', 'item.gospodarstwo.linen': 'Linen', 'item.gospodarstwo.woolen_cloth': 'Woollen Cloth',
+        'item.gospodarstwo.merino_cloth': 'Merino Cloth', 'item.gospodarstwo.angora_cloth': 'Angora Cloth', 'item.gospodarstwo.felt': 'Felt',
+        'item.gospodarstwo.duck_spawn_egg': 'Duck Spawn Egg', 'item.gospodarstwo.goose_spawn_egg': 'Goose Spawn Egg',
+        'item.gospodarstwo.turkey_spawn_egg': 'Turkey Spawn Egg', 'item.gospodarstwo.snail_spawn_egg': 'Snail Spawn Egg',
+        'breed.gospodarstwo.highland': 'Highland Cow', 'breed.gospodarstwo.merino': 'Merino', 'breed.gospodarstwo.silkie': 'Silkie',
+        'breed.gospodarstwo.greenleg': 'Green-legged Partridge', 'breed.gospodarstwo.mangalica': 'Mangalica', 'breed.gospodarstwo.angora': 'Angora Rabbit',
+        'breed.gospodarstwo.is': 'Breed: %s', 'breed.gospodarstwo.label': 'Breed: %s', 'breed.gospodarstwo.regrowing': 'The coat has not grown back yet',
+        'bonsai.gospodarstwo.empty': 'Plant a sapling of any tree here',
+        'bonsai.gospodarstwo.status': 'Bonsai: %s%%, %s, trimmed %s/%s times',
+        'bonsai.gospodarstwo.needs_trim': 'The tree has grown wild (%s%%, %s) - trim it with shears (%s/%s) to keep shaping it',
+        'bonsai.gospodarstwo.done': 'A finished bonsai! (%s%%, %s, trimmed %s/%s times)',
+        'bonsai.gospodarstwo.watered': 'watered', 'bonsai.gospodarstwo.dry': 'dry soil - water it',
+        'bonsai.gospodarstwo.no_trim': 'Nothing to trim yet - let it grow',
+        'loom.gospodarstwo.empty': 'The loom is empty - put in string, flax fibre or wool',
+        'loom.gospodarstwo.other_yarn': 'Another yarn is on the loom - take it back first (sneak + right-click)',
+        'gospodarstwo.configuration.title': 'Homestead settings',
+    }
+    wj(f'{A}/lang/pl_pl.json', pl)
+    wj(f'{A}/lang/en_us.json', en)
+
+
+if __name__ == '__main__':
+    animal_assets()
+    item_textures()
+    block_textures()
+    models()
+    data()
+    lang()

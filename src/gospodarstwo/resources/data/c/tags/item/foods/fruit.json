@@ -1,0 +1,8 @@
+{
+ "replace": false,
+ "values": [
+  "gospodarstwo:strawberry",
+  "gospodarstwo:gooseberries",
+  "gospodarstwo:plum"
+ ]
+}

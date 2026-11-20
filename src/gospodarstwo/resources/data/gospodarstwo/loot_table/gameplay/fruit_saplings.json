@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:block",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:apple_sapling"
+    },
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:plum_sapling"
+    }
+   ],
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance",
+     "chance": 0.012
+    }
+   ]
+  }
+ ]
+}

@@ -46,7 +46,7 @@ public class Goose extends FarmBird {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return getTarget() != null ? SoundEvents.CAT_HISS : SoundEvents.PARROT_AMBIENT;
+        return getTarget() != null ? SoundEvents.CREEPER_PRIMED : SoundEvents.PARROT_AMBIENT;
     }
 
     @Override

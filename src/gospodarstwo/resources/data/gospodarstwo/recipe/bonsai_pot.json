@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "B B",
+  "TDT"
+ ],
+ "key": {
+  "B": "minecraft:brick",
+  "T": "minecraft:terracotta",
+  "D": "minecraft:dirt"
+ },
+ "result": {
+  "id": "gospodarstwo:bonsai_pot",
+  "count": 1
+ }
+}

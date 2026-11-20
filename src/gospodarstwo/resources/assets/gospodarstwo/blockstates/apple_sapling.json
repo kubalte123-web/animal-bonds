@@ -1,0 +1,10 @@
+{
+ "variants": {
+  "stage=0": {
+   "model": "gospodarstwo:block/apple_sapling"
+  },
+  "stage=1": {
+   "model": "gospodarstwo:block/apple_sapling"
+  }
+ }
+}

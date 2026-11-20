@@ -1,0 +1,8 @@
+{
+ "replace": false,
+ "values": [
+  "gospodarstwo:cooked_duck",
+  "gospodarstwo:cooked_goose",
+  "gospodarstwo:cooked_turkey"
+ ]
+}

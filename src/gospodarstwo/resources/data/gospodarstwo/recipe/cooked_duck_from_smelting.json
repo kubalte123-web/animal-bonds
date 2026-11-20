@@ -1,0 +1,10 @@
+{
+ "type": "minecraft:smelting",
+ "category": "food",
+ "ingredient": "gospodarstwo:raw_duck",
+ "result": {
+  "id": "gospodarstwo:cooked_duck"
+ },
+ "experience": 0.35,
+ "cookingtime": 200
+}

@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LSL",
+  "P P",
+  "L L"
+ ],
+ "key": {
+  "L": "#minecraft:logs",
+  "S": "minecraft:string",
+  "P": "#minecraft:planks"
+ },
+ "result": {
+  "id": "gospodarstwo:weaving_loom",
+  "count": 1
+ }
+}

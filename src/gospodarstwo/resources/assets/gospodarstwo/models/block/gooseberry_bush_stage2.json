@@ -1,0 +1,6 @@
+{
+ "parent": "minecraft:block/cross",
+ "textures": {
+  "cross": "gospodarstwo:block/gooseberry_bush_stage2"
+ }
+}

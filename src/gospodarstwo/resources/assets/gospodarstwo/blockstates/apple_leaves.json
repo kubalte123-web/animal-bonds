@@ -1,0 +1,16 @@
+{
+ "variants": {
+  "fruit=0": {
+   "model": "gospodarstwo:block/apple_leaves"
+  },
+  "fruit=1": {
+   "model": "gospodarstwo:block/apple_leaves_blossom"
+  },
+  "fruit=2": {
+   "model": "gospodarstwo:block/apple_leaves_unripe"
+  },
+  "fruit=3": {
+   "model": "gospodarstwo:block/apple_leaves_fruit"
+  }
+ }
+}
