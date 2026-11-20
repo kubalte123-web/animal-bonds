@@ -181,7 +181,7 @@ public final class BallLogic {
             log("candidate {} at {} d={}", m.getType(), m.blockPosition(), Math.sqrt(dd));
             // only creatures that can actually get there (not the ones behind the fence)
             net.minecraft.world.level.pathfinder.Path path = m.getNavigation().createPath(ball, 1);
-            if ((path == null || path.getEndNode() == null || path.getEndNode().asBlockPos().distSqr(ball.blockPosition()) > 4)) {
+            if ((path == null || path.getEndNode() == null || path.getEndNode().asBlockPos().distSqr(ball.blockPosition()) > 2)) {
                 log("  cannot reach (path={})", path);
                 continue;
             }
