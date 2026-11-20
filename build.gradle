@@ -22,6 +22,7 @@ sourceSets {
     testmod // sources in src/testmod/java and src/testmod/resources
     // second mod in this repo: "Żywiołaki" (elemental creatures), released as its own jar
     elementals
+    gospodarstwo
 }
 
 sourceSets.main.resources {
@@ -84,6 +85,8 @@ neoForge {
             programArgument '--nogui'
             systemProperty 'animalbonds.selftest', 'true'
             systemProperty 'elementals.selftest', 'true'
+            systemProperty 'gospodarstwo.selftest', 'true'
+            systemProperty 'gospodarstwo.noRolls', 'true'
             systemProperty 'elementals.noRolls', 'true'
         }
 
@@ -92,6 +95,7 @@ neoForge {
             client()
             systemProperty 'animalbonds.clienttest', 'true'
             systemProperty 'elementals.noRolls', 'true'
+            systemProperty 'gospodarstwo.noRolls', 'true'
             programArguments.addAll '--quickPlaySingleplayer', 'world', '--width', '1280', '--height', '720'
         }
 
@@ -99,6 +103,14 @@ neoForge {
         elClientGecko {
             client()
             systemProperty 'elementals.clienttest', 'true'
+            systemProperty 'elementals.noRolls', 'true'
+            systemProperty 'gospodarstwo.noRolls', 'true'
+            programArguments.addAll '--quickPlaySingleplayer', 'world', '--width', '1280', '--height', '720'
+        }
+        gClient {
+            client()
+            systemProperty 'gospodarstwo.clienttest', 'true'
+            systemProperty 'gospodarstwo.noRolls', 'true'
             systemProperty 'elementals.noRolls', 'true'
             programArguments.addAll '--quickPlaySingleplayer', 'world', '--width', '1280', '--height', '720'
         }
@@ -137,10 +149,14 @@ neoForge {
 
     addModdingDependenciesTo(sourceSets.testmod)
     addModdingDependenciesTo(sourceSets.elementals)
+    addModdingDependenciesTo(sourceSets.gospodarstwo)
 
     mods {
         elementals {
             sourceSet(sourceSets.elementals)
+        }
+        gospodarstwo {
+            sourceSet(sourceSets.gospodarstwo)
         }
         abtestgeo {
             sourceSet(sourceSets.testmod)
@@ -168,6 +184,8 @@ dependencies {
     // Żywiołaki: GeckoLib and Animal Bonds are optional integrations
     elementalsCompileOnly "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     elementalsCompileOnly sourceSets.main.output
+    gospodarstwoCompileOnly "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+    gospodarstwoCompileOnly sourceSets.main.output
     // present in the dev/test client so CI checks that the integration loads
     localRuntime "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 
@@ -249,5 +267,10 @@ def elementalsJar = tasks.register('elementalsJar', Jar) {
     archiveVersion = project.elementals_version
     from sourceSets.elementals.output
 }
-tasks.named('build') { dependsOn elementalsJar }
-tasks.named('assemble') { dependsOn elementalsJar }
+def gospodarstwoJar = tasks.register('gospodarstwoJar', Jar) {
+    archiveBaseName = 'gospodarstwo'
+    archiveVersion = project.gospodarstwo_version
+    from sourceSets.gospodarstwo.output
+}
+tasks.named('build') { dependsOn elementalsJar, gospodarstwoJar }
+tasks.named('assemble') { dependsOn elementalsJar, gospodarstwoJar }

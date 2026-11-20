@@ -32,3 +32,9 @@ net.neoforged.neoforge.client.event.EntityRenderersEvent$RegisterRenderers
 net.minecraft.world.entity.ai.goal.TemptGoal
 net.minecraft.world.level.block.FarmBlock
 net.minecraft.world.level.block.FlowerPotBlock
+com.mojang.blaze3d.vertex.VertexConsumer
+net.minecraft.world.level.storage.ValueOutput
+net.minecraft.world.level.storage.ValueInput
+net.minecraft.world.food.FoodProperties$Builder
+net.neoforged.neoforge.registries.DeferredRegister$DataComponents
+net.minecraft.client.model.geom.ModelPart$Cube

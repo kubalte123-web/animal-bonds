@@ -1,0 +1,41 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="gospodarstwo"
+version="0.1.0"
+displayName="Swojskie Gospodarstwo"
+description='''
+Nowe zwierzęta (kaczka, gęś, indyk, ślimak winniczek), rasy zwykłych zwierząt (krowa górska, owca merynos, kura jedwabista,
+zielononóżka, świnia mangalica, królik angorski) z własnymi surowcami, nowe uprawy, krzew agrestu, jabłonie i śliwy,
+doniczki bonsai i krosno tkackie. Działa samodzielnie; z GeckoLib zwierzęta mają animacje GeckoLib, z Animal Bonds własne potrzeby i prezenty.
+'''
+
+[[dependencies.gospodarstwo]]
+    modId="neoforge"
+    type="required"
+    versionRange="[26.2.0.95,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.gospodarstwo]]
+    modId="minecraft"
+    type="required"
+    versionRange="[26.2]"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.gospodarstwo]]
+    modId="geckolib"
+    type="optional"
+    versionRange="[5.5,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies.gospodarstwo]]
+    modId="animalbonds"
+    type="optional"
+    versionRange="[0.1,)"
+    ordering="AFTER"
+    side="BOTH"
