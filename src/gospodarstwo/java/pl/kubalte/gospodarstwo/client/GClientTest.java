@@ -123,7 +123,7 @@ public final class GClientTest {
                 net.minecraft.core.Direction.WEST));
         level.setBlockAndUpdate(vat, Gospodarstwo.DYE_VAT.get().defaultBlockState());
         level.setBlockAndUpdate(loom, Gospodarstwo.WEAVING_LOOM.get().defaultBlockState());
-        if (level.getBlockEntity(wheel) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) be.insert(p, new ItemStack(Items.RED_WOOL, 64));
+        if (level.getBlockEntity(wheel) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) be.insert(p, new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("red_wool")), 64));
         if (level.getBlockEntity(vat) instanceof pl.kubalte.gospodarstwo.block.DyeVatBlockEntity be) {
             be.use(p, net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.WATER_BUCKET));
             be.use(p, net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Gospodarstwo.PLUM.get()));

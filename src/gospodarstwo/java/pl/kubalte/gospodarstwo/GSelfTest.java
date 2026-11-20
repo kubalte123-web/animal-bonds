@@ -196,7 +196,7 @@ public final class GSelfTest {
         BlockPos wheelPos = O.offset(6, 0, 8);
         level.setBlockAndUpdate(wheelPos, Gospodarstwo.SPINNING_WHEEL.get().defaultBlockState());
         var wheel = (pl.kubalte.gospodarstwo.block.SpinningWheelBlockEntity) level.getBlockEntity(wheelPos);
-        wheel.insert(player, new ItemStack(Items.RED_WOOL, 2));
+        wheel.insert(player, new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("red_wool")), 2));
         for (int k = 0; k < GConfig.LOOM_TICKS.get() * 2 + 10; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, wheelPos, level.getBlockState(wheelPos), wheel);
         check(wheel.output().is(Gospodarstwo.YARN_WOOL.get()) && wheel.output().getCount() == 4, "spinning 2 red wool gives 4 wool yarn (" + wheel.output() + ")");
         check(pl.kubalte.gospodarstwo.craft.Dyes.colorOf(wheel.output()) >= 0, "yarn from red wool is red");
@@ -223,7 +223,7 @@ public final class GSelfTest {
         for (int k = 0; k < GConfig.LOOM_TICKS.get() * 2 + 10; k++) LoomBlockEntity.tick(level, loomPos, level.getBlockState(loomPos), loom);
         check(loom.output().is(Gospodarstwo.MERINO_CLOTH.get()) && pl.kubalte.gospodarstwo.craft.Dyes.colorOf(loom.output()) == 0x6A2C70,
                 "purple yarn weaves into purple merino cloth (" + loom.output() + ")");
-        vat.use(player, InteractionHand.MAIN_HAND, new ItemStack(Items.YELLOW_DYE));
+        vat.use(player, InteractionHand.MAIN_HAND, new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("yellow_dye"))));
         check(vat.charges() == 10 && vat.color() != 0x6A2C70, "a second dye mixes into the bath");
 
         // ---- animals ----
