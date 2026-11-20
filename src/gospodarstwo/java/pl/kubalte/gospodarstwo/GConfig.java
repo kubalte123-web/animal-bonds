@@ -32,6 +32,13 @@ public final class GConfig {
             .defineInRange("tanTicks", 12000, 1, 10_000_000);
     public static final ModConfigSpec.IntValue KETTLE_TICKS = B.comment("Ile ticków trwa jedna porcja w kotle")
             .defineInRange("kettleTicks", 160, 1, 100_000);
+    public static final ModConfigSpec.IntValue QUERN_TICKS = B.comment("Ile ticków trwa zmielenie jednej porcji na żarnach").defineInRange("quernTicks", 60, 1, 100_000);
+    public static final ModConfigSpec.IntValue PRESS_TICKS = B.comment("Ile ticków trwa wyciśnięcie jednej butelki soku").defineInRange("pressTicks", 100, 1, 100_000);
+    public static final ModConfigSpec.IntValue FERMENT_TICKS = B.comment("Ile ticków trwa kiszenie w garnku (24000 = doba)")
+            .defineInRange("fermentTicks", 24000, 1, 10_000_000);
+    public static final ModConfigSpec.IntValue SMOKE_TICKS = B.comment("Ile ticków trwa wędzenie (6000 = ćwierć doby)")
+            .defineInRange("smokeTicks", 6000, 1, 10_000_000);
+    public static final ModConfigSpec.IntValue CHURN_STROKES = B.comment("Ile ruchów tłoka trzeba, żeby ubić masło").defineInRange("churnStrokes", 12, 1, 1000);
     public static final ModConfigSpec.BooleanValue CLOTHING_EFFECTS = B.comment("Ciepłe ubrania leczą na mrozie, lniane przyspieszają w upale")
             .define("clothingEffects", true);
     public static final ModConfigSpec.IntValue RESTED_PERCENT = B.comment("Długość efektu Wypoczęty w % (100 = pół doby z poduszką, doba z poduszką i pierzyną)")

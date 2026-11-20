@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  [
+   "minecraft:porkchop",
+   "minecraft:beef",
+   "minecraft:mutton"
+  ],
+  "gospodarstwo:gut",
+  "gospodarstwo:onion"
+ ],
+ "result": {
+  "id": "gospodarstwo:raw_sausage",
+  "count": 3
+ }
+}

@@ -1,0 +1,15 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "gospodarstwo:strawberry",
+  "gospodarstwo:strawberry",
+  "gospodarstwo:strawberry",
+  "minecraft:sugar",
+  "minecraft:glass_bottle"
+ ],
+ "result": {
+  "id": "gospodarstwo:strawberry_jam",
+  "count": 1
+ }
+}

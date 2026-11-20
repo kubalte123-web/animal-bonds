@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " T ",
+  "SSS",
+  "PPP"
+ ],
+ "key": {
+  "T": "minecraft:stick",
+  "S": "minecraft:smooth_stone",
+  "P": "#minecraft:wooden_slabs"
+ },
+ "result": {
+  "id": "gospodarstwo:quern",
+  "count": 1
+ }
+}

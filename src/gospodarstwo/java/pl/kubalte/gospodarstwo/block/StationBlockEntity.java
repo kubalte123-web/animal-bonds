@@ -161,12 +161,17 @@ public abstract class StationBlockEntity extends BlockEntity {
         if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
     }
 
+    /** Whether the product drops when the block is broken (not for things that need a container to be taken). */
+    protected boolean dropsOutput() {
+        return true;
+    }
+
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
         if (level != null) {
             if (!input.isEmpty()) Block.popResource(level, pos, input);
-            if (!output.isEmpty()) Block.popResource(level, pos, output);
+            if (!output.isEmpty() && dropsOutput()) Block.popResource(level, pos, output);
         }
     }
 

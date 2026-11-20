@@ -40,6 +40,11 @@ public class GClient {
         e.registerBlockEntityRenderer(Gospodarstwo.TANNING_RACK_BE.get(), TanningRackRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.KETTLE_BE.get(), KettleRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.CURTAIN_BE.get(), CurtainRenderer::new);
+        e.registerBlockEntityRenderer(Gospodarstwo.QUERN_BE.get(), KitchenRenderers.Quern::new);
+        e.registerBlockEntityRenderer(Gospodarstwo.PRESS_BE.get(), KitchenRenderers.Press::new);
+        e.registerBlockEntityRenderer(Gospodarstwo.CROCK_BE.get(), KitchenRenderers.Crock::new);
+        e.registerBlockEntityRenderer(Gospodarstwo.SMOKEHOUSE_BE.get(), KitchenRenderers.Smokehouse::new);
+        e.registerBlockEntityRenderer(Gospodarstwo.CHURN_BE.get(), KitchenRenderers.Churn::new);
         e.registerBlockEntityRenderer(Gospodarstwo.RUG_BE.get(), RugRenderer::new);
         if (useGecko()) {
             pl.kubalte.gospodarstwo.client.compat.GeckoCreatures.register(e);

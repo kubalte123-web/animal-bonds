@@ -1,6 +1,10 @@
 {
  "replace": false,
  "values": [
-  "gospodarstwo:bonsai_pot"
+  "gospodarstwo:quern",
+  "gospodarstwo:crock",
+  "gospodarstwo:bonsai_pot",
+  "gospodarstwo:kettle",
+  "gospodarstwo:horn_lantern"
  ]
 }

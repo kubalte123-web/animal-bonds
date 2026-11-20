@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " S ",
+  "P P",
+  "PIP"
+ ],
+ "key": {
+  "S": "minecraft:stick",
+  "P": "#minecraft:planks",
+  "I": "minecraft:iron_ingot"
+ },
+ "result": {
+  "id": "gospodarstwo:butter_churn",
+  "count": 1
+ }
+}

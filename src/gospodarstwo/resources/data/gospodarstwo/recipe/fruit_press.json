@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LIL",
+  "P P",
+  "PSP"
+ ],
+ "key": {
+  "L": "#minecraft:logs",
+  "I": "minecraft:iron_ingot",
+  "P": "#minecraft:planks",
+  "S": "#minecraft:wooden_slabs"
+ },
+ "result": {
+  "id": "gospodarstwo:fruit_press",
+  "count": 1
+ }
+}

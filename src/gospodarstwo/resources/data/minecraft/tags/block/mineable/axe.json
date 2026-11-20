@@ -1,6 +1,12 @@
 {
  "replace": false,
  "values": [
-  "gospodarstwo:weaving_loom"
+  "gospodarstwo:fruit_press",
+  "gospodarstwo:smokehouse",
+  "gospodarstwo:butter_churn",
+  "gospodarstwo:tanning_rack",
+  "gospodarstwo:spinning_wheel",
+  "gospodarstwo:weaving_loom",
+  "gospodarstwo:dye_vat"
  ]
 }

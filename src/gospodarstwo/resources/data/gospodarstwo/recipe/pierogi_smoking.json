@@ -1,0 +1,10 @@
+{
+ "type": "minecraft:smoking",
+ "category": "food",
+ "ingredient": "gospodarstwo:raw_pierogi",
+ "result": {
+  "id": "gospodarstwo:pierogi"
+ },
+ "experience": 0.3,
+ "cookingtime": 100
+}

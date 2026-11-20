@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LPL",
+  "PBP",
+  "LPL"
+ ],
+ "key": {
+  "L": "#minecraft:logs",
+  "P": "#minecraft:planks",
+  "B": "minecraft:iron_bars"
+ },
+ "result": {
+  "id": "gospodarstwo:smokehouse",
+  "count": 1
+ }
+}

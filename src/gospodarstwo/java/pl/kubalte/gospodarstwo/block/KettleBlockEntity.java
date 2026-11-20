@@ -33,6 +33,7 @@ public class KettleBlockEntity extends StationBlockEntity {
         add(new Brew(s -> s.is(Gospodarstwo.BONE_MARROW.get()) || s.is(Gospodarstwo.POULTRY_BONE.get()), 2, Gospodarstwo.GLUE, 1, 0xC9B48A));
         add(new Brew(s -> s.is(Gospodarstwo.SWIM_BLADDER.get()), 1, Gospodarstwo.GLUE, 2, 0xD8D0B0));
         add(new Brew(s -> s.is(Gospodarstwo.FATBACK.get()), 2, Gospodarstwo.LARD, 1, 0xF2EBDD));
+        add(new Brew(s -> s.is(Gospodarstwo.RAW_PIEROGI.get()), 1, Gospodarstwo.PIEROGI, 1, 0xEEE6D0));
     }
 
     public static Brew find(ItemStack s) {

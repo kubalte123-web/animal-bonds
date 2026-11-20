@@ -98,7 +98,10 @@ public final class GClientTest {
             case 2580 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 18", B.getX() + 179.5, B.getY() + 1,
                     B.getZ() - 3.5)));
             case 2660 -> shot(m + "home");
-            case 2820 -> {
+            case 2820 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 24", B.getX() + 256.5, B.getY() + 1,
+                    B.getZ() - 3.6)));
+            case 2900 -> shot(m + "kitchen");
+            case 3060 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
                 mc.stop();
             }
@@ -131,7 +134,7 @@ public final class GClientTest {
     static void textiles(MinecraftServer server) {
         ServerLevel level = server.overworld();
         var p = server.getPlayerList().getPlayers().get(0);
-        for (int x = 108; x <= 200; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
+        for (int x = 108; x <= 266; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
             level.setBlockAndUpdate(B.offset(x, y, z), Blocks.AIR.defaultBlockState());
         BlockPos wheel = B.offset(114, 0, 0), vat = B.offset(116, 0, 0), loom = B.offset(118, 0, 0);
         level.setBlockAndUpdate(wheel, Gospodarstwo.SPINNING_WHEEL.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.block.StationBlock.FACING,
@@ -177,6 +180,7 @@ public final class GClientTest {
         cmd(server, "gamerule doMobSpawning false");
 
         home(level, p);
+        kitchen(level, p);
 
         int perRow = 18;
         for (int i = 0; i < items.size(); i++) {
@@ -244,6 +248,44 @@ public final class GClientTest {
         level.setBlockAndUpdate(B.offset(178, 3, 4), Blocks.SPRUCE_PLANKS.defaultBlockState());
         level.setBlockAndUpdate(B.offset(178, 2, 4), Gospodarstwo.HORN_LANTERN.get().defaultBlockState()
                 .setValue(net.minecraft.world.level.block.LanternBlock.HANGING, true));
+    }
+
+    /** Stage 4: the kitchen stations at work. */
+    static void kitchen(ServerLevel level, net.minecraft.server.level.ServerPlayer p) {
+        BlockState north = Gospodarstwo.QUERN.get().defaultBlockState();
+        BlockPos q = B.offset(251, 0, 0), pr = B.offset(253, 0, 0), cr = B.offset(255, 0, 0), sm = B.offset(258, 1, 0), ch = B.offset(260, 0, 0);
+        level.setBlockAndUpdate(q, north);
+        if (level.getBlockEntity(q) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) {
+            be.insert(p, new ItemStack(Items.WHEAT, 64));
+            be.debugProgress(1);
+        }
+        level.setBlockAndUpdate(pr, Gospodarstwo.FRUIT_PRESS.get().defaultBlockState());
+        if (level.getBlockEntity(pr) instanceof pl.kubalte.gospodarstwo.kitchen.PressBlockEntity be) be.insert(p, new ItemStack(Gospodarstwo.PLUM.get(), 64));
+        level.setBlockAndUpdate(cr, Gospodarstwo.CROCK.get().defaultBlockState());
+        if (level.getBlockEntity(cr) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) be.insert(p, new ItemStack(Gospodarstwo.CABBAGE.get(), 16));
+        level.setBlockAndUpdate(sm.below(), Blocks.CAMPFIRE.defaultBlockState());
+        level.setBlockAndUpdate(sm, Gospodarstwo.SMOKEHOUSE.get().defaultBlockState());
+        if (level.getBlockEntity(sm) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) {
+            be.insert(p, new ItemStack(Gospodarstwo.RAW_SAUSAGE.get(), 6));
+            be.debugProgress(pl.kubalte.gospodarstwo.GConfig.SMOKE_TICKS.get() * 2 / 3);
+        }
+        level.setBlockAndUpdate(ch, Gospodarstwo.BUTTER_CHURN.get().defaultBlockState());
+        if (level.getBlockEntity(ch) instanceof pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity be) {
+            ItemStack milk = new ItemStack(Items.MILK_BUCKET);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, milk);
+            be.use(p, milk);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        }
+        // a finished churn of butter and a crock that is done, next to them
+        BlockPos ch2 = B.offset(261, 0, 1);
+        level.setBlockAndUpdate(ch2, Gospodarstwo.BUTTER_CHURN.get().defaultBlockState());
+        if (level.getBlockEntity(ch2) instanceof pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity be) {
+            ItemStack milk = new ItemStack(Items.MILK_BUCKET);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, milk);
+            be.use(p, milk);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            for (int i = 0; i < pl.kubalte.gospodarstwo.GConfig.CHURN_STROKES.get(); i++) be.churn();
+        }
     }
 
     static void scene(MinecraftServer server) {

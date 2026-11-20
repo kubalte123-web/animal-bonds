@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "gospodarstwo:flour",
+  [
+   "minecraft:egg",
+   "gospodarstwo:duck_egg",
+   "gospodarstwo:goose_egg",
+   "gospodarstwo:green_egg"
+  ],
+  "minecraft:milk_bucket",
+  "gospodarstwo:butter"
+ ],
+ "result": {
+  "id": "gospodarstwo:pancakes",
+  "count": 4
+ }
+}

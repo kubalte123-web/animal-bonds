@@ -1713,6 +1713,200 @@ def stage3():
         wj(path, d)
 
 
+# =====================================================================================  stage 4: kitchen
+GLASS = {'g': (196, 222, 232), 'h': (244, 252, 255), 'c': (150, 108, 66)}
+KITCHEN_ITEMS = {
+    # name: (sprite, base colour, extra palette)
+    'flour': ('sack', 0xC8AE7E, {'s': (176, 64, 52), 'c': (110, 76, 44)}),
+    'butter': ('bar', 0xF2D46A, {}),
+    'apple_juice': ('bottle', 0xE8B848, GLASS), 'plum_juice': ('bottle', 0x7A2E6E, GLASS), 'berry_juice': ('bottle', 0xC83A48, GLASS),
+    'linseed_oil': ('bottle', 0xD8B640, GLASS), 'vinegar': ('bottle', 0xD8B888, GLASS),
+    'sauerkraut': ('jar', 0xD8D49A, {'b': (150, 104, 60), 'c': (214, 214, 220)}),
+    'pickled_beets': ('jar', 0x8E1E3A, {'b': (150, 104, 60), 'c': (214, 214, 220)}),
+    'pickled_onions': ('jar', 0xE8DCB8, {'b': (150, 104, 60), 'c': (214, 214, 220)}),
+    'plum_jam': ('jar', 0x5A1E50, {'b': (196, 60, 52), 'c': (214, 214, 220)}),
+    'strawberry_jam': ('jar', 0xC02838, {'b': (236, 236, 236), 'c': (214, 214, 220)}),
+    'gooseberry_jam': ('jar', 0x8AA040, {'b': (196, 60, 52), 'c': (214, 214, 220)}),
+    'smoked_ham': ('ham', 0xA8503A, {'b': (238, 230, 214)}),
+    'smoked_fatback': ('fatback', None, {}),
+    'smoked_fish': ('fish', 0xB07A44, {'e': (30, 30, 30)}),
+    'smoked_poultry': ('drumstick', 0xA86A36, {'b': (238, 230, 214)}),
+    'raw_sausage': ('sausage', 0xD88E84, {'s': (246, 226, 220)}),
+    'kielbasa': ('sausage', 0x8E3E2A, {'s': (230, 200, 180)}),
+    'raw_pierogi': ('pierogi', 0xEEE4CA, {'c': (214, 202, 172)}),
+    'pierogi': ('pierogi', 0xE6C88C, {'c': (196, 150, 84)}),
+    'pancakes': ('pancakes', 0xE8C27A, {'y': (250, 226, 120)}),
+    'apple_pie': ('pie', None, {}),
+    'bigos': ('bowl', 0x7A5030, {'k': (150, 60, 44), 's': (214, 208, 150), 'B': (176, 128, 80), 'b': (134, 92, 52)}),
+    'bread_with_butter': ('slice', 0xEFD9A8, {'c': (176, 116, 54), 'y': (250, 222, 110)}),
+}
+KITCHEN_NAMES = {
+    'flour': ('Mąka', 'Flour'), 'butter': ('Masło', 'Butter'), 'apple_juice': ('Sok jabłkowy', 'Apple Juice'),
+    'plum_juice': ('Sok śliwkowy', 'Plum Juice'), 'berry_juice': ('Sok owocowy', 'Berry Juice'), 'linseed_oil': ('Olej lniany', 'Linseed Oil'),
+    'vinegar': ('Ocet jabłkowy', 'Cider Vinegar'), 'sauerkraut': ('Kiszona kapusta', 'Sauerkraut'), 'pickled_beets': ('Kiszone buraki', 'Pickled Beets'),
+    'pickled_onions': ('Marynowana cebulka', 'Pickled Onions'), 'plum_jam': ('Powidła śliwkowe', 'Plum Butter'),
+    'strawberry_jam': ('Dżem truskawkowy', 'Strawberry Jam'), 'gooseberry_jam': ('Dżem agrestowy', 'Gooseberry Jam'),
+    'smoked_ham': ('Szynka wędzona', 'Smoked Ham'), 'smoked_fatback': ('Słonina wędzona', 'Smoked Fatback'),
+    'smoked_fish': ('Wędzona ryba', 'Smoked Fish'), 'smoked_poultry': ('Wędzony drób', 'Smoked Poultry'),
+    'raw_sausage': ('Surowa kiełbasa', 'Raw Sausage'), 'kielbasa': ('Kiełbasa wędzona', 'Kielbasa'),
+    'raw_pierogi': ('Surowe pierogi', 'Raw Pierogi'), 'pierogi': ('Pierogi', 'Pierogi'), 'pancakes': ('Naleśniki', 'Pancakes'),
+    'apple_pie': ('Szarlotka', 'Apple Pie'), 'bigos': ('Bigos', 'Bigos'), 'bread_with_butter': ('Chleb z masłem', 'Bread with Butter'),
+}
+
+
+def stage4():
+    T = f'{A}/textures/item'
+    for name, (shape, col, extra) in KITCHEN_ITEMS.items():
+        if name == 'smoked_fatback':
+            pal = SP.ramp((236, 214, 180))
+            pal.update({'p': (156, 92, 52), 'P': (120, 64, 34)})
+        elif name == 'apple_pie':
+            pal = {'o': (70, 44, 24), 'c': (214, 162, 92), 'd': (176, 122, 60), 'f': (236, 206, 120), 'P': (150, 150, 160)}
+        else:
+            pal = SP.ramp(rgb(col))
+        pal.update(extra)
+        wi(f'{T}/{name}.png', SP.render(SP.S[shape], pal))
+        wj(f'{A}/models/item/{name}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{name}'}})
+        wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{name}'}})
+
+    def el(fr, to, tex, faces=('north', 'south', 'east', 'west', 'up', 'down')):
+        f = {}
+        for face in faces:
+            if face in ('up', 'down'):
+                uv = [fr[0], fr[2], to[0], to[2]]
+            elif face in ('north', 'south'):
+                uv = [fr[0], 16 - to[1], to[0], 16 - fr[1]]
+            else:
+                uv = [fr[2], 16 - to[1], to[2], 16 - fr[1]]
+            f[face] = {'texture': tex, 'uv': [max(0, min(16, v)) for v in uv]}
+        return {'from': fr, 'to': to, 'faces': f}
+
+    disp = {'gui': {'rotation': [30, 225, 0], 'translation': [0, 0, 0], 'scale': [0.625, 0.625, 0.625]},
+            'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.25, 0.25, 0.25]},
+            'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.5, 0.5, 0.5]},
+            'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.375, 0.375, 0.375]},
+            'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}}
+
+    def ring(x0, y0, z0, x1, y1, z1, t, tex):
+        return [el([x0, y0, z0], [x1, y1, z0 + t], tex), el([x0, y0, z1 - t], [x1, y1, z1], tex),
+                el([x0, y0, z0 + t], [x0 + t, y1, z1 - t], tex), el([x1 - t, y0, z0 + t], [x1, y1, z1 - t], tex)]
+
+    models = {}
+    # quern: wooden platform, lower millstone, spout (the upper stone turns in the renderer)
+    models['quern'] = ({'p': 'minecraft:block/spruce_planks', 's': 'minecraft:block/smooth_stone', 'particle': 'minecraft:block/smooth_stone'},
+                       [el([1, 0, 1], [15, 3, 15], '#p'), el([0.5, 0, 0.5], [2.5, 3.5, 2.5], '#p'), el([13.5, 0, 0.5], [15.5, 3.5, 2.5], '#p'),
+                        el([0.5, 0, 13.5], [2.5, 3.5, 15.5], '#p'), el([13.5, 0, 13.5], [15.5, 3.5, 15.5], '#p'),
+                        el([2, 3, 2], [14, 5, 14], '#s'), el([7, 3, 14], [9, 4.5, 15.5], '#s')], 'quern')
+    # fruit press: tub with a spout, slatted basket with iron hoops, frame with a beam
+    press = [el([1, 0, 1], [15, 1, 15], '#p'), el([7, 1, 15], [9, 2, 16.5], '#p')] + ring(1, 1, 1, 15, 3, 15, 1, '#p')
+    for x in (3.5, 6, 8.5, 11):
+        press += [el([x, 3, 3.3], [x + 1.4, 10, 4], '#s'), el([x, 3, 12], [x + 1.4, 10, 12.7], '#s')]
+        press += [el([3.3, 3, x], [4, 10, x + 1.4], '#s'), el([12, 3, x], [12.7, 10, x + 1.4], '#s')]
+    for y in (4.5, 8.2):
+        press += ring(3.1, y, 3.1, 12.9, y + 0.8, 12.9, 0.4, '#i')
+    press += [el([0, 0, 6.5], [1.5, 16, 9.5], '#l'), el([14.5, 0, 6.5], [16, 16, 9.5], '#l'), el([0, 14, 6.5], [16, 16, 9.5], '#l')]
+    models['fruit_press'] = ({'p': 'minecraft:block/spruce_planks', 's': 'minecraft:block/stripped_spruce_log', 'i': 'minecraft:block/anvil',
+                              'l': 'minecraft:block/dark_oak_log', 'particle': 'minecraft:block/spruce_planks'}, press, 'fruit_press')
+    # crock: stoneware body, brown glazed top and rim, ears, wooden lid
+    crock = [el([3, 0, 3], [13, 8, 13], '#w'), el([3, 8, 3], [13, 10.5, 13], '#b')] + ring(2.5, 10.5, 2.5, 13.5, 11.5, 13.5, 0.8, '#b')
+    crock += [el([2, 7.5, 7], [3, 9.5, 9], '#b'), el([13, 7.5, 7], [14, 9.5, 9], '#b'), el([3.4, 10.5, 3.4], [12.6, 11, 12.6], '#b'),
+              el([4, 11.2, 4], [12, 12.6, 12], '#p'), el([7.5, 12.6, 7.5], [8.5, 13, 8.5], '#p')]
+    models['crock'] = ({'w': 'minecraft:block/white_terracotta', 'b': 'minecraft:block/brown_terracotta', 'p': 'minecraft:block/spruce_planks',
+                        'particle': 'minecraft:block/white_terracotta'}, crock, 'crock')
+    # smokehouse: corner posts, closed back and sides, slatted front, grate floor, roof with a chimney, a bar for hooks
+    sm = [el([0, 0, 0], [2, 14, 2], '#l'), el([14, 0, 0], [16, 14, 2], '#l'), el([0, 0, 14], [2, 14, 16], '#l'), el([14, 0, 14], [16, 14, 16], '#l'),
+          el([2, 0, 15], [14, 14, 16], '#p'), el([0, 0, 2], [1, 14, 14], '#p'), el([15, 0, 2], [16, 14, 14], '#p')]
+    for y in (0.5, 4.5, 8.5):
+        sm.append(el([2, y, 0.5], [14, y + 2.5, 1.5], '#p'))
+    for x in (2, 5, 8, 11):
+        sm.append(el([x, 0, 2], [x + 2, 0.6, 14], '#p'))
+    sm += [el([-0.5, 14, -0.5], [16.5, 15, 16.5], '#r'), el([1, 15, 1], [15, 16, 15], '#r'), el([6, 16, 6], [10, 19, 10], '#c'),
+           el([2, 12, 7.5], [14, 12.6, 8.5], '#i')]
+    models['smokehouse'] = ({'l': 'minecraft:block/dark_oak_log', 'p': 'minecraft:block/spruce_planks', 'r': 'minecraft:block/dark_oak_planks',
+                             'c': 'minecraft:block/bricks', 'i': 'minecraft:block/anvil', 'particle': 'minecraft:block/spruce_planks'}, sm, 'smokehouse')
+    # butter churn: staves on a wider foot, two iron hoops, a lid
+    churn = [el([4, 0, 4], [12, 2, 12], '#p'), el([4.5, 2, 4.5], [11.5, 13, 11.5], '#p'),
+             el([4.3, 2.5, 4.3], [11.7, 3.5, 11.7], '#i'), el([4.3, 10, 4.3], [11.7, 11, 11.7], '#i'), el([4.8, 13, 4.8], [11.2, 14, 11.2], '#o')]
+    models['butter_churn'] = ({'p': 'minecraft:block/stripped_spruce_log', 'i': 'minecraft:block/anvil', 'o': 'minecraft:block/oak_planks',
+                               'particle': 'minecraft:block/stripped_spruce_log'}, churn, 'butter_churn')
+    for name, (tex, els, _) in models.items():
+        wj(f'{A}/models/block/{name}.json', {'parent': 'minecraft:block/block', 'textures': tex, 'elements': els, 'display': disp})
+        wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/{name}'}})
+        if name == 'butter_churn':
+            wj(f'{A}/blockstates/{name}.json', {'variants': {'': {'model': f'{NS}:block/{name}'}}})
+        else:
+            wj(f'{A}/blockstates/{name}.json', {'variants': {f'facing={f}': ({'model': f'{NS}:block/{name}', 'y': y} if y else {'model': f'{NS}:block/{name}'})
+                                                             for f, y in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
+        wj(f'{D}/{NS}/loot_table/blocks/{name}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+                                                                                               'entries': [{'type': 'minecraft:item', 'name': f'{NS}:{name}'}]}],
+                                                          'random_sequence': f'{NS}:blocks/{name}'})
+    wj(f'{D}/minecraft/tags/block/mineable/pickaxe.json', {'replace': False, 'values': [f'{NS}:quern', f'{NS}:crock', f'{NS}:bonsai_pot', f'{NS}:kettle', f'{NS}:horn_lantern']})
+    wj(f'{D}/minecraft/tags/block/mineable/axe.json', {'replace': False, 'values': [f'{NS}:fruit_press', f'{NS}:smokehouse', f'{NS}:butter_churn',
+                                                                                    f'{NS}:tanning_rack', f'{NS}:spinning_wheel', f'{NS}:weaving_loom', f'{NS}:dye_vat']})
+
+    G = lambda n: f'{NS}:{n}'
+    R = f'{D}/{NS}/recipe'
+
+    def shaped(name, pattern, key, count=1, cat='misc'):
+        wj(f'{R}/{name}.json', {'type': 'minecraft:crafting_shaped', 'category': cat, 'pattern': pattern, 'key': key,
+                                'result': {'id': G(name), 'count': count}})
+
+    def shapeless(name, ingredients, count=1, file=None):
+        wj(f'{R}/{file or name}.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc', 'ingredients': ingredients,
+                                        'result': {'id': G(name), 'count': count}})
+    shaped('quern', [' T ', 'SSS', 'PPP'], {'T': 'minecraft:stick', 'S': 'minecraft:smooth_stone', 'P': '#minecraft:wooden_slabs'})
+    shaped('fruit_press', ['LIL', 'P P', 'PSP'], {'L': '#minecraft:logs', 'I': 'minecraft:iron_ingot', 'P': '#minecraft:planks',
+                                                 'S': '#minecraft:wooden_slabs'})
+    shaped('crock', ['T T', 'TTT'], {'T': 'minecraft:terracotta'})
+    shaped('smokehouse', ['LPL', 'PBP', 'LPL'], {'L': '#minecraft:logs', 'P': '#minecraft:planks', 'B': 'minecraft:iron_bars'})
+    shaped('butter_churn', [' S ', 'P P', 'PIP'], {'S': 'minecraft:stick', 'P': '#minecraft:planks', 'I': 'minecraft:iron_ingot'})
+    eggs = ['minecraft:egg', G('duck_egg'), G('goose_egg'), G('green_egg')]
+    meats = ['minecraft:porkchop', 'minecraft:beef', 'minecraft:mutton']
+    shapeless('raw_sausage', [meats, G('gut'), G('onion')], 3)
+    shapeless('raw_pierogi', [G('flour'), G('flour'), [G('sauerkraut'), G('cabbage'), 'minecraft:potato', G('strawberry')], G('onion')], 4)
+    shapeless('pancakes', [G('flour'), eggs, 'minecraft:milk_bucket', G('butter')], 4)
+    shapeless('apple_pie', ['minecraft:apple', 'minecraft:apple', 'minecraft:sugar', eggs, G('flour'), G('butter')])
+    shapeless('bigos', [G('sauerkraut'), G('sauerkraut'), [G('kielbasa'), G('smoked_ham'), 'minecraft:cooked_porkchop', 'minecraft:cooked_beef'],
+                        G('onion'), 'minecraft:bowl'])
+    shapeless('bread_with_butter', ['minecraft:bread', G('butter')], 2)
+    shapeless('plum_jam', [G('plum'), G('plum'), G('plum'), 'minecraft:sugar', 'minecraft:glass_bottle'])
+    shapeless('strawberry_jam', [G('strawberry'), G('strawberry'), G('strawberry'), 'minecraft:sugar', 'minecraft:glass_bottle'])
+    shapeless('gooseberry_jam', [G('gooseberries'), G('gooseberries'), G('gooseberries'), 'minecraft:sugar', 'minecraft:glass_bottle'])
+    shapeless('flour', ['minecraft:wheat', 'minecraft:wheat'], 1, file='flour_by_hand')
+    for kind in ('smelting', 'smoking', 'campfire_cooking'):
+        wj(f'{R}/pierogi_{kind}.json', {'type': f'minecraft:{kind}', 'category': 'food', 'ingredient': G('raw_pierogi'), 'result': {'id': G('pierogi')},
+                                        'experience': 0.3, 'cookingtime': {'smelting': 200, 'smoking': 100, 'campfire_cooking': 600}[kind]})
+    wj(f'{R}/bread_from_flour.json', {'type': 'minecraft:smelting', 'category': 'food', 'ingredient': G('flour'), 'result': {'id': 'minecraft:bread'},
+                                      'experience': 0.2, 'cookingtime': 200})
+
+    pl = {f'item.{NS}.{k}': v[0] for k, v in KITCHEN_NAMES.items()}
+    en = {f'item.{NS}.{k}': v[1] for k, v in KITCHEN_NAMES.items()}
+    pl.update({'block.gospodarstwo.quern': 'Żarna', 'block.gospodarstwo.fruit_press': 'Prasa do owoców', 'block.gospodarstwo.crock': 'Kamionkowy garnek',
+               'block.gospodarstwo.smokehouse': 'Wędzarnia', 'block.gospodarstwo.butter_churn': 'Maselnica',
+               'quern.gospodarstwo.empty': 'Żarna są puste – wsyp zboże, trzcinę cukrową albo kości',
+               'press.gospodarstwo.empty': 'Prasa jest pusta – włóż jabłka, śliwki, owoce albo siemię lniane',
+               'press.gospodarstwo.need_bottle': 'Sok nalejesz do szklanej butelki',
+               'press.gospodarstwo.no_juice': 'W prasie nie ma jeszcze soku',
+               'crock.gospodarstwo.empty': 'Garnek jest pusty – włóż kapustę, buraki, cebulę albo sok jabłkowy',
+               'smokehouse.gospodarstwo.empty': 'Wędzarnia jest pusta – zawieś mięso, słoninę, ryby albo kiełbasę',
+               'smokehouse.gospodarstwo.cold': 'Pod wędzarnią musi się palić ognisko',
+               'churn.gospodarstwo.empty': 'Wlej wiadro mleka, potem ubijaj (PPM) aż powstanie masło'})
+    en.update({'block.gospodarstwo.quern': 'Quern', 'block.gospodarstwo.fruit_press': 'Fruit Press', 'block.gospodarstwo.crock': 'Fermenting Crock',
+               'block.gospodarstwo.smokehouse': 'Smokehouse', 'block.gospodarstwo.butter_churn': 'Butter Churn',
+               'quern.gospodarstwo.empty': 'The quern is empty - put in grain, sugar cane or bones',
+               'press.gospodarstwo.empty': 'The press is empty - put in apples, plums, berries or flax seeds',
+               'press.gospodarstwo.need_bottle': 'Fill a glass bottle with the juice', 'press.gospodarstwo.no_juice': 'No juice yet',
+               'crock.gospodarstwo.empty': 'The crock is empty - put in cabbage, beetroots, onions or apple juice',
+               'smokehouse.gospodarstwo.empty': 'The smokehouse is empty - hang meat, fatback, fish or sausages',
+               'smokehouse.gospodarstwo.cold': 'A campfire must burn under the smokehouse',
+               'churn.gospodarstwo.empty': 'Pour in a bucket of milk, then churn (right-click) until it turns into butter'})
+    for lang_file, extra in (('pl_pl', pl), ('en_us', en)):
+        path = f'{A}/lang/{lang_file}.json'
+        d = json.load(open(path, encoding='utf-8'))
+        d.update(extra)
+        wj(path, d)
+
+
 if __name__ == '__main__':
     animal_assets()
     item_textures()
@@ -1723,3 +1917,4 @@ if __name__ == '__main__':
     textiles()
     stage2()
     stage3()
+    stage4()

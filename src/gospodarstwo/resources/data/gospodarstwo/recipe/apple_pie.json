@@ -1,0 +1,21 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "minecraft:apple",
+  "minecraft:apple",
+  "minecraft:sugar",
+  [
+   "minecraft:egg",
+   "gospodarstwo:duck_egg",
+   "gospodarstwo:goose_egg",
+   "gospodarstwo:green_egg"
+  ],
+  "gospodarstwo:flour",
+  "gospodarstwo:butter"
+ ],
+ "result": {
+  "id": "gospodarstwo:apple_pie",
+  "count": 1
+ }
+}

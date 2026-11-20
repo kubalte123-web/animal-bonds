@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "gospodarstwo:block/quern"
+  },
+  "facing=east": {
+   "model": "gospodarstwo:block/quern",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "gospodarstwo:block/quern",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "gospodarstwo:block/quern",
+   "y": 270
+  }
+ }
+}

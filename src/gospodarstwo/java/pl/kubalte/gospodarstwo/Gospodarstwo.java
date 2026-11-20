@@ -174,6 +174,35 @@ public class Gospodarstwo {
             () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.CurtainBlockEntity::new, CURTAIN.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.RugBlockEntity>> RUG_BE = BLOCK_ENTITIES.register("wool_rug",
             () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.RugBlockEntity::new, WOOL_RUG.get()));
+    // ---------------- kitchen (stage 4) ----------------
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.kitchen.KitchenBlock> QUERN = BLOCKS.registerBlock("quern",
+            p -> new pl.kubalte.gospodarstwo.kitchen.KitchenBlock(p, net.minecraft.world.level.block.Block.box(1, 0, 1, 15, 9, 15),
+                    pl.kubalte.gospodarstwo.kitchen.QuernBlockEntity::new, () -> Gospodarstwo.QUERN_BE.get()),
+            p -> p.mapColor(MapColor.STONE).strength(2.0F).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops());
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.kitchen.KitchenBlock> FRUIT_PRESS = BLOCKS.registerBlock("fruit_press",
+            p -> new pl.kubalte.gospodarstwo.kitchen.KitchenBlock(p, net.minecraft.world.level.block.Block.box(1, 0, 1, 15, 16, 15),
+                    pl.kubalte.gospodarstwo.kitchen.PressBlockEntity::new, () -> Gospodarstwo.PRESS_BE.get()),
+            p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD).noOcclusion());
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.kitchen.KitchenBlock> CROCK = BLOCKS.registerBlock("crock",
+            p -> new pl.kubalte.gospodarstwo.kitchen.KitchenBlock(p, net.minecraft.world.level.block.Block.box(3, 0, 3, 13, 13, 13),
+                    pl.kubalte.gospodarstwo.kitchen.CrockBlockEntity::new, () -> Gospodarstwo.CROCK_BE.get()),
+            p -> p.mapColor(MapColor.TERRACOTTA_ORANGE).strength(1.2F).sound(SoundType.DECORATED_POT).noOcclusion());
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.kitchen.KitchenBlock> SMOKEHOUSE = BLOCKS.registerBlock("smokehouse",
+            p -> new pl.kubalte.gospodarstwo.kitchen.KitchenBlock(p, net.minecraft.world.level.block.Block.box(0, 0, 0, 16, 16, 16),
+                    pl.kubalte.gospodarstwo.kitchen.SmokehouseBlockEntity::new, () -> Gospodarstwo.SMOKEHOUSE_BE.get()),
+            p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD).noOcclusion());
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.kitchen.ChurnBlock> BUTTER_CHURN = BLOCKS.registerBlock("butter_churn",
+            pl.kubalte.gospodarstwo.kitchen.ChurnBlock::new, p -> p.mapColor(MapColor.WOOD).strength(1.5F).sound(SoundType.WOOD).noOcclusion());
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.kitchen.QuernBlockEntity>> QUERN_BE = BLOCK_ENTITIES.register("quern",
+            () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.QuernBlockEntity::new, QUERN.get()));
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.kitchen.PressBlockEntity>> PRESS_BE = BLOCK_ENTITIES.register("fruit_press",
+            () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.PressBlockEntity::new, FRUIT_PRESS.get()));
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.kitchen.CrockBlockEntity>> CROCK_BE = BLOCK_ENTITIES.register("crock",
+            () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.CrockBlockEntity::new, CROCK.get()));
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.kitchen.SmokehouseBlockEntity>> SMOKEHOUSE_BE = BLOCK_ENTITIES.register(
+            "smokehouse", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.SmokehouseBlockEntity::new, SMOKEHOUSE.get()));
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity>> CHURN_BE = BLOCK_ENTITIES.register("butter_churn",
+            () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity::new, BUTTER_CHURN.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.TanningRackBlockEntity>> TANNING_RACK_BE = BLOCK_ENTITIES.register(
             "tanning_rack", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.TanningRackBlockEntity::new, TANNING_RACK.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.KettleBlockEntity>> KETTLE_BE = BLOCK_ENTITIES.register("kettle",
@@ -251,6 +280,52 @@ public class Gospodarstwo {
             net.minecraft.world.item.equipment.ArmorType.CHESTPLATE);
     public static final DeferredItem<Item> LINEN_TROUSERS = wear("linen_trousers", pl.kubalte.gospodarstwo.craft.Clothing.LINEN,
             net.minecraft.world.item.equipment.ArmorType.LEGGINGS);
+    // ---------------- kitchen items (stage 4) ----------------
+    public static final DeferredItem<BlockItem> QUERN_ITEM = tab(ITEMS.registerSimpleBlockItem("quern", QUERN));
+    public static final DeferredItem<BlockItem> BUTTER_CHURN_ITEM = tab(ITEMS.registerSimpleBlockItem("butter_churn", BUTTER_CHURN));
+    public static final DeferredItem<BlockItem> FRUIT_PRESS_ITEM = tab(ITEMS.registerSimpleBlockItem("fruit_press", FRUIT_PRESS));
+    public static final DeferredItem<BlockItem> CROCK_ITEM = tab(ITEMS.registerSimpleBlockItem("crock", CROCK));
+    public static final DeferredItem<BlockItem> SMOKEHOUSE_ITEM = tab(ITEMS.registerSimpleBlockItem("smokehouse", SMOKEHOUSE));
+
+    private static DeferredItem<Item> dish(String name, int nutrition, float saturation, net.minecraft.world.item.Item container) {
+        return tab(ITEMS.registerSimpleItem(name, p -> p.food(new FoodProperties.Builder().nutrition(nutrition).saturationModifier(saturation).build())
+                .usingConvertsTo(container).stacksTo(16)));
+    }
+
+    private static DeferredItem<Item> drink(String name, int nutrition, float saturation) {
+        return tab(ITEMS.registerSimpleItem(name, p -> p.food(new FoodProperties.Builder().nutrition(nutrition).saturationModifier(saturation)
+                .alwaysEdible().build(), net.minecraft.world.item.component.Consumables.defaultDrink().build())
+                .usingConvertsTo(net.minecraft.world.item.Items.GLASS_BOTTLE).stacksTo(16)));
+    }
+
+    public static final DeferredItem<Item> FLOUR = item("flour");
+    public static final DeferredItem<Item> BUTTER = food("butter", 2, 0.6F);
+    public static final DeferredItem<Item> APPLE_JUICE = drink("apple_juice", 3, 0.4F);
+    public static final DeferredItem<Item> PLUM_JUICE = drink("plum_juice", 3, 0.4F);
+    public static final DeferredItem<Item> BERRY_JUICE = drink("berry_juice", 3, 0.4F);
+    public static final DeferredItem<Item> LINSEED_OIL = tab(ITEMS.registerSimpleItem("linseed_oil",
+            p -> p.craftRemainder(net.minecraft.world.item.Items.GLASS_BOTTLE).stacksTo(16)));
+    public static final DeferredItem<Item> VINEGAR = tab(ITEMS.registerSimpleItem("vinegar",
+            p -> p.craftRemainder(net.minecraft.world.item.Items.GLASS_BOTTLE).stacksTo(16)));
+    public static final DeferredItem<Item> SAUERKRAUT = food("sauerkraut", 4, 0.6F);
+    public static final DeferredItem<Item> PICKLED_BEETS = food("pickled_beets", 4, 0.6F);
+    public static final DeferredItem<Item> PICKLED_ONIONS = food("pickled_onions", 3, 0.6F);
+    public static final DeferredItem<Item> PLUM_JAM = dish("plum_jam", 6, 0.5F, net.minecraft.world.item.Items.GLASS_BOTTLE);
+    public static final DeferredItem<Item> STRAWBERRY_JAM = dish("strawberry_jam", 6, 0.5F, net.minecraft.world.item.Items.GLASS_BOTTLE);
+    public static final DeferredItem<Item> GOOSEBERRY_JAM = dish("gooseberry_jam", 6, 0.5F, net.minecraft.world.item.Items.GLASS_BOTTLE);
+    public static final DeferredItem<Item> SMOKED_HAM = food("smoked_ham", 10, 0.9F);
+    public static final DeferredItem<Item> SMOKED_FATBACK = food("smoked_fatback", 5, 0.8F);
+    public static final DeferredItem<Item> SMOKED_FISH = food("smoked_fish", 7, 0.8F);
+    public static final DeferredItem<Item> SMOKED_POULTRY = food("smoked_poultry", 8, 0.8F);
+    public static final DeferredItem<Item> RAW_SAUSAGE = food("raw_sausage", 2, 0.2F);
+    public static final DeferredItem<Item> KIELBASA = food("kielbasa", 9, 0.9F);
+    public static final DeferredItem<Item> RAW_PIEROGI = food("raw_pierogi", 2, 0.2F);
+    public static final DeferredItem<Item> PIEROGI = food("pierogi", 8, 0.7F);
+    public static final DeferredItem<Item> PANCAKES = food("pancakes", 7, 0.6F);
+    public static final DeferredItem<Item> APPLE_PIE = food("apple_pie", 9, 0.6F);
+    public static final DeferredItem<Item> BIGOS = dish("bigos", 12, 1.0F, net.minecraft.world.item.Items.BOWL);
+    public static final DeferredItem<Item> BREAD_WITH_BUTTER = food("bread_with_butter", 7, 0.8F);
+
     public static final DeferredItem<Item> PILLOW = tab(ITEMS.registerSimpleItem("pillow", p -> p.stacksTo(16)));
     public static final DeferredItem<Item> FEATHERBED = tab(ITEMS.registerSimpleItem("featherbed", p -> p.stacksTo(16)));
     public static final DeferredItem<pl.kubalte.gospodarstwo.item.CurryCombItem> CURRY_COMB = tab(ITEMS.registerItem("curry_comb",

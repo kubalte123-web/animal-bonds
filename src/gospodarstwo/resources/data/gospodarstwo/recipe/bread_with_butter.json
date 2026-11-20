@@ -1,0 +1,12 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "minecraft:bread",
+  "gospodarstwo:butter"
+ ],
+ "result": {
+  "id": "gospodarstwo:bread_with_butter",
+  "count": 2
+ }
+}

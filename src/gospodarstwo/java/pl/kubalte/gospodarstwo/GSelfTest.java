@@ -373,7 +373,80 @@ public final class GSelfTest {
         pl.kubalte.gospodarstwo.block.ColoredBlocks.dye(level, rugPos, player, new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(
                 net.minecraft.resources.Identifier.withDefaultNamespace("red_dye"))));
         check(level.getBlockEntity(rugPos) instanceof pl.kubalte.gospodarstwo.block.ColoredBlockEntity rb && rb.color() >= 0, "a rug can be dyed");
+
+        // ---- stage 4: kitchen ----
+        kitchen(level, player);
         check(Breed.byIndex(Breed.ANGORA.index()) == Breed.ANGORA && BreedEvents.breedsOf(cow).contains(Breed.HIGHLAND), "breed lookup");
         for (Mob m : new Mob[] {duck, goose, turkey, snail, cow, sheep}) if (m != null) m.discard();
+    }
+
+    static void work(ServerLevel level, BlockPos pos, pl.kubalte.gospodarstwo.block.StationBlockEntity be, int ticks) {
+        for (int k = 0; k < ticks; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, pos, level.getBlockState(pos), be);
+    }
+
+    static void kitchen(ServerLevel level, FakePlayer player) {
+        BlockPos q = O.offset(2, 0, 4);
+        level.setBlockAndUpdate(q, Gospodarstwo.QUERN.get().defaultBlockState());
+        var quern = (pl.kubalte.gospodarstwo.kitchen.QuernBlockEntity) level.getBlockEntity(q);
+        quern.insert(player, new ItemStack(Items.WHEAT, 2));
+        work(level, q, quern, GConfig.QUERN_TICKS.get() * 2 + 5);
+        check(quern.output().is(Gospodarstwo.FLOUR.get()) && quern.output().getCount() == 4, "the quern grinds 2 wheat into 4 flour (" + quern.output() + ")");
+
+        BlockPos pr = O.offset(4, 0, 4);
+        level.setBlockAndUpdate(pr, Gospodarstwo.FRUIT_PRESS.get().defaultBlockState());
+        var press = (pl.kubalte.gospodarstwo.kitchen.PressBlockEntity) level.getBlockEntity(pr);
+        press.insert(player, new ItemStack(Items.APPLE, 4));
+        work(level, pr, press, GConfig.PRESS_TICKS.get() * 2 + 5);
+        check(press.output().is(Gospodarstwo.APPLE_JUICE.get()) && press.output().getCount() == 2, "4 apples press into 2 bottles of juice");
+        int before = player.getInventory().countItem(Gospodarstwo.APPLE_JUICE.get());
+        player.setShiftKeyDown(false);
+        press.take(player);
+        check(player.getInventory().countItem(Gospodarstwo.APPLE_JUICE.get()) == before, "juice can't be taken without a bottle");
+        ItemStack bottles = new ItemStack(Items.GLASS_BOTTLE, 3);
+        press.insert(player, bottles);
+        check(player.getInventory().countItem(Gospodarstwo.APPLE_JUICE.get()) == before + 1 && bottles.getCount() == 2, "a bottle is filled with juice");
+
+        BlockPos cr = O.offset(6, 0, 4);
+        level.setBlockAndUpdate(cr, Gospodarstwo.CROCK.get().defaultBlockState());
+        var crock = (pl.kubalte.gospodarstwo.kitchen.CrockBlockEntity) level.getBlockEntity(cr);
+        crock.insert(player, new ItemStack(Gospodarstwo.CABBAGE.get(), 8));
+        work(level, cr, crock, GConfig.FERMENT_TICKS.get() / 2);
+        check(crock.output().isEmpty(), "sauerkraut needs time");
+        work(level, cr, crock, GConfig.FERMENT_TICKS.get() / 2 + 5);
+        check(crock.output().is(Gospodarstwo.SAUERKRAUT.get()) && crock.output().getCount() == 8, "8 cabbages ferment into 8 sauerkraut (" + crock.output() + ")");
+
+        BlockPos sm = O.offset(8, 0, 4);
+        level.setBlockAndUpdate(sm, Gospodarstwo.SMOKEHOUSE.get().defaultBlockState());
+        var smoke = (pl.kubalte.gospodarstwo.kitchen.SmokehouseBlockEntity) level.getBlockEntity(sm);
+        smoke.insert(player, new ItemStack(Items.PORKCHOP, 3));
+        work(level, sm, smoke, 200);
+        check(smoke.output().isEmpty() && smoke.input().getCount() == 3, "without a fire nothing gets smoked");
+        level.setBlockAndUpdate(sm.below(), Blocks.CAMPFIRE.defaultBlockState());
+        work(level, sm, smoke, GConfig.SMOKE_TICKS.get() + 5);
+        check(smoke.output().is(Gospodarstwo.SMOKED_HAM.get()) && smoke.output().getCount() == 3, "porkchops are smoked into ham over a campfire");
+
+        BlockPos ch = O.offset(10, 0, 4);
+        level.setBlockAndUpdate(ch, Gospodarstwo.BUTTER_CHURN.get().defaultBlockState());
+        var churn = (pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity) level.getBlockEntity(ch);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.MILK_BUCKET));
+        churn.use(player, player.getMainHandItem());
+        check(churn.milk() && player.getMainHandItem().is(Items.BUCKET), "milk poured into the churn, the bucket comes back");
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        for (int k = 0; k < GConfig.CHURN_STROKES.get() - 1; k++) churn.use(player, ItemStack.EMPTY);
+        check(churn.butter() == 0, "not butter yet");
+        churn.use(player, ItemStack.EMPTY);
+        check(churn.butter() == 2, "churning turns the milk into butter");
+        int b = player.getInventory().countItem(Gospodarstwo.BUTTER.get());
+        churn.use(player, ItemStack.EMPTY);
+        check(player.getInventory().countItem(Gospodarstwo.BUTTER.get()) == b + 2, "butter taken out");
+
+        BlockPos ke = O.offset(12, 0, 4);
+        level.setBlockAndUpdate(ke.below(), Blocks.CAMPFIRE.defaultBlockState());
+        level.setBlockAndUpdate(ke, Gospodarstwo.KETTLE.get().defaultBlockState());
+        var kettle = (pl.kubalte.gospodarstwo.block.KettleBlockEntity) level.getBlockEntity(ke);
+        kettle.insert(player, new ItemStack(Gospodarstwo.RAW_PIEROGI.get(), 4));
+        work(level, ke, kettle, GConfig.KETTLE_TICKS.get() * 4 + 5);
+        check(kettle.output().is(Gospodarstwo.PIEROGI.get()) && kettle.output().getCount() == 4, "pierogi boil in the kettle");
+        check(Gospodarstwo.BIGOS.get().getDefaultInstance().get(net.minecraft.core.component.DataComponents.FOOD) != null, "bigos is food");
     }
 }

@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "gospodarstwo:flour",
+  "gospodarstwo:flour",
+  [
+   "gospodarstwo:sauerkraut",
+   "gospodarstwo:cabbage",
+   "minecraft:potato",
+   "gospodarstwo:strawberry"
+  ],
+  "gospodarstwo:onion"
+ ],
+ "result": {
+  "id": "gospodarstwo:raw_pierogi",
+  "count": 4
+ }
+}

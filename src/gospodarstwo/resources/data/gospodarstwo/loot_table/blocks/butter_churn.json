@@ -1,0 +1,20 @@
+{
+ "type": "minecraft:block",
+ "pools": [
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:survives_explosion"
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:butter_churn"
+    }
+   ]
+  }
+ ],
+ "random_sequence": "gospodarstwo:blocks/butter_churn"
+}
