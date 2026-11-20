@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.SleepFinishedTimeEvent;
 import pl.kubalte.gospodarstwo.GConfig;
 import pl.kubalte.gospodarstwo.Gospodarstwo;
@@ -72,7 +72,7 @@ public final class Bedding {
         e.setCancellationResult(InteractionResult.SUCCESS);
     }
 
-    public static void onBreak(BlockEvent.BreakEvent e) {
+    public static void onBreak(BreakBlockEvent e) {
         if (!(e.getLevel() instanceof Level level)) return;
         BlockPos h = head(e.getState(), e.getPos());
         if (h == null) return;

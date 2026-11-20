@@ -334,10 +334,10 @@ public final class GSelfTest {
                 "wool clothes are warm and protect from freezing");
         check(new ItemStack(Gospodarstwo.LINEN_SHIRT.get()).is(pl.kubalte.gospodarstwo.craft.Clothing.AIRY), "linen clothes are airy");
         check(Gospodarstwo.FELT_BOOTS.get().canWalkOnPowderedSnow(new ItemStack(Gospodarstwo.FELT_BOOTS.get()), player), "felt boots walk on powder snow");
-        check(sweater.is(net.minecraft.tags.ItemTags.DYEABLE), "sweaters can be dyed");
+        check(sweater.is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.withDefaultNamespace("dyeable"))), "sweaters can be dyed");
 
         BlockPos bedFoot = O.offset(20, 0, 8);
-        BlockState bed = Blocks.RED_BED.defaultBlockState().setValue(net.minecraft.world.level.block.BedBlock.FACING, net.minecraft.core.Direction.NORTH);
+        BlockState bed = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("red_bed")).defaultBlockState().setValue(net.minecraft.world.level.block.BedBlock.FACING, net.minecraft.core.Direction.NORTH);
         level.setBlockAndUpdate(bedFoot.north(), bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.HEAD));
         level.setBlockAndUpdate(bedFoot, bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.FOOT));
         ItemStack pillow = new ItemStack(Gospodarstwo.PILLOW.get(), 2);
@@ -351,7 +351,7 @@ public final class GSelfTest {
         var rested = player.getEffect(Gospodarstwo.RESTED);
         check(rested != null && rested.getAmplifier() == 1 && rested.getDuration() > 20000, "sleeping in a cosy bed makes you well rested (" + rested + ")");
         check(player.getMaxHealth() >= 27F, "rested gives extra hearts (" + player.getMaxHealth() + ")");
-        pl.kubalte.gospodarstwo.craft.Bedding.onBreak(new net.neoforged.neoforge.event.level.BlockEvent.BreakEvent(level, bedFoot, level.getBlockState(bedFoot), player));
+        pl.kubalte.gospodarstwo.craft.Bedding.onBreak(new net.neoforged.neoforge.event.level.block.BreakBlockEvent(level, bedFoot, level.getBlockState(bedFoot), player));
         check(itemsAround(level, bedFoot, Gospodarstwo.PILLOW.get()) == 1 && itemsAround(level, bedFoot, Gospodarstwo.FEATHERBED.get()) == 1,
                 "breaking the bed gives back the pillow and featherbed");
 
