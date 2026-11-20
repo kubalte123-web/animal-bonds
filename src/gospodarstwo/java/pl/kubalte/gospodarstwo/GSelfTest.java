@@ -379,6 +379,9 @@ public final class GSelfTest {
 
         // ---- stage 5: tools and farm equipment ----
         tools(level, player);
+
+        // ---- goblin helper ----
+        goblin(level, player);
         check(Breed.byIndex(Breed.ANGORA.index()) == Breed.ANGORA && BreedEvents.breedsOf(cow).contains(Breed.HIGHLAND), "breed lookup");
         for (Mob m : new Mob[] {duck, goose, turkey, snail, cow, sheep}) if (m != null) m.discard();
     }
@@ -521,5 +524,86 @@ public final class GSelfTest {
         level.setBlockAndUpdate(bed.above(), ((CropBlock) Blocks.CARROTS).getStateForAge(0));
         check(level.getBlockState(bed.above()).canSurvive(level, bed.above()), "carrots grow on the raised bed");
         check(level.getBlockState(bed).isFertile(level, bed), "the raised bed is always watered");
+    }
+
+    static void goblin(ServerLevel level, FakePlayer player) {
+        BlockPos at = O.offset(4, 0, 28);
+        var gob = Gospodarstwo.GOBLIN.get().spawn(level, at, EntitySpawnReason.COMMAND);
+        check(gob != null && !gob.isTame(), "a wild goblin spawns");
+        if (gob == null) return;
+        check(pl.kubalte.gospodarstwo.goblin.Goblin.liking(new ItemStack(Gospodarstwo.PIEROGI.get()))
+                > pl.kubalte.gospodarstwo.goblin.Goblin.liking(new ItemStack(Items.APPLE)), "goblins like home cooking more than raw apples");
+        // a refused offer: it throws the food away
+        net.minecraft.world.entity.item.ItemEntity food = new net.minecraft.world.entity.item.ItemEntity(level, gob.getX(), gob.getY(), gob.getZ(),
+                new ItemStack(Gospodarstwo.PIEROGI.get(), 2));
+        food.setThrower(player);
+        level.addFreshEntity(food);
+        gob.takeOffer(food);
+        check(gob.getMainHandItem().is(Gospodarstwo.PIEROGI.get()) && gob.considering() > 0, "the goblin picks up the food and thinks it over");
+        gob.decide(level, false);
+        check(!gob.isTame() && gob.getMainHandItem().isEmpty(), "a goblin that doesn't like it throws the food away");
+        check(!gob.willingToTakeOffer(), "and won't take food for a while");
+        // a second goblin likes it
+        var gob2 = Gospodarstwo.GOBLIN.get().spawn(level, at.east(3), EntitySpawnReason.COMMAND);
+        food.setItem(new ItemStack(Gospodarstwo.BIGOS.get()));
+        gob2.takeOffer(food);
+        gob2.decide(level, true);
+        check(gob2.isTame() && gob2.isOwnedBy(player) && gob2.mode() == pl.kubalte.gospodarstwo.goblin.Goblin.MODE_FOLLOW,
+                "a goblin that likes it eats it and follows the giver");
+        gob.discard();
+
+        gob2.setPack(true);
+        net.minecraft.world.entity.item.ItemEntity loose = new net.minecraft.world.entity.item.ItemEntity(level, gob2.getX(), gob2.getY(), gob2.getZ(),
+                new ItemStack(Items.COBBLESTONE, 10));
+        level.addFreshEntity(loose);
+        pl.kubalte.gospodarstwo.goblin.GoblinGoals.pickUp(gob2, loose);
+        check(gob2.pack.countItem(Items.COBBLESTONE) == 10 && !loose.isAlive(), "loose things go into the chest on its back");
+        gob2.pack.addItem(new ItemStack(Items.DIRT, 5));
+
+        BlockPos c1 = at.offset(0, 0, 3), c2 = at.offset(2, 0, 3);
+        level.setBlockAndUpdate(c1, Blocks.CHEST.defaultBlockState());
+        level.setBlockAndUpdate(c2, Blocks.CHEST.defaultBlockState());
+        ((net.minecraft.world.Container) level.getBlockEntity(c2)).setItem(5, new ItemStack(Items.COBBLESTONE, 3));
+        var cs = pl.kubalte.gospodarstwo.goblin.Stash.containers(level, gob2.blockPosition(), 8);
+        check(c2.equals(pl.kubalte.gospodarstwo.goblin.Stash.target(level, cs, new ItemStack(Items.COBBLESTONE))),
+                "cobblestone goes to the chest that already has cobblestone");
+        BlockPos dirtTo = pl.kubalte.gospodarstwo.goblin.Stash.target(level, cs, new ItemStack(Items.DIRT));
+        check(dirtTo != null, "dirt goes to a chest with a free slot");
+        pl.kubalte.gospodarstwo.goblin.GoblinGoals.storeInto(gob2, c2);
+        pl.kubalte.gospodarstwo.goblin.GoblinGoals.storeInto(gob2, c1);
+        check(gob2.pack.isEmpty() && ((net.minecraft.world.Container) level.getBlockEntity(c2)).countItem(Items.COBBLESTONE) == 13,
+                "the goblin stores everything in the right chests");
+
+        // base work: grind wheat at the quern, harvest, churn butter
+        gob2.setMode(pl.kubalte.gospodarstwo.goblin.Goblin.MODE_BASE);
+        check(at.east(3).closerThan(gob2.home(), 2), "staying at the base remembers home");
+        BlockPos q = at.offset(4, 0, 0);
+        level.setBlockAndUpdate(q, Gospodarstwo.QUERN.get().defaultBlockState());
+        gob2.pack.addItem(new ItemStack(Items.WHEAT, 8));
+        var quern = (pl.kubalte.gospodarstwo.block.StationBlockEntity) level.getBlockEntity(q);
+        pl.kubalte.gospodarstwo.goblin.GoblinGoals.workStation(gob2, quern);
+        check(quern.input().is(Items.WHEAT) && gob2.pack.countItem(Items.WHEAT) == 0, "the goblin puts wheat into the quern");
+        work(level, q, quern, GConfig.QUERN_TICKS.get() * 8 + 5);
+        pl.kubalte.gospodarstwo.goblin.GoblinGoals.workStation(gob2, quern);
+        check(gob2.pack.countItem(Gospodarstwo.FLOUR.get()) == 16, "and collects the flour");
+        BlockPos crop = at.offset(6, 0, 0);
+        level.setBlockAndUpdate(crop.below(), Blocks.FARMLAND.defaultBlockState());
+        level.setBlockAndUpdate(crop, ((CropBlock) Blocks.WHEAT).getStateForAge(7));
+        check(pl.kubalte.gospodarstwo.goblin.GoblinGoals.harvest(gob2, crop) && gob2.pack.countItem(Items.WHEAT) >= 1
+                && ((CropBlock) Blocks.WHEAT).getAge(level.getBlockState(crop)) == 0, "the goblin harvests and replants");
+
+        // fainting: back to the bed where its friend slept, resting there
+        BlockPos bedFoot = at.offset(10, 0, 0);
+        BlockState bed = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("blue_bed"))
+                .defaultBlockState().setValue(net.minecraft.world.level.block.BedBlock.FACING, net.minecraft.core.Direction.NORTH);
+        level.setBlock(bedFoot.north(), bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.HEAD), 18);
+        level.setBlock(bedFoot, bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.FOOT), 18);
+        player.setData(Gospodarstwo.LAST_BED.get(), java.util.Optional.of(net.minecraft.core.GlobalPos.of(level.dimension(), bedFoot)));
+        gob2.setMode(pl.kubalte.gospodarstwo.goblin.Goblin.MODE_FOLLOW);
+        gob2.teleportTo(at.getX() + 20, at.getY(), at.getZ());
+        gob2.hurtServer(level, level.damageSources().generic(), 1000F);
+        check(gob2.isAlive() && gob2.resting() && gob2.getHealth() == gob2.getMaxHealth(), "a goblin that would die faints instead");
+        check(gob2.blockPosition().closerThan(bedFoot, 3) && gob2.isSleeping(), "and wakes up in its friend's bed (" + gob2.blockPosition() + ")");
+        gob2.discard();
     }
 }

@@ -24,15 +24,19 @@ public class GClient {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         modBus.addListener(GClient::layers);
         modBus.addListener(GClient::renderers);
+        modBus.addListener((net.neoforged.neoforge.client.event.RegisterMenuScreensEvent e) ->
+                e.register(Gospodarstwo.GOBLIN_MENU.get(), pl.kubalte.gospodarstwo.client.goblin.GoblinScreen::new));
         BreedVisuals.register(modBus);
         GClientTest.register(modBus);
     }
 
     static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) {
         for (String c : ANIMALS) e.registerLayerDefinition(CreatureRenderer.layer(c), () -> GeoJsonModel.load(c).layer());
+        e.registerLayerDefinition(pl.kubalte.gospodarstwo.client.goblin.GoblinModel.LAYER, pl.kubalte.gospodarstwo.client.goblin.GoblinModel::createBodyLayer);
     }
 
     static void renderers(EntityRenderersEvent.RegisterRenderers e) {
+        e.registerEntityRenderer(Gospodarstwo.GOBLIN.get(), pl.kubalte.gospodarstwo.client.goblin.GoblinRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.BONSAI_BE.get(), BonsaiRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.LOOM_BE.get(), LoomRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.SPINNING_WHEEL_BE.get(), SpinningWheelRenderer::new);

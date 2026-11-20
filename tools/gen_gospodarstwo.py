@@ -2032,6 +2032,168 @@ def stage5():
         wj(path, d)
 
 
+# =====================================================================================  goblin helper
+def goblin():
+    rnd = random.Random(77)
+    img = Image.new('RGBA', (64, 64))
+    p = img.load()
+    SKIN, SKIN_D, SKIN_L = (112, 150, 70), (82, 116, 50), (140, 178, 92)
+    TUNIC, TUNIC_D, TUNIC_L = (122, 86, 52), (94, 64, 38), (148, 108, 68)
+    PANTS, PANTS_D = (86, 78, 54), (64, 58, 40)
+    ROPE = (196, 166, 104)
+
+    def put(x, y, c):
+        p[x, y] = tuple(int(max(0, min(255, v))) for v in c) + (255,)
+
+    def noisy(c, a=0.06):
+        k = 1 + rnd.uniform(-a, a)
+        return tuple(v * k for v in c)
+
+    def box(u, v, w, h, d, painter):
+        """Standard box UV: top, bottom, right, front, left, back. painter(face, x, y, fw, fh) -> colour."""
+        faces = {'top': (u + d, v, w, d), 'bottom': (u + d + w, v, w, d), 'right': (u, v + d, d, h), 'front': (u + d, v + d, w, h),
+                 'left': (u + d + w, v + d, d, h), 'back': (u + d + w + d, v + d, w, h)}
+        for f, (fx, fy, fw, fh) in faces.items():
+            for y in range(fh):
+                for x in range(fw):
+                    c = painter(f, x, y, fw, fh)
+                    if c is not None:
+                        put(fx + x, fy + y, c)
+
+    def skin(f, x, y, fw, fh):
+        c = SKIN_L if f == 'top' else SKIN_D if f == 'bottom' else SKIN
+        if f in ('left', 'right', 'back') and y > fh - 3:
+            c = SKIN_D
+        return noisy(c, 0.05)
+
+    def head(f, x, y, fw, fh):
+        if f == 'top':
+            # a few dark hairs on a bald green head
+            if (x, y) in ((3, 2), (4, 3), (5, 2), (2, 4), (6, 4)):
+                return (52, 44, 32)
+            return noisy(SKIN_L, 0.05)
+        if f != 'front':
+            return skin(f, x, y, fw, fh)
+        # face
+        if y == 2 and x in (1, 2, 5, 6):
+            return (58, 70, 34)                           # brows
+        if y == 3 and x in (1, 2, 5, 6):
+            return (24, 20, 16) if x in (2, 5) else (236, 214, 70)   # yellow eyes, pupils looking in
+        if y == 4 and x in (1, 6):
+            return (150, 186, 100)                        # cheeks
+        if y == 6 and 2 <= x <= 5:
+            return (246, 240, 220) if x in (2, 5) else (70, 40, 30)  # grin with two little fangs
+        if y == 7 and 3 <= x <= 4:
+            return SKIN_D
+        return noisy(SKIN, 0.04)
+    box(0, 0, 8, 8, 8, head)
+
+    def body(f, x, y, fw, fh):
+        if f == 'top':
+            return noisy(TUNIC_L) if not (2 <= x <= 5 and y >= 1) else noisy(SKIN)
+        if f == 'bottom':
+            return noisy(TUNIC_D)
+        if y == 8:
+            return noisy(ROPE, 0.08) if (x + (1 if f == 'back' else 0)) % 3 else (160, 130, 80)   # rope belt
+        if f == 'front' and y == 0 and 3 <= x <= 4:
+            return noisy(SKIN)
+        if f == 'front' and y == 1 and x in (3, 4):
+            return noisy(SKIN_D)
+        if y == fh - 1:
+            return noisy(TUNIC_D)                          # ragged hem
+        c = TUNIC
+        if (x * 7 + y * 3) % 11 == 0:
+            c = TUNIC_D                                    # patches and stains
+        if f == 'front' and 5 <= x <= 7 and 3 <= y <= 5:
+            c = (104, 120, 70) if (x + y) % 2 else (94, 110, 60)   # a green patch sewn on
+        return noisy(c, 0.07)
+    box(16, 16, 8, 12, 4, body)
+
+    def arm(f, x, y, fw, fh):
+        if f == 'top':
+            return noisy(TUNIC)
+        if f == 'bottom':
+            return noisy(SKIN_D)
+        if y < 4:
+            return noisy(TUNIC_D if y == 3 else TUNIC, 0.06)  # short sleeve
+        if y in (8, 9):
+            return noisy((98, 70, 44), 0.05)                 # leather bracer
+        if y == fh - 1:
+            return noisy(SKIN_D)
+        return noisy(SKIN, 0.05)
+    box(40, 16, 4, 12, 4, arm)
+    box(32, 48, 4, 12, 4, arm)
+
+    def leg(f, x, y, fw, fh):
+        if f == 'top':
+            return noisy(PANTS)
+        if f == 'bottom':
+            return noisy(SKIN_D)
+        if y < 8:
+            if y == 7 and (x % 2 == 0):
+                return noisy(PANTS_D)                       # frayed trouser ends
+            return noisy(PANTS if (x + y) % 5 else PANTS_D, 0.06)
+        if f == 'front' and y == fh - 1:
+            return (160, 190, 110) if x % 2 == 0 else SKIN    # toes
+        return noisy(SKIN, 0.05)                              # bare feet
+    box(0, 16, 4, 12, 4, leg)
+    box(16, 48, 4, 12, 4, leg)
+
+    # ears (two boxes each: 5x3x1 and 2x2x1) and the nose (2x3x3)
+    def ear(f, x, y, fw, fh):
+        if f == 'front' or f == 'back':
+            return noisy(SKIN_L if y == 0 else SKIN, 0.05) if not (f == 'front' and fw == 5 and 1 <= x <= 3 and y == 1) else (170, 110, 100)
+        return noisy(SKIN_D, 0.04)
+    box(0, 32, 5, 3, 1, ear)
+    box(12, 32, 2, 2, 1, ear)
+    box(0, 36, 5, 3, 1, ear)
+    box(12, 36, 2, 2, 1, ear)
+
+    def nose(f, x, y, fw, fh):
+        if f == 'front' and y == fh - 1:
+            return (66, 92, 40)
+        return noisy(SKIN_L if f == 'top' else SKIN, 0.05)
+    box(20, 32, 2, 3, 3, nose)
+    wi(f'{A}/textures/entity/goblin.png', img)
+
+    # spawn egg
+    T = f'{A}/textures/item'
+    egg = canvas()
+    blob(egg, 7.5, 8.5, 5.5, 7, (112, 150, 70), seed=9, speck=((122, 86, 52), 0.25))
+    wi(f'{T}/goblin_spawn_egg.png', egg)
+    wj(f'{A}/models/item/goblin_spawn_egg.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/goblin_spawn_egg'}})
+    wj(f'{A}/items/goblin_spawn_egg.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/goblin_spawn_egg'}})
+    BM = f'{D}/{NS}/neoforge/biome_modifier'
+    wj(f'{BM}/goblin_spawns.json', {'type': 'neoforge:add_spawns', 'biomes': '#minecraft:is_forest',
+                                    'spawners': {'type': f'{NS}:goblin', 'weight': 3, 'minCount': 1, 'maxCount': 2}})
+    pl = {'entity.gospodarstwo.goblin': 'Goblin', 'item.gospodarstwo.goblin_spawn_egg': 'Jajo spawnu goblina',
+          'goblin.gospodarstwo.tamed': 'Goblin zjadł poczęstunek i postanowił z tobą zostać!',
+          'goblin.gospodarstwo.fainted': '%s zemdlał i wrócił tam, gdzie ostatnio spałeś. Musi odpocząć.',
+          'goblin.gospodarstwo.no_room': 'Goblin nie znalazł miejsca w skrzyniach na resztę rzeczy',
+          'goblin.gospodarstwo.stored': 'Goblin odłożył wszystko do skrzyń', 'goblin.gospodarstwo.nothing': 'Goblin nie ma nic do odłożenia',
+          'goblin.gospodarstwo.mode.follow': 'Chodź ze mną', 'goblin.gospodarstwo.mode.base': 'Zostań i pracuj',
+          'goblin.gospodarstwo.mode.sit': 'Czekaj tutaj', 'goblin.gospodarstwo.mode.store': 'Odłóż do skrzyń',
+          'goblin.gospodarstwo.hands': 'Ręce', 'goblin.gospodarstwo.pack': 'Plecak', 'goblin.gospodarstwo.backpack': 'Zawartość plecaka',
+          'goblin.gospodarstwo.no_pack': 'Daj mu skrzynię, a założy ją na plecy',
+          'goblin.gospodarstwo.work.0': 'odpoczywa', 'goblin.gospodarstwo.work.1': 'bawi się', 'goblin.gospodarstwo.work.2': 'zbiera plony',
+          'goblin.gospodarstwo.work.3': 'pracuje', 'goblin.gospodarstwo.work.4': 'zbiera rzeczy', 'goblin.gospodarstwo.work.5': 'odkłada do skrzyń'}
+    en = {'entity.gospodarstwo.goblin': 'Goblin', 'item.gospodarstwo.goblin_spawn_egg': 'Goblin Spawn Egg',
+          'goblin.gospodarstwo.tamed': 'The goblin ate your treat and decided to stay with you!',
+          'goblin.gospodarstwo.fainted': '%s fainted and went back to where you last slept. It needs a rest.',
+          'goblin.gospodarstwo.no_room': 'The goblin found no room in the chests for the rest', 'goblin.gospodarstwo.stored': 'The goblin put everything away',
+          'goblin.gospodarstwo.nothing': 'The goblin has nothing to put away',
+          'goblin.gospodarstwo.mode.follow': 'Come with me', 'goblin.gospodarstwo.mode.base': 'Stay and work', 'goblin.gospodarstwo.mode.sit': 'Wait here',
+          'goblin.gospodarstwo.mode.store': 'Store in chests', 'goblin.gospodarstwo.hands': 'Hands', 'goblin.gospodarstwo.pack': 'Pack',
+          'goblin.gospodarstwo.backpack': 'Backpack', 'goblin.gospodarstwo.no_pack': 'Give it a chest and it will wear it on its back',
+          'goblin.gospodarstwo.work.0': 'resting', 'goblin.gospodarstwo.work.1': 'playing', 'goblin.gospodarstwo.work.2': 'harvesting',
+          'goblin.gospodarstwo.work.3': 'working', 'goblin.gospodarstwo.work.4': 'collecting', 'goblin.gospodarstwo.work.5': 'storing'}
+    for lang_file, extra in (('pl_pl', pl), ('en_us', en)):
+        path = f'{A}/lang/{lang_file}.json'
+        d = json.load(open(path, encoding='utf-8'))
+        d.update(extra)
+        wj(path, d)
+
+
 if __name__ == '__main__':
     animal_assets()
     item_textures()
@@ -2044,3 +2206,4 @@ if __name__ == '__main__':
     stage3()
     stage4()
     stage5()
+    goblin()

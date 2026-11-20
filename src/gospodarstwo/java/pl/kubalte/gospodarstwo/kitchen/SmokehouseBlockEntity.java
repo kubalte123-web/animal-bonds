@@ -73,6 +73,11 @@ public class SmokehouseBlockEntity extends StationBlockEntity {
     }
 
     @Override
+    public boolean accepts(ItemStack s) {
+        return Rec.find(RECIPES, s) != null;
+    }
+
+    @Override
     protected String emptyKey() {
         return "smokehouse.gospodarstwo.empty";
     }

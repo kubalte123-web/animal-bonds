@@ -44,6 +44,8 @@ public final class GConfig {
     public static final ModConfigSpec.DoubleValue NET_CHANCE = B.comment("Szansa na złowienie czegoś przez sieć co 5 sekund")
             .defineInRange("netChance", 0.06, 0.0, 1.0);
     public static final ModConfigSpec.IntValue CAN_USES = B.comment("Ile razy można podlać z pełnej konewki").defineInRange("canUses", 24, 1, 1000);
+    public static final ModConfigSpec.IntValue GOBLIN_REST = B.comment("Ile ticków goblin odpoczywa po zemdleniu (24000 = doba)")
+            .defineInRange("goblinRest", 24000, 1, 10_000_000);
     public static final ModConfigSpec.BooleanValue CLOTHING_EFFECTS = B.comment("Ciepłe ubrania leczą na mrozie, lniane przyspieszają w upale")
             .define("clothingEffects", true);
     public static final ModConfigSpec.IntValue RESTED_PERCENT = B.comment("Długość efektu Wypoczęty w % (100 = pół doby z poduszką, doba z poduszką i pierzyną)")

@@ -76,6 +76,14 @@ public class FishingNetBlockEntity extends BlockEntity {
         }
     }
 
+    /** For helpers: everything caught so far. */
+    public java.util.List<ItemStack> takeAll() {
+        java.util.List<ItemStack> l = new ArrayList<>(catches);
+        catches.clear();
+        if (!l.isEmpty()) sync();
+        return l;
+    }
+
     public InteractionResult take(Player player) {
         if (level == null) return InteractionResult.PASS;
         if (level.isClientSide()) return InteractionResult.SUCCESS;

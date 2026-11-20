@@ -72,6 +72,10 @@ public class Gospodarstwo {
             MOB_EFFECTS.register("rested", () -> new pl.kubalte.gospodarstwo.effect.RestedEffect().addAttributeModifier(
                     net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, id("rested_health"), 4.0,
                     net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+    public static final DeferredRegister<net.minecraft.world.inventory.MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, MODID);
+    public static final Supplier<net.minecraft.world.inventory.MenuType<pl.kubalte.gospodarstwo.goblin.GoblinMenu>> GOBLIN_MENU = MENUS.register("goblin",
+            () -> net.neoforged.neoforge.common.extensions.IMenuTypeExtension.create(
+                    (id, inv, buf) -> pl.kubalte.gospodarstwo.goblin.GoblinMenu.client(id, inv, buf.readVarInt())));
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     /** Everything that goes into the creative tab, in order. */
@@ -99,6 +103,10 @@ public class Gospodarstwo {
     public static final Supplier<AttachmentType<java.util.Map<String, Integer>>> BED_COMFORT = ATTACHMENTS.register("bed_comfort",
             () -> AttachmentType.<java.util.Map<String, Integer>>builder(() -> new java.util.HashMap<>())
                     .serialize(Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("beds")).build());
+    /** On a player: the bed they last slept in (a fainted goblin comes back there). */
+    public static final Supplier<AttachmentType<Optional<net.minecraft.core.GlobalPos>>> LAST_BED = ATTACHMENTS.register("last_bed",
+            () -> AttachmentType.<Optional<net.minecraft.core.GlobalPos>>builder(() -> Optional.empty())
+                    .serialize(net.minecraft.core.GlobalPos.CODEC.optionalFieldOf("pos")).copyOnDeath().build());
     public static final Supplier<AttachmentType<Long>> LAST_HARVEST = ATTACHMENTS.register("last_harvest",
             () -> AttachmentType.builder(() -> -1_000_000L).serialize(Codec.LONG.fieldOf("value")).build());
 
@@ -235,6 +243,8 @@ public class Gospodarstwo {
             b -> b.persistent(BonsaiData.CODEC).networkSynchronized(BonsaiData.STREAM_CODEC));
 
     // ---------------- animals ----------------
+    public static final DeferredHolder<EntityType<?>, EntityType<pl.kubalte.gospodarstwo.goblin.Goblin>> GOBLIN = ENTITIES.registerEntityType("goblin",
+            pl.kubalte.gospodarstwo.goblin.Goblin::new, MobCategory.CREATURE, b -> b.sized(0.45F, 0.95F).eyeHeight(0.8F).clientTrackingRange(10));
     public static final DeferredHolder<EntityType<?>, EntityType<Duck>> DUCK = ENTITIES.registerEntityType("duck", Duck::new, MobCategory.CREATURE,
             b -> b.sized(0.45F, 0.65F).clientTrackingRange(10));
     public static final DeferredHolder<EntityType<?>, EntityType<Goose>> GOOSE = ENTITIES.registerEntityType("goose", Goose::new, MobCategory.CREATURE,
@@ -448,6 +458,7 @@ public class Gospodarstwo {
     public static final DeferredItem<Item> SILK = item("silk");
 
     // ---------------- spawn eggs ----------------
+    public static final DeferredItem<SpawnEggItem> GOBLIN_SPAWN_EGG = tab(ITEMS.registerItem("goblin_spawn_egg", p -> new SpawnEggItem(p.spawnEgg(GOBLIN.get()))));
     public static final DeferredItem<SpawnEggItem> DUCK_SPAWN_EGG = tab(ITEMS.registerItem("duck_spawn_egg", p -> new SpawnEggItem(p.spawnEgg(DUCK.get()))));
     public static final DeferredItem<SpawnEggItem> GOOSE_SPAWN_EGG = tab(ITEMS.registerItem("goose_spawn_egg", p -> new SpawnEggItem(p.spawnEgg(GOOSE.get()))));
     public static final DeferredItem<SpawnEggItem> TURKEY_SPAWN_EGG = tab(ITEMS.registerItem("turkey_spawn_egg", p -> new SpawnEggItem(p.spawnEgg(TURKEY.get()))));
@@ -467,6 +478,7 @@ public class Gospodarstwo {
         BLOCK_ENTITIES.register(modBus);
         ATTACHMENTS.register(modBus);
         MOB_EFFECTS.register(modBus);
+        MENUS.register(modBus);
         COMPONENTS.register(modBus);
         TABS.register(modBus);
         container.registerConfig(ModConfig.Type.COMMON, GConfig.SPEC);
@@ -479,6 +491,10 @@ public class Gospodarstwo {
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onUse);
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onBreak);
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.tools.ToolEvents::onBreak);
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent e) -> {
+            if (e.getProblem() == null)
+                e.getEntity().setData(LAST_BED.get(), Optional.of(net.minecraft.core.GlobalPos.of(e.getLevel().dimension(), e.getPos())));
+        });
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onSleepFinished);
         GSelfTest.register(NeoForge.EVENT_BUS);
         if (ModList.get().isLoaded("animalbonds")) pl.kubalte.gospodarstwo.compat.AnimalBondsCompat.init(modBus);

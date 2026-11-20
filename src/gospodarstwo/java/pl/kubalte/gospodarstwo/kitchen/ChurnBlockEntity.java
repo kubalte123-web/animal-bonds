@@ -44,6 +44,15 @@ public class ChurnBlockEntity extends BlockEntity {
         return strokes / (float) Math.max(1, GConfig.CHURN_STROKES.get());
     }
 
+    /** For helpers: takes the butter out. */
+    public ItemStack takeButter() {
+        if (butter <= 0) return ItemStack.EMPTY;
+        ItemStack b = new ItemStack(Gospodarstwo.BUTTER.get(), butter);
+        butter = 0;
+        sync();
+        return b;
+    }
+
     public InteractionResult use(Player player, ItemStack stack) {
         if (level == null) return InteractionResult.PASS;
         if (stack.is(Items.MILK_BUCKET)) {

@@ -77,6 +77,11 @@ public class KettleBlockEntity extends StationBlockEntity {
     }
 
     @Override
+    public boolean accepts(ItemStack s) {
+        return find(s) != null;
+    }
+
+    @Override
     protected String emptyKey() {
         return "kettle.gospodarstwo.empty";
     }

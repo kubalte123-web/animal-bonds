@@ -38,6 +38,11 @@ public final class AnimalBondsCompat {
         AnimalBondsApi.registerProfile(g + "turkey", List.of(Need.GRASS, Need.ROOF, Need.SPACE, Need.TREAT, Need.AFFECTION),
                 List.of(g + "strawberry", "minecraft:sweet_berries", "minecraft:wheat_seeds"),
                 List.of(g + "turkey_feather,1,2,2", "minecraft:feather,1,3,2", "minecraft:pumpkin_seeds,1,4,3"), 5);
+        // the goblin lives with you, not in a pen: no pen needs, only company, treats and affection
+        AnimalBondsApi.registerProfile(g + "goblin", List.of(Need.COMPANY, Need.TREAT, Need.AFFECTION),
+                List.of(g + "pierogi", g + "bigos", g + "kielbasa", g + "apple_pie"),
+                List.of("minecraft:brown_mushroom,1,2,2", "minecraft:flint,1,3,2", "minecraft:gold_nugget,1,3,3", g + "snail_shell,1,1,3",
+                        "minecraft:emerald,1,1,8"), 1);
         AnimalBondsApi.registerProfile(g + "snail", List.of(Need.DARKNESS, Need.FLOWERS, Need.ROOF, Need.TREAT, Need.AFFECTION),
                 List.of(g + "cabbage", "minecraft:moss_block", "minecraft:brown_mushroom"),
                 List.of(g + "snail_slime,1,1,3", "minecraft:moss_carpet,1,2,2", "minecraft:brown_mushroom,1,2,2", g + "snail_shell,1,1,6"), 2);

@@ -73,6 +73,17 @@ public class IncubatorBlockEntity extends BlockEntity {
         return h == null ? -1 : h.color();
     }
 
+    /** For helpers: puts eggs in; returns how many were used. */
+    public int offerEggs(ItemStack stack) {
+        if (hatchOf(stack) == null || (!eggs.isEmpty() && !ItemStack.isSameItemSameComponents(eggs, stack))) return 0;
+        int move = Math.min(MAX - eggs.getCount(), stack.getCount());
+        if (move <= 0) return 0;
+        if (eggs.isEmpty()) eggs = stack.copyWithCount(move);
+        else eggs.grow(move);
+        sync();
+        return move;
+    }
+
     public InteractionResult use(Player player, ItemStack stack) {
         if (level == null) return InteractionResult.PASS;
         if (!stack.isEmpty()) {

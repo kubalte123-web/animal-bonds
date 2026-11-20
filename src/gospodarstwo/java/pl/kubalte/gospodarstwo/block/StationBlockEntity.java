@@ -134,6 +134,32 @@ public abstract class StationBlockEntity extends BlockEntity {
         return true;
     }
 
+    /** For helpers (the goblin): puts the material in without a player; returns how many were taken from s. */
+    public int offer(ItemStack s) {
+        if (!accepts(s)) return 0;
+        if (!input.isEmpty() && !ItemStack.isSameItemSameComponents(input, s)) return 0;
+        int move = Math.min(s.getMaxStackSize() - input.getCount(), s.getCount());
+        if (move <= 0) return 0;
+        if (input.isEmpty()) input = s.copyWithCount(move);
+        else input.grow(move);
+        if (level != null) level.playSound(null, worldPosition, SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 0.6F, 1.3F);
+        sync();
+        return move;
+    }
+
+    /** For helpers: whether s is something this station works with (ignoring fire and the current contents). */
+    public boolean accepts(ItemStack s) {
+        return job(s) != null;
+    }
+
+    /** For helpers: takes the finished product out (empty if none). */
+    public ItemStack takeOutput() {
+        ItemStack o = output;
+        output = ItemStack.EMPTY;
+        if (!o.isEmpty()) sync();
+        return o;
+    }
+
     /** Empty hand: takes the product; sneaking (or no product): takes back the material. */
     public InteractionResult take(Player player) {
         if (level == null) return InteractionResult.PASS;

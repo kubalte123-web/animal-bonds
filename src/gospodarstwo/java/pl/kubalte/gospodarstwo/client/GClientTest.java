@@ -104,7 +104,18 @@ public final class GClientTest {
             case 3060 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 26", B.getX() + 276.5, B.getY() + 1,
                     B.getZ() - 3.8)));
             case 3140 -> shot(m + "tools");
-            case 3300 -> {
+            case 3300 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 15", B.getX() + 299.5, B.getY() + 1,
+                    B.getZ() - 3.2)));
+            case 3380 -> shot(m + "goblins");
+            case 3420 -> server.execute(() -> {
+                var pl = server.getPlayerList().getPlayers().get(0);
+                for (var e : server.overworld().getEntitiesOfClass(pl.kubalte.gospodarstwo.goblin.Goblin.class,
+                        new net.minecraft.world.phys.AABB(B.offset(296, 0, -2)).inflate(1)))
+                    pl.kubalte.gospodarstwo.goblin.GoblinMenu.open(pl, e);
+            });
+            case 3500 -> shot(m + "goblinmenu");
+            case 3540 -> server.execute(() -> server.getPlayerList().getPlayers().get(0).closeContainer());
+            case 3700 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
                 mc.stop();
             }
@@ -137,7 +148,7 @@ public final class GClientTest {
     static void textiles(MinecraftServer server) {
         ServerLevel level = server.overworld();
         var p = server.getPlayerList().getPlayers().get(0);
-        for (int x = 108; x <= 290; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
+        for (int x = 108; x <= 310; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 9; y++)
             level.setBlockAndUpdate(B.offset(x, y, z), Blocks.AIR.defaultBlockState());
         BlockPos wheel = B.offset(114, 0, 0), vat = B.offset(116, 0, 0), loom = B.offset(118, 0, 0);
         level.setBlockAndUpdate(wheel, Gospodarstwo.SPINNING_WHEEL.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.block.StationBlock.FACING,
@@ -185,6 +196,7 @@ public final class GClientTest {
         home(level, p);
         kitchen(level, p);
         tools(level, p);
+        goblins(level, p);
 
         int perRow = 18;
         for (int i = 0; i < items.size(); i++) {
@@ -313,6 +325,70 @@ public final class GClientTest {
         BlockPos net = B.offset(279, -1, 0);
         level.setBlockAndUpdate(net, Gospodarstwo.FISHING_NET.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.tools.FishingNetBlock.WATERLOGGED, true));
         if (level.getBlockEntity(net) instanceof pl.kubalte.gospodarstwo.tools.FishingNetBlockEntity be) for (int i = 0; i < 4; i++) be.catchOne();
+    }
+
+    /** The goblin helper: a wild one peeking from behind a tree, one thinking over a treat, a tame one in gear, one asleep. */
+    static void goblins(ServerLevel level, net.minecraft.server.level.ServerPlayer p) {
+        // a small oak with the wild goblin behind it
+        BlockPos tree = B.offset(302, 0, 2);
+        for (int y = 0; y < 5; y++) level.setBlockAndUpdate(tree.above(y), Blocks.OAK_LOG.defaultBlockState());
+        for (BlockPos l : BlockPos.betweenClosed(tree.offset(-2, 3, -2), tree.offset(2, 5, 2)))
+            if (level.getBlockState(l).isAir() && l.distManhattan(tree.above(4)) <= 3)
+                level.setBlockAndUpdate(l, Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true));
+        var wild = Gospodarstwo.GOBLIN.get().spawn(level, tree.south(), EntitySpawnReason.COMMAND);
+        if (wild != null) {
+            wild.setNoAi(true);
+            wild.setHiding(true);
+            wild.setYRot(180);
+            wild.yHeadRot = 180;
+            wild.yBodyRot = 180;
+        }
+        var hungry = Gospodarstwo.GOBLIN.get().spawn(level, B.offset(300, 0, 0), EntitySpawnReason.COMMAND);
+        if (hungry != null) {
+            hungry.setNoAi(true);
+            hungry.debugConsider(new ItemStack(Gospodarstwo.PIEROGI.get()));
+            hungry.setYRot(200);
+            hungry.yBodyRot = 200;
+        }
+        var tame = Gospodarstwo.GOBLIN.get().spawn(level, B.offset(296, 0, -2), EntitySpawnReason.COMMAND);
+        if (tame != null) {
+            tame.tame(p);
+            tame.setNoAi(true);
+            tame.setPack(true);
+            tame.pack.addItem(new ItemStack(Items.COBBLESTONE, 40));
+            tame.pack.addItem(new ItemStack(Gospodarstwo.FLOUR.get(), 12));
+            tame.pack.addItem(new ItemStack(Items.WHEAT, 20));
+            tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new ItemStack(Items.IRON_HELMET));
+            tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, dyed(Gospodarstwo.WOOL_SWEATER.get(), 0xB02E26));
+            tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
+            tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new ItemStack(Gospodarstwo.SICKLE.get()));
+            tame.setYRot(150);
+            tame.yHeadRot = 150;
+            tame.yBodyRot = 150;
+        }
+        var tame2 = Gospodarstwo.GOBLIN.get().spawn(level, B.offset(298, 0, -1), EntitySpawnReason.COMMAND);
+        if (tame2 != null) {
+            tame2.tame(p);
+            tame2.setNoAi(true);
+            tame2.setPack(true);
+            tame2.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Gospodarstwo.WATERING_CAN.get()));
+            tame2.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new ItemStack(Gospodarstwo.FUR_HAT.get()));
+            tame2.setYRot(210);
+            tame2.yHeadRot = 210;
+            tame2.yBodyRot = 210;
+        }
+        // one asleep in a bed
+        BlockPos foot = B.offset(294, 0, 1);
+        BlockState bed = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("red_bed")).defaultBlockState().setValue(net.minecraft.world.level.block.BedBlock.FACING, net.minecraft.core.Direction.SOUTH);
+        level.setBlock(foot.south(), bed.setValue(net.minecraft.world.level.block.BedBlock.PART,
+                net.minecraft.world.level.block.state.properties.BedPart.HEAD), 18);
+        level.setBlock(foot, bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.FOOT), 18);
+        var sleepy = Gospodarstwo.GOBLIN.get().spawn(level, foot.south(), EntitySpawnReason.COMMAND);
+        if (sleepy != null) {
+            sleepy.tame(p);
+            sleepy.setNoAi(true);
+            sleepy.startSleeping(foot.south());
+        }
     }
 
     static void scene(MinecraftServer server) {
