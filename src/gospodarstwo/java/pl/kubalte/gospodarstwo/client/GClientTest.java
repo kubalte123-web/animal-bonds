@@ -89,8 +89,8 @@ public final class GClientTest {
             case 1860 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 156.5, B.getY() + 1.2,
                     B.getZ() - 3.6)));
             case 1940 -> shot(m + "items4");
-            case 2100 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 35", B.getX() + 111.5, B.getY() + 1,
-                    B.getZ() - 2.4)));
+            case 2100 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 32", B.getX() + 111.5, B.getY() + 1,
+                    B.getZ() - 3.0)));
             case 2180 -> shot(m + "workshop");
             case 2340 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
@@ -165,6 +165,10 @@ public final class GClientTest {
         if (level.getBlockEntity(kettlePos) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) be.insert(p, new ItemStack(Items.HONEYCOMB, 64));
         BlockPos cold = B.offset(113, 0, 1);
         level.setBlockAndUpdate(cold, Gospodarstwo.KETTLE.get().defaultBlockState());
+        if (level.getBlockEntity(cold) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) be.insert(p, new ItemStack(Items.HONEYCOMB, 16));
+        cmd(server, "kill @e[type=minecraft:slime]");
+        cmd(server, "gamerule spawn_mobs false");
+        cmd(server, "gamerule doMobSpawning false");
 
         int perRow = 18;
         for (int i = 0; i < items.size(); i++) {

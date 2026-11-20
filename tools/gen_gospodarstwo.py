@@ -1022,9 +1022,10 @@ def stage2():
                 continue
             if (ex == 0 and ey == 0):
                 continue
-            v = 196 + rnd.randint(-14, 14) + int(10 * math.sin(x * 0.9 + y * 0.3))
+            v = 232 + rnd.randint(-12, 12) + int(8 * math.sin(x * 0.9 + y * 0.3))
             if ex <= wav_x or ey <= wav_y:
-                v -= 40
+                v -= 36
+            v = min(255, v)
             p_[x, y] = (v, v, v, 255)
     for (x, y) in [(1, 3), (1, 7), (1, 11), (14, 3), (14, 7), (14, 11), (4, 1), (8, 1), (12, 1), (4, 14), (8, 14), (12, 14)]:
         p_[x, y] = (70, 70, 70, 255)

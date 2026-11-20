@@ -56,7 +56,7 @@ public class TanningRackRenderer implements BlockEntityRenderer<TanningRackBlock
     public void submit(State s, PoseStack ps, SubmitNodeCollector collector, CameraRenderState camera) {
         if (!s.hide) return;
         int light = s.lightCoords;
-        int color = s.thick ? lerp(0x7A6048, 0x55361F, s.tan) : lerp(0xD8B092, 0x9A6236, s.tan);
+        int color = s.thick ? lerp(0x9A7E64, 0x6E4A2C, s.tan) : lerp(0xE8C4A4, 0xB0773F, s.tan);
         ps.pushPose();
         ps.translate(0.5F, 0F, 0.5F);
         ps.mulPose(Axis.YP.rotationDegrees(-LoomRenderer.angle(s.facing)));
