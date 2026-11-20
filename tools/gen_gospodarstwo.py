@@ -1961,16 +1961,17 @@ def stage5():
     inc = [el([1, 0, 1], [15, 1, 15], '#p')] + ring(1, 1, 1, 15, 5, 15, 1, '#p') + [
         el([2, 1, 2], [14, 4.2, 14], '#h'),
         el([12.5, 5, 12.5], [13.5, 12, 13.5], '#i'), el([7.5, 11, 12.5], [13.5, 12, 13.5], '#i'), el([7.5, 11, 7.5], [8.5, 12, 12.5], '#i'),
-        el([6, 9.8, 6], [10, 11, 10], '#c'), el([7, 9, 7], [9, 9.8, 9], '#g', light=15)]
-    net = [el([0, 0, 7], [1.5, 16, 9], '#l'), el([14.5, 0, 7], [16, 16, 9], '#l'), el([1.5, 14.5, 7.75], [14.5, 15, 8.25], '#r'),
-           el([1.5, 0, 8], [14.5, 14.5, 8], '#n', faces=('north', 'south'))]
+        el([5.8, 9.8, 5.8], [10.2, 11, 10.2], '#c'), el([6.6, 9.4, 6.6], [9.4, 9.8, 9.4], '#c'), el([7, 8.4, 7], [9, 9.4, 9], '#g', light=15)]
+    # posts stick out of the water, the cork line floats on the surface
+    net = [el([0, 0, 7], [1.5, 22, 9], '#l'), el([14.5, 0, 7], [16, 22, 9], '#l'), el([1.5, 14, 7.75], [14.5, 14.5, 8.25], '#r'),
+           el([0, 20, 7.75], [16, 20.5, 8.25], '#r'), el([1.5, 0, 8], [14.5, 14, 8], '#n', faces=('north', 'south'))]
     for x in (3, 7.25, 11.5):
-        net.append(el([x, 14, 7.3], [x + 1.5, 15.5, 8.7], '#k'))
+        net.append(el([x, 13.5, 7.3], [x + 1.5, 15, 8.7], '#k'))
     bed = [el([2, 0, 2], [14, 15, 14], '#d', faces=('up',))] + ring(0, 0, 0, 16, 16, 16, 2, '#p') + [el([2, 0, 2], [14, 0.01, 14], '#p', faces=('down',))]
     bed[0]['faces']['up']['texture'] = '#f'
     models = {
         'incubator': ({'p': 'minecraft:block/spruce_planks', 'h': 'minecraft:block/hay_block_top', 'i': 'minecraft:block/anvil',
-                       'c': 'minecraft:block/copper_block', 'g': 'minecraft:block/glowstone', 'particle': 'minecraft:block/spruce_planks'}, inc),
+                       'c': 'minecraft:block/iron_block', 'g': 'minecraft:block/glowstone', 'particle': 'minecraft:block/spruce_planks'}, inc),
         'fishing_net': ({'l': 'minecraft:block/stripped_spruce_log', 'r': 'minecraft:block/brown_wool', 'n': f'{NS}:block/fishing_net',
                          'k': 'minecraft:block/orange_terracotta', 'particle': 'minecraft:block/stripped_spruce_log'}, net),
         'raised_bed': ({'p': 'minecraft:block/oak_planks', 'f': 'minecraft:block/farmland_moist', 'd': 'minecraft:block/dirt',

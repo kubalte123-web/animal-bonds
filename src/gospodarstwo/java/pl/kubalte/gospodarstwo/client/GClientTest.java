@@ -309,8 +309,8 @@ public final class GClientTest {
         level.setBlockAndUpdate(inc2, Gospodarstwo.INCUBATOR.get().defaultBlockState());
         if (level.getBlockEntity(inc2) instanceof pl.kubalte.gospodarstwo.tools.IncubatorBlockEntity be) be.use(p, new ItemStack(Gospodarstwo.GREEN_EGG.get(), 4));
         // a little pond (one block deep) with a net that already caught something
-        for (int x = 278; x <= 283; x++) for (int z = -1; z <= 3; z++) level.setBlockAndUpdate(B.offset(x, -1, z), Blocks.WATER.defaultBlockState());
-        BlockPos net = B.offset(280, -1, 1);
+        for (int x = 277; x <= 282; x++) for (int z = -2; z <= 3; z++) level.setBlockAndUpdate(B.offset(x, -1, z), Blocks.WATER.defaultBlockState());
+        BlockPos net = B.offset(279, -1, 0);
         level.setBlockAndUpdate(net, Gospodarstwo.FISHING_NET.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.tools.FishingNetBlock.WATERLOGGED, true));
         if (level.getBlockEntity(net) instanceof pl.kubalte.gospodarstwo.tools.FishingNetBlockEntity be) for (int i = 0; i < 4; i++) be.catchOne();
     }
