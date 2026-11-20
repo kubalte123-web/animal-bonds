@@ -174,6 +174,8 @@ public final class SelfTest {
 
         Mob cow = EntityTypes.COW.spawn(level, o.offset(3, 0, 4), EntitySpawnReason.COMMAND);
         Mob strider = EntityTypes.STRIDER.spawn(level, o.offset(4, 0, 5), EntitySpawnReason.COMMAND);
+        // a strider may spawn with a baby strider riding it: that one would work too and spoil the count
+        for (var rider : java.util.List.copyOf(strider.getPassengers())) rider.discard();
         BondData cd = BondLogic.bond(cow), sd = BondLogic.bond(strider);
         BondLogic.addXp(cow, cd, BondLevels.xpForLevel(5));
         BondLogic.addXp(strider, sd, BondLevels.xpForLevel(5));

@@ -338,8 +338,9 @@ public final class GSelfTest {
 
         BlockPos bedFoot = O.offset(20, 0, 8);
         BlockState bed = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("red_bed")).defaultBlockState().setValue(net.minecraft.world.level.block.BedBlock.FACING, net.minecraft.core.Direction.NORTH);
-        level.setBlockAndUpdate(bedFoot.north(), bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.HEAD));
-        level.setBlockAndUpdate(bedFoot, bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.FOOT));
+        level.setBlock(bedFoot.north(), bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.HEAD), 18);
+        level.setBlock(bedFoot, bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.FOOT), 18);
+        check(level.getBlockEntity(bedFoot.north()) != null, "the bed has a block entity");
         ItemStack pillow = new ItemStack(Gospodarstwo.PILLOW.get(), 2);
         pl.kubalte.gospodarstwo.craft.Bedding.add(level, bedFoot, player, pillow);
         check(pl.kubalte.gospodarstwo.craft.Bedding.comfort(level, bedFoot) == 1 && pillow.getCount() == 1, "a pillow is put on the bed");
