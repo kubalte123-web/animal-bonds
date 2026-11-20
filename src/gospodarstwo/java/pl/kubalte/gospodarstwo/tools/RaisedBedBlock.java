@@ -22,7 +22,7 @@ public class RaisedBedBlock extends Block {
     }
 
     static boolean plant(BlockState plant) {
-        return plant.getBlock() instanceof CropBlock || plant.getBlock() instanceof StemBlock || plant.is(BlockTags.SAPLINGS)
+        return plant.getBlock() instanceof CropBlock || plant.getBlock() instanceof StemBlock || plant.getBlock() instanceof net.minecraft.world.level.block.SaplingBlock
                 || plant.is(BlockTags.FLOWERS);
     }
 

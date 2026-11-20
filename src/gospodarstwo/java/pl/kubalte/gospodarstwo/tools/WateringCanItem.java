@@ -19,7 +19,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -91,7 +91,7 @@ public class WateringCanItem extends Item {
                 b.performBonemeal(level, r, p, s);
             }
             BlockState soil = level.getBlockState(p.below());
-            if (soil.getBlock() instanceof FarmBlock) level.setBlock(p.below(), soil.setValue(FarmBlock.MOISTURE, 7), 2);
+            if (soil.getBlock() instanceof FarmlandBlock) level.setBlock(p.below(), soil.setValue(FarmlandBlock.MOISTURE, 7), 2);
             level.sendParticles(ParticleTypes.SPLASH, p.getX() + 0.5, p.getY() + 0.3, p.getZ() + 0.5, 6, 0.3, 0.05, 0.3, 0.1);
         }
     }

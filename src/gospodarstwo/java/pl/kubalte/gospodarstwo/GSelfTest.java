@@ -466,7 +466,7 @@ public final class GSelfTest {
         int grown = 0;
         for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) grown += ((CropBlock) Blocks.WHEAT).getAge(level.getBlockState(f.offset(dx, 0, dz)));
         check(grown >= 9, "watering makes the crops grow (" + grown + " stages)");
-        check(level.getBlockState(f.offset(1, -1, 1)).getValue(net.minecraft.world.level.block.FarmBlock.MOISTURE) == 7, "watering wets the farmland");
+        check(level.getBlockState(f.offset(1, -1, 1)).getValue(net.minecraft.world.level.block.FarmlandBlock.MOISTURE) == 7, "watering wets the farmland");
 
         for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) level.setBlockAndUpdate(f.offset(dx, 0, dz), ((CropBlock) Blocks.WHEAT).getStateForAge(7));
         int reaped = pl.kubalte.gospodarstwo.tools.ScytheItem.reap(level, f, player, new ItemStack(Gospodarstwo.SCYTHE.get()));

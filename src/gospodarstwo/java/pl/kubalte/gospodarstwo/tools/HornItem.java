@@ -67,7 +67,9 @@ public class HornItem extends Item {
             m.setTarget(null);
             m.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 200, 0));
             m.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 80, 1));
-            m.knockback(1.2, player.getX() - m.getX(), player.getZ() - m.getZ());
+            net.minecraft.world.phys.Vec3 away = m.position().subtract(player.position()).multiply(1, 0, 1).normalize().scale(1.1);
+            m.push(away.x, 0.35, away.z);
+            m.hurtMarked = true;
             level.sendParticles(ParticleTypes.ANGRY_VILLAGER, m.getX(), m.getEyeY() + 0.3, m.getZ(), 2, 0.2, 0.2, 0.2, 0);
             n++;
         }
