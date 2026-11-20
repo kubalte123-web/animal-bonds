@@ -1808,11 +1808,12 @@ def stage4():
     models['fruit_press'] = ({'p': 'minecraft:block/spruce_planks', 's': 'minecraft:block/stripped_spruce_log', 'i': 'minecraft:block/anvil',
                               'l': 'minecraft:block/dark_oak_log', 'particle': 'minecraft:block/spruce_planks'}, press, 'fruit_press')
     # crock: stoneware body, brown glazed top and rim, ears, wooden lid
-    crock = [el([3, 0, 3], [13, 8, 13], '#w'), el([3, 8, 3], [13, 10.5, 13], '#b')] + ring(2.5, 10.5, 2.5, 13.5, 11.5, 13.5, 0.8, '#b')
+    crock = [el([3, 0, 3], [13, 8, 13], '#w'), el([3, 8, 3], [13, 10.5, 13], '#b'), el([2.95, 0, 2.95], [13.05, 0.8, 13.05], '#b')]
+    crock += ring(2.9, 4, 2.9, 13.1, 4.8, 13.1, 0.15, '#u') + ring(2.9, 5.6, 2.9, 13.1, 5.9, 13.1, 0.15, '#u') + ring(2.5, 10.5, 2.5, 13.5, 11.5, 13.5, 0.8, '#b')
     crock += [el([2, 7.5, 7], [3, 9.5, 9], '#b'), el([13, 7.5, 7], [14, 9.5, 9], '#b'), el([3.4, 10.5, 3.4], [12.6, 11, 12.6], '#b'),
               el([4, 11.2, 4], [12, 12.6, 12], '#p'), el([7.5, 12.6, 7.5], [8.5, 13, 8.5], '#p')]
-    models['crock'] = ({'w': 'minecraft:block/white_terracotta', 'b': 'minecraft:block/brown_terracotta', 'p': 'minecraft:block/spruce_planks',
-                        'particle': 'minecraft:block/white_terracotta'}, crock, 'crock')
+    models['crock'] = ({'w': 'minecraft:block/light_gray_terracotta', 'b': 'minecraft:block/brown_terracotta', 'u': 'minecraft:block/blue_terracotta', 'p': 'minecraft:block/spruce_planks',
+                        'particle': 'minecraft:block/light_gray_terracotta'}, crock, 'crock')
     # smokehouse: corner posts, closed back and sides, slatted front, grate floor, roof with a chimney, a bar for hooks
     sm = [el([0, 0, 0], [2, 14, 2], '#l'), el([14, 0, 0], [16, 14, 2], '#l'), el([0, 0, 14], [2, 14, 16], '#l'), el([14, 0, 14], [16, 14, 16], '#l'),
           el([2, 0, 15], [14, 14, 16], '#p'), el([0, 0, 2], [1, 14, 14], '#p'), el([15, 0, 2], [16, 14, 14], '#p')]
