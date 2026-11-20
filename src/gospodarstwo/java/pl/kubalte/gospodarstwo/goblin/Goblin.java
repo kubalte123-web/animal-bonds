@@ -73,6 +73,7 @@ public class Goblin extends TamableAnimal {
     private BlockPos home;
     private int restTicks, considerTicks, refuseCooldown, depositTimer;
     private @Nullable UUID offeredBy;
+    private @Nullable Player offeredPlayer;
     boolean depositing;
 
     public Goblin(EntityType<? extends TamableAnimal> type, Level level) {
@@ -256,6 +257,7 @@ public class Goblin extends TamableAnimal {
         setDropChance(EquipmentSlot.MAINHAND, 0F);
         Entity owner = item.getOwner();
         offeredBy = owner instanceof Player p ? p.getUUID() : null;
+        offeredPlayer = owner instanceof Player p ? p : null;
         considerTicks = 60 + random.nextInt(40);
         playSound(SoundEvents.ITEM_PICKUP, 0.6F, 1.4F);
     }
@@ -272,6 +274,7 @@ public class Goblin extends TamableAnimal {
         if (food.isEmpty()) return;
         considerTicks = 0;
         Player giver = offeredBy == null ? null : level.getPlayerByUUID(offeredBy);
+        if (giver == null && offeredPlayer != null && offeredPlayer.isAlive()) giver = offeredPlayer;
         boolean yes = giver != null && (forced != null ? forced : random.nextFloat() < liking(food));
         if (yes) {
             level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, food.getItem()), getX(), getEyeY(), getZ(), 12, 0.2, 0.1, 0.2, 0.05);
@@ -293,6 +296,7 @@ public class Goblin extends TamableAnimal {
             refuseCooldown = 1200;
         }
         offeredBy = null;
+        offeredPlayer = null;
     }
 
     // ------------------------------------------------------------------ interaction
