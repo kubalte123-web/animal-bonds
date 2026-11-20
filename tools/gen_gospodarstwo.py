@@ -1146,6 +1146,572 @@ def stage2():
     wj(f'{D}/minecraft/tags/item/dyeable.json', {'replace': False, 'values': dyeable})
 
 
+# =====================================================================================  stage 3: clothes, bedding, home
+# humanoid armour texture (64x32) face rectangles: name -> (x, y, w, h)
+HEAD = {'top': (8, 0, 8, 8), 'bottom': (16, 0, 8, 8), 'right': (0, 8, 8, 8), 'front': (8, 8, 8, 8), 'left': (16, 8, 8, 8), 'back': (24, 8, 8, 8)}
+BODY = {'top': (20, 16, 8, 4), 'bottom': (28, 16, 8, 4), 'right': (16, 20, 4, 12), 'front': (20, 20, 8, 12), 'left': (28, 20, 4, 12),
+        'back': (32, 20, 8, 12)}
+ARM = {'top': (44, 16, 4, 4), 'bottom': (48, 16, 4, 4), 'right': (40, 20, 4, 12), 'front': (44, 20, 4, 12), 'left': (48, 20, 4, 12),
+       'back': (52, 20, 4, 12)}
+LEG = {'top': (4, 16, 4, 4), 'bottom': (8, 16, 4, 4), 'right': (0, 20, 4, 12), 'front': (4, 20, 4, 12), 'left': (8, 20, 4, 12), 'back': (12, 20, 4, 12)}
+
+
+def paint(img, part, fn):
+    """fn(face, x, y, w, h) -> RGBA or None, for every pixel of every face of a body part."""
+    p = img.load()
+    for face, (fx, fy, w, h) in part.items():
+        for y in range(h):
+            for x in range(w):
+                c = fn(face, x, y, w, h)
+                if c is not None:
+                    p[fx + x, fy + y] = c if len(c) == 4 else tuple(c) + (255,)
+
+
+def g(v):
+    v = max(0, min(255, int(v)))
+    return (v, v, v)
+
+
+def knit(x, y, base=214):
+    # V-shaped stitches: neighbouring columns lean opposite ways
+    k = (x + (y // 1)) % 2
+    v = base + (10 if (x % 2 == 0) == (y % 2 == 0) else -8)
+    return v
+
+
+def tint(c, k):
+    return tuple(max(0, min(255, int(v * k))) for v in c)
+
+
+def noisy(rnd, c, amt=0.08):
+    return tint(c, 1 + rnd.uniform(-amt, amt))
+
+
+def armour_textures():
+    E = f'{A}/textures/entity/equipment'
+    rnd = random.Random(31)
+    # ---- wool: knitted cap, Nordic sweater, knitted trousers (grey, tinted by the dye colour) ----
+    hum = Image.new('RGBA', (64, 32))
+
+    def cap(face, x, y, w, h):
+        rib = g(170 + (40 if x % 2 == 0 else 0))
+        if face == 'top':
+            d = abs(x - 3.5) + abs(y - 3.5)
+            return g(knit(x, y) + (14 if d < 1.5 else 0))
+        if face == 'bottom':
+            return None
+        last = 3 if face == 'front' else 6 if face == 'back' else 5
+        if y > last + 1:
+            return None
+        if y >= last:
+            return rib
+        return g(knit(x, y))
+    paint(hum, HEAD, cap)
+
+    def nordic(y, x, top):
+        # band of small diamonds between two dotted rows
+        if y == top or y == top + 4:
+            return 244 if x % 2 == 0 else 196
+        if top < y < top + 4:
+            dy = abs(y - (top + 2))
+            return 248 if (x % 4) in ((2 - dy) % 4, (2 + dy) % 4) else 186
+        return None
+
+    def sweater(face, x, y, w, h):
+        if face in ('top', 'bottom'):
+            return g(knit(x, y) - 6)
+        if y >= h - 2:
+            return g(168 + (44 if x % 2 == 0 else 0))
+        n = nordic(y, x + (2 if face in ('right', 'left') else 0), 2)
+        if n is not None:
+            return g(n)
+        if face == 'front' and y == 0 and 2 <= x <= 5:
+            return g(170 + (40 if x % 2 == 0 else 0))
+        return g(knit(x, y))
+    paint(hum, BODY, sweater)
+
+    def sleeve(face, x, y, w, h):
+        if face == 'top':
+            return g(knit(x, y))
+        if face == 'bottom':
+            return g(170)
+        if y >= h - 2:
+            return g(168 + (44 if x % 2 == 0 else 0))
+        n = nordic(y, x, 2)
+        if n is not None:
+            return g(n)
+        return g(knit(x, y))
+    paint(hum, ARM, sleeve)
+    wi(f'{E}/humanoid/wool.png', hum)
+
+    legs = Image.new('RGBA', (64, 32))
+
+    def trousers(face, x, y, w, h):
+        if face == 'top':
+            return None
+        if face == 'bottom':
+            return g(168)
+        if y >= h - 2:
+            return g(166 + (44 if x % 2 == 0 else 0))
+        # a cable down the front of each leg
+        if face == 'front' and x in (1, 2):
+            return g(236 if (y + x) % 3 == 0 else 200)
+        return g(knit(x, y, 206))
+    paint(legs, LEG, trousers)
+
+    def waist(face, x, y, w, h):
+        if face in ('top', 'bottom'):
+            return g(180) if face == 'bottom' else None
+        if y < 7:
+            return None
+        if y < 9:
+            return g(166 + (44 if x % 2 == 0 else 0))
+        return g(knit(x, y, 206))
+    paint(legs, BODY, waist)
+    wi(f'{E}/humanoid_leggings/wool.png', legs)
+
+    # ---- felt boots (walonki): thick felt shafts up to the knee, darker sole ----
+    felt = Image.new('RGBA', (64, 32))
+    FELT = rgb(0x8E7A5E)
+
+    def boots(face, x, y, w, h):
+        if face == 'top':
+            return None
+        if face == 'bottom':
+            return tint(FELT, 0.45)
+        if y < 3:
+            return None
+        if y == 3:
+            return tint(FELT, 1.22)
+        if y == h - 1:
+            return tint(FELT, 0.5)
+        c = noisy(rnd, FELT, 0.07)
+        if face == 'front' and y in (6, 7) and x in (1, 2):
+            return tint(FELT, 0.75)  # stitched seam
+        return c
+    paint(felt, LEG, boots)
+    wi(f'{E}/humanoid/felt.png', felt)
+
+    # ---- fur hat (ushanka): brown crown, thick fluffy fur band and ear flaps ----
+    fur = Image.new('RGBA', (64, 32))
+    CROWN, FUR = rgb(0x5E3E26), rgb(0xB08458)
+
+    def fluff(x, y):
+        return noisy(rnd, tint(FUR, 1.15 if (x + y * 3) % 5 == 0 else 0.92 if (x * 7 + y) % 4 == 0 else 1.0), 0.06)
+
+    def hat(face, x, y, w, h):
+        if face == 'top':
+            return noisy(rnd, CROWN, 0.08)
+        if face == 'bottom':
+            return None
+        if face == 'front':
+            if y <= 1:
+                return noisy(rnd, CROWN, 0.06)
+            if y <= 3:
+                return fluff(x, y)
+            return None
+        if face == 'back':
+            return fluff(x, y) if y <= 6 else None
+        # side faces: band all along, ear flap hanging down in the middle
+        if y <= 1:
+            return noisy(rnd, CROWN, 0.06)
+        if y <= 3:
+            return fluff(x, y)
+        if 2 <= x <= 5 and y <= 7:
+            return fluff(x, y) if y < 7 or x in (3, 4) else None
+        return None
+    paint(fur, HEAD, hat)
+    wi(f'{E}/humanoid/fur.png', fur)
+
+    # ---- sheepskin coat (kożuch): suede with a fleece collar, cuffs and front edge, toggles ----
+    coat = Image.new('RGBA', (64, 32))
+    SUEDE, FLEECE = rgb(0x9A6A3E), rgb(0xEDE4D2)
+
+    def fleece(x, y):
+        return noisy(rnd, tint(FLEECE, 0.9 if (x + y) % 3 == 0 else 1.0), 0.04)
+
+    def coat_body(face, x, y, w, h):
+        if face == 'top':
+            return fleece(x, y)
+        if face == 'bottom':
+            return fleece(x, y)
+        if y <= 1 or y == h - 1:
+            return fleece(x, y)
+        if face == 'front' and x in (3, 4):
+            if x == 4 and y in (4, 7, 10):
+                return (226, 200, 150)  # wooden toggles
+            return fleece(x, y)
+        c = noisy(rnd, SUEDE, 0.06)
+        if face == 'front' and y == 8 and x in (0, 1, 6, 7):
+            return tint(SUEDE, 0.7)  # pocket edges
+        return c
+    paint(coat, BODY, coat_body)
+
+    def coat_arm(face, x, y, w, h):
+        if face == 'bottom':
+            return fleece(x, y)
+        if face == 'top':
+            return noisy(rnd, SUEDE, 0.06)
+        if y >= h - 2:
+            return fleece(x, y)
+        return noisy(rnd, SUEDE, 0.06)
+    paint(coat, ARM, coat_arm)
+    wi(f'{E}/humanoid/sheepskin.png', coat)
+
+    # ---- linen: shirt with a V neck, buttons and rolled-up short sleeves; trousers with a rope belt ----
+    lin = Image.new('RGBA', (64, 32))
+
+    def weave(x, y, base=228):
+        return g(base + (6 if (x + y) % 2 == 0 else -5) + (-6 if y % 4 == 3 else 0))
+
+    def shirt(face, x, y, w, h):
+        if face in ('top', 'bottom'):
+            return weave(x, y, 220)
+        if face == 'front':
+            if y <= 1 and 3 <= x <= 4:
+                return None  # V neck: the skin shows through
+            if y <= 1 and x in (2, 5):
+                return g(196)
+            if x == 4 and y in (3, 6, 9):
+                return g(150)  # buttons
+            if x == 3 and 2 <= y <= 10:
+                return g(206)  # placket
+        if y == h - 1:
+            return g(206)
+        return weave(x, y)
+    paint(lin, BODY, shirt)
+
+    def short_sleeve(face, x, y, w, h):
+        if face == 'top':
+            return weave(x, y)
+        if face == 'bottom':
+            return None
+        if y > 6:
+            return None
+        if y >= 5:
+            return g(204 if y == 5 else 186)
+        return weave(x, y)
+    paint(lin, ARM, short_sleeve)
+    wi(f'{E}/humanoid/linen.png', lin)
+
+    lin_legs = Image.new('RGBA', (64, 32))
+
+    def lin_trousers(face, x, y, w, h):
+        if face == 'top':
+            return None
+        if face == 'bottom':
+            return None
+        if y >= h - 1:
+            return None
+        if y >= h - 3:
+            return g(204 if y == h - 3 else 184)
+        return weave(x, y, 222)
+    paint(lin_legs, LEG, lin_trousers)
+
+    def rope(face, x, y, w, h):
+        if face == 'bottom':
+            return g(200)
+        if face == 'top' or y < 7:
+            return None
+        if y == 8:
+            return (160 + (30 if x % 2 == 0 else 0), 126 + (24 if x % 2 == 0 else 0), 80)  # rope belt (not tinted much)
+        return weave(x, y, 222)
+    paint(lin_legs, BODY, rope)
+    wi(f'{E}/humanoid_leggings/linen.png', lin_legs)
+
+    def eq(name, dye=None, legs=False, body=True):
+        layer = {'texture': f'{NS}:{name}'}
+        if dye is not None:
+            layer['dyeable'] = {'color_when_undyed': argb_int(dye)}
+        layers = {}
+        if body:
+            layers['humanoid'] = [layer]
+        if legs:
+            layers['humanoid_leggings'] = [layer]
+        wj(f'{A}/equipment/{name}.json', {'layers': layers})
+    eq('wool', 0xEDE6DA, legs=True)
+    eq('felt')
+    eq('fur')
+    eq('sheepskin')
+    eq('linen', 0xE6DCC0, legs=True)
+
+
+CLOTHES = {  # item: (sprite, natural dye colour or None, palette)
+    'wool_cap': ('cap', 0xEDE6DA), 'wool_sweater': ('sweater', 0xEDE6DA), 'wool_trousers': ('trousers', 0xEDE6DA),
+    'linen_shirt': ('shirt', 0xE6DCC0), 'linen_trousers': ('trousers_belt', 0xE6DCC0),
+    'felt_boots': ('boot', None), 'fur_hat': ('ushanka', None), 'sheepskin_coat': ('coat', None),
+}
+
+
+def stage3():
+    armour_textures()
+    T = f'{A}/textures/item'
+    bright = SP.grey(outline=64, dark=150, mid=204, light=232, high=252)
+    bright.update({'r': (168, 168, 168), 'p': (248, 248, 248), 'b': (120, 120, 120), 'c': (150, 112, 70)})
+    for name, (shape, dye) in CLOTHES.items():
+        if dye is not None:
+            img = SP.render(SP.S[shape], bright)
+            if shape == 'trousers_belt':
+                # the rope belt is drawn on a second, untinted layer
+                belt = Image.new('RGBA', (16, 16))
+                pp, bp = img.load(), belt.load()
+                for x in range(16):
+                    if pp[x, 2][3] and SP.S[shape][2][x] == 'c':
+                        bp[x, 2] = (176, 134, 82, 255)
+                wi(f'{T}/{name}_belt.png', belt)
+            wi(f'{T}/{name}.png', img)
+            layers = {'layer0': f'{NS}:item/{name}'}
+            if shape == 'trousers_belt':
+                layers['layer1'] = f'{NS}:item/{name}_belt'
+            wj(f'{A}/models/item/{name}.json', {'parent': 'minecraft:item/generated', 'textures': layers})
+            wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{name}',
+                                                    'tints': [{'type': 'minecraft:dye', 'default': argb_int(dye)}]}})
+        else:
+            if name == 'felt_boots':
+                pal = SP.ramp(rgb(0x8E7A5E))
+                pal['c'] = tint(rgb(0x8E7A5E), 0.75)
+            elif name == 'fur_hat':
+                pal = SP.ramp(rgb(0x5E3E26))
+                pal.update({'f': rgb(0xC89A68), 'F': rgb(0xA27850)})
+            else:
+                pal = SP.ramp(rgb(0x9A6A3E))
+                pal.update({'f': rgb(0xEFE6D4), 'F': rgb(0xD6CAB4)})
+            wi(f'{T}/{name}.png', SP.render(SP.S[shape], pal))
+            wj(f'{A}/models/item/{name}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{name}'}})
+            wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{name}'}})
+    # pillow (white linen with a tuft) and featherbed (red-white striped ticking, a Polish "pasiak")
+    pal = SP.ramp((236, 230, 216))
+    wi(f'{T}/pillow.png', SP.render(SP.S['pillow'], pal))
+    pal = SP.ramp((236, 230, 216))
+    pal.update({'R': (200, 62, 56), 'P': (158, 46, 42)})
+    wi(f'{T}/featherbed.png', SP.render(SP.S['featherbed'], pal))
+    for n in ('pillow', 'featherbed'):
+        wj(f'{A}/models/item/{n}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{n}'}})
+        wj(f'{A}/items/{n}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{n}'}})
+    # curtain item: tinted cloth + untinted rod; rug item: tinted
+    wi(f'{T}/curtain.png', SP.render(SP.S['curtain_cloth'], bright))
+    rod = SP.ramp((112, 78, 48))
+    rod['c'] = (124, 86, 52)
+    wi(f'{T}/curtain_rod.png', SP.render(SP.S['curtain_rod'], rod))
+    wj(f'{A}/models/item/curtain.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/curtain', 'layer1': f'{NS}:item/curtain_rod'}})
+    wj(f'{A}/items/curtain.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/curtain',
+                                             'tints': [{'type': 'minecraft:dye', 'default': argb_int(0xE6DCC0)}]}})
+    wi(f'{T}/wool_rug.png', SP.render(SP.S['rug'], bright))
+    wj(f'{A}/models/item/wool_rug.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/wool_rug'}})
+    wj(f'{A}/items/wool_rug.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/wool_rug',
+                                              'tints': [{'type': 'minecraft:dye', 'default': argb_int(0xC8C2B8)}]}})
+    lpal = {'o': (36, 34, 38), 'i': (78, 76, 84), 'I': (112, 110, 118), 'a': (196, 126, 48), 'h': (238, 178, 84), 'H': (255, 230, 150)}
+    wi(f'{T}/horn_lantern.png', SP.render(SP.S['lantern'], lpal))
+    wj(f'{A}/models/item/horn_lantern.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/horn_lantern'}})
+    wj(f'{A}/items/horn_lantern.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/horn_lantern'}})
+
+    # ---- block textures ----
+    B = f'{A}/textures/block'
+    img = Image.new('RGBA', (16, 16))
+    px_ = img.load()
+    for y in range(16):
+        for x in range(16):
+            v = 226 + (5 if (x + y) % 2 == 0 else -4) + (-5 if y % 4 == 3 else 0)
+            if y in (0, 15):
+                v = 204
+            if y == 1 or y == 14:
+                v = 214
+            px_[x, y] = (v, v, v, 255)
+    wi(f'{B}/curtain_cloth.png', img)
+    # rugs: 16 variants by which sides continue into another rug (1 n, 2 s, 4 w, 8 e)
+    for mask in range(16):
+        img = Image.new('RGBA', (16, 16))
+        px_ = img.load()
+        for y in range(16):
+            for x in range(16):
+                dn = 99 if mask & 1 else y
+                ds = 99 if mask & 2 else 15 - y
+                dw = 99 if mask & 4 else x
+                de = 99 if mask & 8 else 15 - x
+                d = min(dn, ds, dw, de)
+                if d == 0:
+                    v = 140
+                elif d == 1:
+                    v = 166 + (30 if (x + y) % 2 == 0 else 0)  # braided edge
+                elif d == 2:
+                    v = 240
+                else:
+                    lx, ly = x % 8, y % 8
+                    dia = abs(lx - 3.5) + abs(ly - 3.5)
+                    v = 236 if 2.6 < dia < 3.6 else 206 if dia > 3.6 else 220
+                    if dia < 1.1:
+                        v = 244
+                    v += (3 if (x + y) % 2 == 0 else -3)
+                px_[x, y] = (v, v, v, 255)
+        wi(f'{B}/rug/rug_{mask}.png', img)
+    # rag rug: rows of coloured rag strips woven over a warp
+    rag_cols = [(176, 72, 60), (84, 112, 150), (196, 170, 96), (110, 140, 84), (150, 96, 130), (200, 190, 170), (120, 90, 70)]
+    rr = random.Random(5)
+    img = Image.new('RGBA', (16, 16))
+    px_ = img.load()
+    row_col = [rag_cols[rr.randrange(len(rag_cols))] for _ in range(8)]
+    for y in range(16):
+        c = row_col[y // 2]
+        for x in range(16):
+            k = 1.08 if (x // 2 + y) % 2 == 0 else 0.86
+            if y % 2 == 1:
+                k *= 0.9
+            px_[x, y] = tint(noisy(rr, c, 0.05), k) + (255,)
+    wi(f'{B}/rag_rug.png', img)
+    # horn lantern block texture: (0,0)-(6,7) side pane, (0,9)-(6,15) top/bottom, (8,0)-(12,4) iron, (8,6)-(9,16) chain
+    img = Image.new('RGBA', (16, 16))
+    px_ = img.load()
+    IRON, IRON_L = (64, 62, 70), (104, 102, 112)
+    for y in range(7):
+        for x in range(6):
+            if x in (0, 5) or y in (0, 6):
+                c = IRON_L if y == 0 else IRON
+            else:
+                t = 1 - abs(y - 3) / 4
+                c = (int(214 + 40 * t), int(140 + 70 * t), int(52 + 60 * t))
+                if (x * 3 + y) % 5 == 0:
+                    c = tint(c, 0.9)  # streaks in the horn
+            px_[x, y] = c + (255,)
+    for y in range(9, 15):
+        for x in range(6):
+            px_[x, y] = (IRON_L if (x + y) % 3 else IRON) + (255,)
+    for y in range(0, 4):
+        for x in range(8, 12):
+            px_[x, y] = (IRON_L if y == 0 else IRON) + (255,)
+    for y in range(6, 16):
+        px_[8, y] = (IRON if y % 2 else IRON_L) + (255,)
+    wi(f'{B}/horn_lantern.png', img)
+
+    def el(fr, to, uv_side, uv_top, tex='#t', light=None):
+        f = {}
+        for face in ('north', 'south', 'east', 'west'):
+            f[face] = {'texture': tex, 'uv': uv_side}
+        for face in ('up', 'down'):
+            f[face] = {'texture': tex, 'uv': uv_top}
+        e = {'from': fr, 'to': to, 'faces': f}
+        if light:
+            e['light_emission'] = light
+        return e
+
+    def lantern(dy):
+        els = [el([5, 0 + dy, 5], [11, 7 + dy, 11], [0, 0, 6, 7], [0, 9, 6, 15], light=12),
+               el([6, 7 + dy, 6], [10, 8 + dy, 10], [8, 0, 12, 1], [8, 0, 12, 4]),
+               el([6.5, 8 + dy, 7.75], [7, 10 + dy, 8.25], [8, 6, 9, 8], [8, 6, 9, 7]),
+               el([9, 8 + dy, 7.75], [9.5, 10 + dy, 8.25], [8, 6, 9, 8], [8, 6, 9, 7]),
+               el([6.5, 10 + dy, 7.75], [9.5, 10.5 + dy, 8.25], [8, 1, 11, 2], [8, 1, 11, 2])]
+        if dy:
+            els.append(el([7.75, 10.5 + dy, 7.75], [8.25, 16, 8.25], [8, 6, 9, 16], [8, 6, 9, 7]))
+        return els
+    for name, dy in (('horn_lantern', 0), ('horn_lantern_hanging', 1)):
+        wj(f'{A}/models/block/{name}.json', {'parent': 'minecraft:block/block', 'ambientocclusion': False,
+                                             'textures': {'t': f'{NS}:block/horn_lantern', 'particle': f'{NS}:block/horn_lantern'},
+                                             'elements': lantern(dy)})
+    wj(f'{A}/blockstates/horn_lantern.json', {'variants': {'hanging=false': {'model': f'{NS}:block/horn_lantern'},
+                                                           'hanging=true': {'model': f'{NS}:block/horn_lantern_hanging'}}})
+    # curtain and woven rug are drawn by their renderers: models only give the breaking particles
+    wj(f'{A}/models/block/curtain.json', {'textures': {'particle': f'{NS}:block/curtain_cloth'}})
+    wj(f'{A}/models/block/wool_rug.json', {'textures': {'particle': f'{NS}:block/rug/rug_0'}})
+    wj(f'{A}/blockstates/curtain.json', {'variants': {'': {'model': f'{NS}:block/curtain'}}})
+    wj(f'{A}/blockstates/wool_rug.json', {'variants': {'': {'model': f'{NS}:block/wool_rug'}}})
+    wj(f'{A}/models/block/rag_rug.json', {'parent': 'minecraft:block/carpet', 'textures': {'wool': f'{NS}:block/rag_rug'}})
+    wj(f'{A}/blockstates/rag_rug.json', {'variants': {'': {'model': f'{NS}:block/rag_rug'}}})
+    wj(f'{A}/items/rag_rug.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/rag_rug'}})
+
+    # rested effect icon: a crescent moon with a little "z"
+    img = Image.new('RGBA', (18, 18))
+    px_ = img.load()
+    for y in range(18):
+        for x in range(18):
+            d1 = ((x - 8) ** 2 + (y - 9) ** 2) ** 0.5
+            d2 = ((x - 11) ** 2 + (y - 7) ** 2) ** 0.5
+            if d1 <= 6.5 and d2 > 5.2:
+                edge = d1 > 5.6 or d2 < 6.0
+                px_[x, y] = ((168, 128, 40) if edge else (250, 222, 120)) + (255,)
+    for x, y in [(12, 11), (13, 11), (14, 11), (13, 12), (12, 13), (13, 13), (14, 13)]:
+        px_[x, y] = (230, 236, 255, 255)
+    wi(f'{A}/textures/mob_effect/rested.png', img)
+
+    # ---- data: loot, recipes, tags ----
+    G = lambda n: f'{NS}:{n}'
+    for b, copy in (('curtain', True), ('wool_rug', True), ('rag_rug', False), ('horn_lantern', False)):
+        entry = {'type': 'minecraft:item', 'name': G(b)}
+        if copy:
+            entry['functions'] = [{'function': 'minecraft:copy_components', 'source': 'block_entity', 'include': ['minecraft:dyed_color']}]
+        wj(f'{D}/{NS}/loot_table/blocks/{b}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+                                                                                            'entries': [entry]}],
+                                                       'random_sequence': f'{NS}:blocks/{b}'})
+    R = f'{D}/{NS}/recipe'
+
+    def shaped(name, pattern, key, count=1, cat='equipment'):
+        wj(f'{R}/{name}.json', {'type': 'minecraft:crafting_shaped', 'category': cat, 'pattern': pattern, 'key': key,
+                                'result': {'id': G(name), 'count': count}})
+    shaped('wool_cap', ['YYY', 'Y Y'], {'Y': G('yarn_wool')})
+    shaped('wool_sweater', ['Y Y', 'YYY', 'YYY'], {'Y': G('yarn_wool')})
+    shaped('wool_trousers', ['YYY', 'Y Y', 'Y Y'], {'Y': G('yarn_wool')})
+    shaped('felt_boots', ['F F', 'F F'], {'F': G('felt')})
+    shaped('fur_hat', ['FLF', 'F F'], {'F': '#' + G('furs'), 'L': 'minecraft:leather'})
+    shaped('sheepskin_coat', ['L L', 'LWL', 'LLL'], {'L': 'minecraft:leather', 'W': '#minecraft:wool'})
+    shaped('linen_shirt', ['C C', 'CCC', 'CCC'], {'C': G('linen')})
+    shaped('linen_trousers', ['CCC', 'C C', 'C C'], {'C': G('linen')})
+    shaped('pillow', ['DDD', 'CCC'], {'D': '#' + G('stuffing'), 'C': G('linen')}, cat='misc')
+    shaped('featherbed', ['DDD', 'DDD', 'CCC'], {'D': '#' + G('stuffing'), 'C': G('linen')}, cat='misc')
+    shaped('rag_rug', ['RRR'], {'R': G('rags')}, count=2, cat='building')
+    shaped('horn_lantern', ['NNN', 'HTH', 'NNN'], {'N': 'minecraft:iron_nugget', 'H': G('horn'), 'T': 'minecraft:torch'}, cat='building')
+    # curtains and rugs keep the colour of the cloth they are made of
+    wj(f'{R}/curtain.json', {'type': 'minecraft:crafting_transmute', 'category': 'building', 'input': '#' + G('cloths'),
+                             'material': 'minecraft:stick', 'result': {'id': G('curtain')}})
+    wj(f'{R}/wool_rug.json', {'type': 'minecraft:crafting_transmute', 'category': 'building', 'input': G('woolen_cloth'),
+                              'material': G('yarn_wool'), 'result': {'id': G('wool_rug')}})
+
+    def tag(path, values):
+        wj(f'{D}/{path}.json', {'replace': False, 'values': values})
+    warm = [G(n) for n in ('wool_cap', 'wool_sweater', 'wool_trousers', 'felt_boots', 'fur_hat', 'sheepskin_coat')]
+    airy = [G('linen_shirt'), G('linen_trousers')]
+    tag(f'{NS}/tags/item/warm_clothing', warm)
+    tag(f'{NS}/tags/item/airy_clothing', airy)
+    tag('minecraft/tags/item/freeze_immune_wearables', warm)
+    tag(f'{NS}/tags/item/furs', [G('rabbit_fur'), G('fox_fur'), G('bear_fur')])
+    tag(f'{NS}/tags/item/stuffing', [G('down'), 'minecraft:feather', G('turkey_feather')])
+    tag(f'{NS}/tags/item/cloths', [G(n) for n in list(CLOTH_NATURAL) + ['silk']])
+    tag(f'{NS}/tags/item/repairs_wool', [G('yarn_wool')])
+    tag(f'{NS}/tags/item/repairs_felt', [G('felt')])
+    tag(f'{NS}/tags/item/repairs_fur', ['#' + G('furs')])
+    tag(f'{NS}/tags/item/repairs_sheepskin', ['minecraft:leather'])
+    tag(f'{NS}/tags/item/repairs_linen', [G('linen')])
+    tag('minecraft/tags/item/head_armor', [G('wool_cap'), G('fur_hat')])
+    tag('minecraft/tags/item/chest_armor', [G('wool_sweater'), G('sheepskin_coat'), G('linen_shirt')])
+    tag('minecraft/tags/item/leg_armor', [G('wool_trousers'), G('linen_trousers')])
+    tag('minecraft/tags/item/foot_armor', [G('felt_boots')])
+    dyeable = [G(n) for n in list(YARN_NATURAL) + list(CLOTH_NATURAL) + ['yarn_silk', 'silk', 'wool_cap', 'wool_sweater', 'wool_trousers',
+                                                                           'linen_shirt', 'linen_trousers', 'curtain', 'wool_rug']]
+    tag(f'{NS}/tags/item/vat_dyeable', dyeable)
+    tag('minecraft/tags/item/dyeable', dyeable)
+
+    pl = {'item.gospodarstwo.wool_cap': 'Wełniana czapka', 'item.gospodarstwo.wool_sweater': 'Sweter', 'item.gospodarstwo.wool_trousers': 'Wełniane spodnie',
+          'item.gospodarstwo.felt_boots': 'Walonki', 'item.gospodarstwo.fur_hat': 'Futrzana uszanka', 'item.gospodarstwo.sheepskin_coat': 'Kożuch',
+          'item.gospodarstwo.linen_shirt': 'Lniana koszula', 'item.gospodarstwo.linen_trousers': 'Lniane spodnie',
+          'item.gospodarstwo.pillow': 'Poduszka', 'item.gospodarstwo.featherbed': 'Pierzyna',
+          'block.gospodarstwo.curtain': 'Zasłona', 'block.gospodarstwo.wool_rug': 'Dywan tkany', 'block.gospodarstwo.rag_rug': 'Chodnik szmaciany',
+          'block.gospodarstwo.horn_lantern': 'Latarnia z rogu', 'effect.gospodarstwo.rested': 'Wypoczęty',
+          'bed.gospodarstwo.added': 'Łóżko jest wygodniejsze', 'bed.gospodarstwo.cosy': 'Poduszka i pierzyna – wyśpisz się jak u babci',
+          'bed.gospodarstwo.has_pillow': 'Na tym łóżku jest już poduszka', 'bed.gospodarstwo.has_featherbed': 'Na tym łóżku jest już pierzyna',
+          'item.gospodarstwo.pillow.desc': 'Kucnij i kliknij łóżko'}
+    en = {'item.gospodarstwo.wool_cap': 'Wool Cap', 'item.gospodarstwo.wool_sweater': 'Sweater', 'item.gospodarstwo.wool_trousers': 'Wool Trousers',
+          'item.gospodarstwo.felt_boots': 'Felt Boots', 'item.gospodarstwo.fur_hat': 'Fur Hat', 'item.gospodarstwo.sheepskin_coat': 'Sheepskin Coat',
+          'item.gospodarstwo.linen_shirt': 'Linen Shirt', 'item.gospodarstwo.linen_trousers': 'Linen Trousers',
+          'item.gospodarstwo.pillow': 'Pillow', 'item.gospodarstwo.featherbed': 'Featherbed',
+          'block.gospodarstwo.curtain': 'Curtain', 'block.gospodarstwo.wool_rug': 'Woven Rug', 'block.gospodarstwo.rag_rug': 'Rag Rug',
+          'block.gospodarstwo.horn_lantern': 'Horn Lantern', 'effect.gospodarstwo.rested': 'Rested',
+          'bed.gospodarstwo.added': 'The bed is comfier now', 'bed.gospodarstwo.cosy': 'Pillow and featherbed - you will sleep like a baby',
+          'bed.gospodarstwo.has_pillow': 'This bed already has a pillow', 'bed.gospodarstwo.has_featherbed': 'This bed already has a featherbed',
+          'item.gospodarstwo.pillow.desc': 'Sneak and click a bed'}
+    for lang_file, extra in (('pl_pl', pl), ('en_us', en)):
+        path = f'{A}/lang/{lang_file}.json'
+        d = json.load(open(path, encoding='utf-8'))
+        d.update(extra)
+        wj(path, d)
+
+
 if __name__ == '__main__':
     animal_assets()
     item_textures()
@@ -1155,3 +1721,4 @@ if __name__ == '__main__':
     lang()
     textiles()
     stage2()
+    stage3()

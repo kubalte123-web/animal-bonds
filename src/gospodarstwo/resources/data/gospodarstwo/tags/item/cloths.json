@@ -1,0 +1,14 @@
+{
+ "replace": false,
+ "values": [
+  "gospodarstwo:canvas",
+  "gospodarstwo:linen",
+  "gospodarstwo:woolen_cloth",
+  "gospodarstwo:merino_cloth",
+  "gospodarstwo:angora_cloth",
+  "gospodarstwo:cashmere_cloth",
+  "gospodarstwo:llama_cloth",
+  "gospodarstwo:felt",
+  "gospodarstwo:silk"
+ ]
+}

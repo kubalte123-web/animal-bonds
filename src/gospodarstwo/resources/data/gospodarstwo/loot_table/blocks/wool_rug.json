@@ -1,0 +1,29 @@
+{
+ "type": "minecraft:block",
+ "pools": [
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:survives_explosion"
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "gospodarstwo:wool_rug",
+     "functions": [
+      {
+       "function": "minecraft:copy_components",
+       "source": "block_entity",
+       "include": [
+        "minecraft:dyed_color"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "random_sequence": "gospodarstwo:blocks/wool_rug"
+}

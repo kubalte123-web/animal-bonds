@@ -1,0 +1,7 @@
+{
+ "parent": "minecraft:item/generated",
+ "textures": {
+  "layer0": "gospodarstwo:item/linen_trousers",
+  "layer1": "gospodarstwo:item/linen_trousers_belt"
+ }
+}

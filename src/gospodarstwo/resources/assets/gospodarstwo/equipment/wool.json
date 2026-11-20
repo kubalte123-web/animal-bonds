@@ -1,0 +1,20 @@
+{
+ "layers": {
+  "humanoid": [
+   {
+    "texture": "gospodarstwo:wool",
+    "dyeable": {
+     "color_when_undyed": -1186086
+    }
+   }
+  ],
+  "humanoid_leggings": [
+   {
+    "texture": "gospodarstwo:wool",
+    "dyeable": {
+     "color_when_undyed": -1186086
+    }
+   }
+  ]
+ }
+}

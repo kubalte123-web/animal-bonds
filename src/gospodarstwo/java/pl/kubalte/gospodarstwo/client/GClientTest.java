@@ -92,7 +92,13 @@ public final class GClientTest {
             case 2100 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 32", B.getX() + 111.5, B.getY() + 1,
                     B.getZ() - 3.0)));
             case 2180 -> shot(m + "workshop");
-            case 2340 -> {
+            case 2340 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 12", B.getX() + 193.5, B.getY() + 1,
+                    B.getZ() - 3.4)));
+            case 2420 -> shot(m + "clothes");
+            case 2580 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 18", B.getX() + 179.5, B.getY() + 1,
+                    B.getZ() - 3.5)));
+            case 2660 -> shot(m + "home");
+            case 2820 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
                 mc.stop();
             }
@@ -125,7 +131,7 @@ public final class GClientTest {
     static void textiles(MinecraftServer server) {
         ServerLevel level = server.overworld();
         var p = server.getPlayerList().getPlayers().get(0);
-        for (int x = 108; x <= 166; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
+        for (int x = 108; x <= 200; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
             level.setBlockAndUpdate(B.offset(x, y, z), Blocks.AIR.defaultBlockState());
         BlockPos wheel = B.offset(114, 0, 0), vat = B.offset(116, 0, 0), loom = B.offset(118, 0, 0);
         level.setBlockAndUpdate(wheel, Gospodarstwo.SPINNING_WHEEL.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.block.StationBlock.FACING,
@@ -170,6 +176,8 @@ public final class GClientTest {
         cmd(server, "gamerule spawn_mobs false");
         cmd(server, "gamerule doMobSpawning false");
 
+        home(level, p);
+
         int perRow = 18;
         for (int i = 0; i < items.size(); i++) {
             int wall = i / (perRow * 5), k = i % (perRow * 5);
@@ -180,6 +188,62 @@ public final class GClientTest {
             f.setItem(items.get(i), false);
             level.addFreshEntity(f);
         }
+    }
+
+    static ItemStack dyed(net.minecraft.world.level.ItemLike item, int rgb) {
+        ItemStack s = new ItemStack(item);
+        if (rgb >= 0) pl.kubalte.gospodarstwo.craft.Dyes.setColor(s, rgb);
+        return s;
+    }
+
+    static void dress(ServerLevel level, BlockPos pos, ItemStack head, ItemStack chest, ItemStack legs, ItemStack feet) {
+        Mob m = put(level, EntityTypes.HUSK, pos, null, false);
+        if (m == null) return;
+        m.setPersistenceRequired();
+        m.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, head);
+        m.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, chest);
+        m.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, legs);
+        m.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, feet);
+    }
+
+    /** Stage 3: people in the new clothes, and a room with curtains, rugs and horn lanterns. */
+    static void home(ServerLevel level, net.minecraft.server.level.ServerPlayer p) {
+        dress(level, B.offset(190, 0, 0), dyed(Gospodarstwo.WOOL_CAP.get(), 0xB02E26), dyed(Gospodarstwo.WOOL_SWEATER.get(), 0x3C44AA),
+                dyed(Gospodarstwo.WOOL_TROUSERS.get(), -1), new ItemStack(Gospodarstwo.FELT_BOOTS.get()));
+        dress(level, B.offset(192, 0, 0), new ItemStack(Gospodarstwo.FUR_HAT.get()), new ItemStack(Gospodarstwo.SHEEPSKIN_COAT.get()),
+                dyed(Gospodarstwo.WOOL_TROUSERS.get(), 0x5E7C16), new ItemStack(Gospodarstwo.FELT_BOOTS.get()));
+        dress(level, B.offset(194, 0, 0), ItemStack.EMPTY, dyed(Gospodarstwo.LINEN_SHIRT.get(), -1), dyed(Gospodarstwo.LINEN_TROUSERS.get(), 0x3C44AA),
+                ItemStack.EMPTY);
+        dress(level, B.offset(196, 0, 0), dyed(Gospodarstwo.WOOL_CAP.get(), 0xF9D849), dyed(Gospodarstwo.LINEN_SHIRT.get(), 0xD8506A),
+                dyed(Gospodarstwo.WOOL_TROUSERS.get(), 0x6A2C70), new ItemStack(Gospodarstwo.FELT_BOOTS.get()));
+        // back wall with two windows
+        for (int x = 172; x <= 187; x++) for (int y = 0; y <= 3; y++) {
+            boolean window = y >= 1 && y <= 2 && (x >= 174 && x <= 176 || x >= 182 && x <= 184);
+            level.setBlockAndUpdate(B.offset(x, y, 5), window ? Blocks.GLASS.defaultBlockState() : Blocks.SPRUCE_PLANKS.defaultBlockState());
+        }
+        BlockState cur = Gospodarstwo.CURTAIN.get().defaultBlockState();
+        for (int x = 174; x <= 176; x++) for (int y = 1; y <= 2; y++) {
+            level.setBlockAndUpdate(B.offset(x, y, 4), cur);
+            if (level.getBlockEntity(B.offset(x, y, 4)) instanceof pl.kubalte.gospodarstwo.block.ColoredBlockEntity be) be.setColor(0xB02E26);
+        }
+        for (int x = 182; x <= 184; x++) for (int y = 1; y <= 2; y++) {
+            level.setBlockAndUpdate(B.offset(x, y, 4), cur.setValue(pl.kubalte.gospodarstwo.block.CurtainBlock.OPEN, true));
+            if (level.getBlockEntity(B.offset(x, y, 4)) instanceof pl.kubalte.gospodarstwo.block.ColoredBlockEntity be) be.setColor(0x3C6E9A);
+        }
+        // rugs: a purple 3x2 rug, a natural one, a rag rug
+        for (int x = 177; x <= 179; x++) for (int z = 1; z <= 2; z++) {
+            level.setBlockAndUpdate(B.offset(x, 0, z), Gospodarstwo.WOOL_RUG.get().defaultBlockState());
+            if (level.getBlockEntity(B.offset(x, 0, z)) instanceof pl.kubalte.gospodarstwo.block.ColoredBlockEntity be) be.setColor(0x6A2C70);
+        }
+        level.setBlockAndUpdate(B.offset(181, 0, 2), Gospodarstwo.WOOL_RUG.get().defaultBlockState());
+        level.setBlockAndUpdate(B.offset(175, 0, 2), Gospodarstwo.RAG_RUG.get().defaultBlockState());
+        level.setBlockAndUpdate(B.offset(174, 0, 2), Gospodarstwo.RAG_RUG.get().defaultBlockState());
+        // horn lanterns: one on a fence post, one hanging from a beam
+        level.setBlockAndUpdate(B.offset(180, 0, 4), Blocks.SPRUCE_FENCE.defaultBlockState());
+        level.setBlockAndUpdate(B.offset(180, 1, 4), Gospodarstwo.HORN_LANTERN.get().defaultBlockState());
+        level.setBlockAndUpdate(B.offset(178, 3, 4), Blocks.SPRUCE_PLANKS.defaultBlockState());
+        level.setBlockAndUpdate(B.offset(178, 2, 4), Gospodarstwo.HORN_LANTERN.get().defaultBlockState()
+                .setValue(net.minecraft.world.level.block.LanternBlock.HANGING, true));
     }
 
     static void scene(MinecraftServer server) {

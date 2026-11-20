@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "DDD",
+  "DDD",
+  "CCC"
+ ],
+ "key": {
+  "D": "#gospodarstwo:stuffing",
+  "C": "gospodarstwo:linen"
+ },
+ "result": {
+  "id": "gospodarstwo:featherbed",
+  "count": 1
+ }
+}

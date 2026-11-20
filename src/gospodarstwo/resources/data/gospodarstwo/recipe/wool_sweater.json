@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "equipment",
+ "pattern": [
+  "Y Y",
+  "YYY",
+  "YYY"
+ ],
+ "key": {
+  "Y": "gospodarstwo:yarn_wool"
+ },
+ "result": {
+  "id": "gospodarstwo:wool_sweater",
+  "count": 1
+ }
+}

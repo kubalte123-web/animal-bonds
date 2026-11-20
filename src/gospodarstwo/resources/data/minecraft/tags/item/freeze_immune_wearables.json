@@ -1,0 +1,11 @@
+{
+ "replace": false,
+ "values": [
+  "gospodarstwo:wool_cap",
+  "gospodarstwo:wool_sweater",
+  "gospodarstwo:wool_trousers",
+  "gospodarstwo:felt_boots",
+  "gospodarstwo:fur_hat",
+  "gospodarstwo:sheepskin_coat"
+ ]
+}

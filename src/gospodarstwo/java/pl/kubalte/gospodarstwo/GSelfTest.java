@@ -323,6 +323,56 @@ public final class GSelfTest {
         Mob rav = EntityTypes.RAVAGER.spawn(level, O.offset(36, 0, 27), EntitySpawnReason.COMMAND);
         if (rav != null) rav.kill(level);
         check(itemsAround(level, O.offset(36, 0, 27), Gospodarstwo.RAVAGER_HORN.get()) > 0, "a ravager always drops its horn");
+
+        // ---- stage 3: clothes, bedding, curtains, rugs ----
+        ItemStack sweater = new ItemStack(Gospodarstwo.WOOL_SWEATER.get());
+        var eq = sweater.get(net.minecraft.core.component.DataComponents.EQUIPPABLE);
+        check(eq != null && eq.slot() == net.minecraft.world.entity.EquipmentSlot.CHEST, "a sweater is worn on the chest");
+        check(new ItemStack(Gospodarstwo.FELT_BOOTS.get()).get(net.minecraft.core.component.DataComponents.EQUIPPABLE).slot()
+                == net.minecraft.world.entity.EquipmentSlot.FEET, "felt boots go on the feet");
+        check(sweater.is(pl.kubalte.gospodarstwo.craft.Clothing.WARM) && sweater.is(net.minecraft.tags.ItemTags.FREEZE_IMMUNE_WEARABLES),
+                "wool clothes are warm and protect from freezing");
+        check(new ItemStack(Gospodarstwo.LINEN_SHIRT.get()).is(pl.kubalte.gospodarstwo.craft.Clothing.AIRY), "linen clothes are airy");
+        check(Gospodarstwo.FELT_BOOTS.get().canWalkOnPowderedSnow(new ItemStack(Gospodarstwo.FELT_BOOTS.get()), player), "felt boots walk on powder snow");
+        check(sweater.is(net.minecraft.tags.ItemTags.DYEABLE), "sweaters can be dyed");
+
+        BlockPos bedFoot = O.offset(20, 0, 8);
+        BlockState bed = Blocks.RED_BED.defaultBlockState().setValue(net.minecraft.world.level.block.BedBlock.FACING, net.minecraft.core.Direction.NORTH);
+        level.setBlockAndUpdate(bedFoot.north(), bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.HEAD));
+        level.setBlockAndUpdate(bedFoot, bed.setValue(net.minecraft.world.level.block.BedBlock.PART, net.minecraft.world.level.block.state.properties.BedPart.FOOT));
+        ItemStack pillow = new ItemStack(Gospodarstwo.PILLOW.get(), 2);
+        pl.kubalte.gospodarstwo.craft.Bedding.add(level, bedFoot, player, pillow);
+        check(pl.kubalte.gospodarstwo.craft.Bedding.comfort(level, bedFoot) == 1 && pillow.getCount() == 1, "a pillow is put on the bed");
+        pl.kubalte.gospodarstwo.craft.Bedding.add(level, bedFoot.north(), player, pillow);
+        check(pillow.getCount() == 1, "a second pillow is not used up");
+        pl.kubalte.gospodarstwo.craft.Bedding.add(level, bedFoot, player, new ItemStack(Gospodarstwo.FEATHERBED.get()));
+        check(pl.kubalte.gospodarstwo.craft.Bedding.comfort(level, bedFoot.north()) == 3, "pillow and featherbed on the bed");
+        pl.kubalte.gospodarstwo.craft.Bedding.rest(player, pl.kubalte.gospodarstwo.craft.Bedding.comfort(level, bedFoot));
+        var rested = player.getEffect(Gospodarstwo.RESTED);
+        check(rested != null && rested.getAmplifier() == 1 && rested.getDuration() > 20000, "sleeping in a cosy bed makes you well rested (" + rested + ")");
+        check(player.getMaxHealth() >= 27F, "rested gives extra hearts (" + player.getMaxHealth() + ")");
+        pl.kubalte.gospodarstwo.craft.Bedding.onBreak(new net.neoforged.neoforge.event.level.BlockEvent.BreakEvent(level, bedFoot, level.getBlockState(bedFoot), player));
+        check(itemsAround(level, bedFoot, Gospodarstwo.PILLOW.get()) == 1 && itemsAround(level, bedFoot, Gospodarstwo.FEATHERBED.get()) == 1,
+                "breaking the bed gives back the pillow and featherbed");
+
+        BlockPos cur = O.offset(24, 0, 8);
+        BlockState curtain = Gospodarstwo.CURTAIN.get().defaultBlockState();
+        level.setBlockAndUpdate(cur, curtain);
+        level.setBlockAndUpdate(cur.above(), curtain);
+        level.setBlockAndUpdate(cur.east(), curtain);
+        level.setBlockAndUpdate(cur.east(3), curtain);
+        pl.kubalte.gospodarstwo.block.CurtainBlock.toggle(level, cur);
+        check(level.getBlockState(cur.above()).getValue(pl.kubalte.gospodarstwo.block.CurtainBlock.OPEN)
+                && level.getBlockState(cur.east()).getValue(pl.kubalte.gospodarstwo.block.CurtainBlock.OPEN)
+                && !level.getBlockState(cur.east(3)).getValue(pl.kubalte.gospodarstwo.block.CurtainBlock.OPEN), "the whole curtain opens, a separate one doesn't");
+        pl.kubalte.gospodarstwo.block.ColoredBlocks.dye(level, cur, player, new ItemStack(Gospodarstwo.PLUM.get()));
+        check(level.getBlockEntity(cur) instanceof pl.kubalte.gospodarstwo.block.ColoredBlockEntity cb && cb.color() == 0x6A2C70, "plums dye a curtain purple");
+        BlockPos rugPos = O.offset(28, 0, 8);
+        level.setBlockAndUpdate(rugPos, Gospodarstwo.WOOL_RUG.get().defaultBlockState());
+        check(level.getBlockState(rugPos).is(Gospodarstwo.WOOL_RUG.get()), "a rug lies on the grass");
+        pl.kubalte.gospodarstwo.block.ColoredBlocks.dye(level, rugPos, player, new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(
+                net.minecraft.resources.Identifier.withDefaultNamespace("red_dye"))));
+        check(level.getBlockEntity(rugPos) instanceof pl.kubalte.gospodarstwo.block.ColoredBlockEntity rb && rb.color() >= 0, "a rug can be dyed");
         check(Breed.byIndex(Breed.ANGORA.index()) == Breed.ANGORA && BreedEvents.breedsOf(cow).contains(Breed.HIGHLAND), "breed lookup");
         for (Mob m : new Mob[] {duck, goose, turkey, snail, cow, sheep}) if (m != null) m.discard();
     }

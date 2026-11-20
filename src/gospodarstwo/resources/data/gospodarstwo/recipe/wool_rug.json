@@ -1,0 +1,9 @@
+{
+ "type": "minecraft:crafting_transmute",
+ "category": "building",
+ "input": "gospodarstwo:woolen_cloth",
+ "material": "gospodarstwo:yarn_wool",
+ "result": {
+  "id": "gospodarstwo:wool_rug"
+ }
+}

@@ -32,6 +32,10 @@ public final class GConfig {
             .defineInRange("tanTicks", 12000, 1, 10_000_000);
     public static final ModConfigSpec.IntValue KETTLE_TICKS = B.comment("Ile ticków trwa jedna porcja w kotle")
             .defineInRange("kettleTicks", 160, 1, 100_000);
+    public static final ModConfigSpec.BooleanValue CLOTHING_EFFECTS = B.comment("Ciepłe ubrania leczą na mrozie, lniane przyspieszają w upale")
+            .define("clothingEffects", true);
+    public static final ModConfigSpec.IntValue RESTED_PERCENT = B.comment("Długość efektu Wypoczęty w % (100 = pół doby z poduszką, doba z poduszką i pierzyną)")
+            .defineInRange("restedPercent", 100, 0, 1000);
     public static final ModConfigSpec.BooleanValue EXTRA_DROPS = B.comment("Dodatkowe łupy ze zwierząt i potworów (skóra, łój, rogi, gruczoły...)")
             .define("extraDrops", true);
     static {

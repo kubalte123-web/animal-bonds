@@ -1,0 +1,12 @@
+{
+ "model": {
+  "type": "minecraft:model",
+  "model": "gospodarstwo:item/wool_rug",
+  "tints": [
+   {
+    "type": "minecraft:dye",
+    "default": -3620168
+   }
+  ]
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "RRR"
+ ],
+ "key": {
+  "R": "gospodarstwo:rags"
+ },
+ "result": {
+  "id": "gospodarstwo:rag_rug",
+  "count": 2
+ }
+}

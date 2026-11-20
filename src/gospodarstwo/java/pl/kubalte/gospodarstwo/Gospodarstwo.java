@@ -67,6 +67,11 @@ public class Gospodarstwo {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MODID);
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
     public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
+    public static final DeferredRegister<net.minecraft.world.effect.MobEffect> MOB_EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MODID);
+    public static final net.neoforged.neoforge.registries.DeferredHolder<net.minecraft.world.effect.MobEffect, net.minecraft.world.effect.MobEffect> RESTED =
+            MOB_EFFECTS.register("rested", () -> new pl.kubalte.gospodarstwo.effect.RestedEffect().addAttributeModifier(
+                    net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, id("rested_health"), 4.0,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     /** Everything that goes into the creative tab, in order. */
@@ -90,6 +95,9 @@ public class Gospodarstwo {
     public static final Supplier<AttachmentType<Integer>> BREED = ATTACHMENTS.register("breed",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT.fieldOf("value")).sync(ByteBufCodecs.VAR_INT).build());
     /** Game time when the animal was last sheared / gave its product. */
+    /** On a bed's head block entity: 1 = pillow, 2 = featherbed. */
+    public static final Supplier<AttachmentType<Integer>> BED_COMFORT = ATTACHMENTS.register("bed_comfort",
+            () -> AttachmentType.builder(() -> 0).serialize(Codec.INT.fieldOf("value")).build());
     public static final Supplier<AttachmentType<Long>> LAST_HARVEST = ATTACHMENTS.register("last_harvest",
             () -> AttachmentType.builder(() -> -1_000_000L).serialize(Codec.LONG.fieldOf("value")).build());
 
@@ -151,6 +159,20 @@ public class Gospodarstwo {
             pl.kubalte.gospodarstwo.block.TanningRackBlock::new, p -> p.mapColor(MapColor.WOOD).strength(1.5F).sound(SoundType.WOOD).noOcclusion());
     public static final DeferredBlock<pl.kubalte.gospodarstwo.block.KettleBlock> KETTLE = BLOCKS.registerBlock("kettle",
             pl.kubalte.gospodarstwo.block.KettleBlock::new, p -> p.mapColor(MapColor.METAL).strength(3.0F).sound(SoundType.METAL).noOcclusion());
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.block.CurtainBlock> CURTAIN = BLOCKS.registerBlock("curtain",
+            pl.kubalte.gospodarstwo.block.CurtainBlock::new, p -> p.mapColor(MapColor.WOOL).strength(0.4F).sound(SoundType.WOOL).noOcclusion()
+                    .ignitedByLava());
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.block.RugBlock> WOOL_RUG = BLOCKS.registerBlock("wool_rug",
+            pl.kubalte.gospodarstwo.block.RugBlock::new, p -> p.mapColor(MapColor.WOOL).strength(0.1F).sound(SoundType.WOOL).noOcclusion().ignitedByLava());
+    public static final DeferredBlock<net.minecraft.world.level.block.CarpetBlock> RAG_RUG = BLOCKS.registerBlock("rag_rug",
+            net.minecraft.world.level.block.CarpetBlock::new, p -> p.mapColor(MapColor.COLOR_BROWN).strength(0.1F).sound(SoundType.WOOL).ignitedByLava());
+    public static final DeferredBlock<net.minecraft.world.level.block.LanternBlock> HORN_LANTERN = BLOCKS.registerBlock("horn_lantern",
+            net.minecraft.world.level.block.LanternBlock::new, p -> p.mapColor(MapColor.TERRACOTTA_YELLOW).strength(2.5F).sound(SoundType.LANTERN)
+                    .lightLevel(st -> 13).noOcclusion().pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY));
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.CurtainBlockEntity>> CURTAIN_BE = BLOCK_ENTITIES.register("curtain",
+            () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.CurtainBlockEntity::new, CURTAIN.get()));
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.RugBlockEntity>> RUG_BE = BLOCK_ENTITIES.register("wool_rug",
+            () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.RugBlockEntity::new, WOOL_RUG.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.TanningRackBlockEntity>> TANNING_RACK_BE = BLOCK_ENTITIES.register(
             "tanning_rack", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.TanningRackBlockEntity::new, TANNING_RACK.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.KettleBlockEntity>> KETTLE_BE = BLOCK_ENTITIES.register("kettle",
@@ -201,6 +223,35 @@ public class Gospodarstwo {
     public static final DeferredItem<BlockItem> DYE_VAT_ITEM = tab(ITEMS.registerSimpleBlockItem("dye_vat", DYE_VAT));
     public static final DeferredItem<BlockItem> TANNING_RACK_ITEM = tab(ITEMS.registerSimpleBlockItem("tanning_rack", TANNING_RACK));
     public static final DeferredItem<BlockItem> KETTLE_ITEM = tab(ITEMS.registerSimpleBlockItem("kettle", KETTLE));
+    public static final DeferredItem<BlockItem> CURTAIN_ITEM = tab(ITEMS.registerSimpleBlockItem("curtain", CURTAIN));
+    public static final DeferredItem<BlockItem> WOOL_RUG_ITEM = tab(ITEMS.registerSimpleBlockItem("wool_rug", WOOL_RUG));
+    public static final DeferredItem<BlockItem> RAG_RUG_ITEM = tab(ITEMS.registerSimpleBlockItem("rag_rug", RAG_RUG));
+    public static final DeferredItem<BlockItem> HORN_LANTERN_ITEM = tab(ITEMS.registerSimpleBlockItem("horn_lantern", HORN_LANTERN));
+
+    // ---------------- items: clothes (stage 3) ----------------
+    private static DeferredItem<Item> wear(String name, net.minecraft.world.item.equipment.ArmorMaterial m, net.minecraft.world.item.equipment.ArmorType t) {
+        return tab(ITEMS.registerSimpleItem(name, p -> p.humanoidArmor(m, t)));
+    }
+
+    public static final DeferredItem<Item> WOOL_CAP = wear("wool_cap", pl.kubalte.gospodarstwo.craft.Clothing.WOOL,
+            net.minecraft.world.item.equipment.ArmorType.HELMET);
+    public static final DeferredItem<Item> WOOL_SWEATER = wear("wool_sweater", pl.kubalte.gospodarstwo.craft.Clothing.WOOL,
+            net.minecraft.world.item.equipment.ArmorType.CHESTPLATE);
+    public static final DeferredItem<Item> WOOL_TROUSERS = wear("wool_trousers", pl.kubalte.gospodarstwo.craft.Clothing.WOOL,
+            net.minecraft.world.item.equipment.ArmorType.LEGGINGS);
+    public static final DeferredItem<pl.kubalte.gospodarstwo.item.FeltBootsItem> FELT_BOOTS = tab(ITEMS.registerItem("felt_boots",
+            pl.kubalte.gospodarstwo.item.FeltBootsItem::new, p -> p.humanoidArmor(pl.kubalte.gospodarstwo.craft.Clothing.FELT,
+                    net.minecraft.world.item.equipment.ArmorType.BOOTS)));
+    public static final DeferredItem<Item> FUR_HAT = wear("fur_hat", pl.kubalte.gospodarstwo.craft.Clothing.FUR,
+            net.minecraft.world.item.equipment.ArmorType.HELMET);
+    public static final DeferredItem<Item> SHEEPSKIN_COAT = wear("sheepskin_coat", pl.kubalte.gospodarstwo.craft.Clothing.SHEEPSKIN,
+            net.minecraft.world.item.equipment.ArmorType.CHESTPLATE);
+    public static final DeferredItem<Item> LINEN_SHIRT = wear("linen_shirt", pl.kubalte.gospodarstwo.craft.Clothing.LINEN,
+            net.minecraft.world.item.equipment.ArmorType.CHESTPLATE);
+    public static final DeferredItem<Item> LINEN_TROUSERS = wear("linen_trousers", pl.kubalte.gospodarstwo.craft.Clothing.LINEN,
+            net.minecraft.world.item.equipment.ArmorType.LEGGINGS);
+    public static final DeferredItem<Item> PILLOW = tab(ITEMS.registerSimpleItem("pillow", p -> p.stacksTo(16)));
+    public static final DeferredItem<Item> FEATHERBED = tab(ITEMS.registerSimpleItem("featherbed", p -> p.stacksTo(16)));
     public static final DeferredItem<pl.kubalte.gospodarstwo.item.CurryCombItem> CURRY_COMB = tab(ITEMS.registerItem("curry_comb",
             pl.kubalte.gospodarstwo.item.CurryCombItem::new, p -> p.durability(128)));
 
@@ -310,6 +361,7 @@ public class Gospodarstwo {
         ENTITIES.register(modBus);
         BLOCK_ENTITIES.register(modBus);
         ATTACHMENTS.register(modBus);
+        MOB_EFFECTS.register(modBus);
         COMPONENTS.register(modBus);
         TABS.register(modBus);
         container.registerConfig(ModConfig.Type.COMMON, GConfig.SPEC);
@@ -318,6 +370,10 @@ public class Gospodarstwo {
         modBus.addListener((net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent e) -> e.enqueueWork(pl.kubalte.gospodarstwo.craft.Dyes::init));
         pl.kubalte.gospodarstwo.breed.BreedEvents.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.MobDrops::onDrops);
+        NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Clothing::onTick);
+        NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onUse);
+        NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onBreak);
+        NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onSleepFinished);
         GSelfTest.register(NeoForge.EVENT_BUS);
         if (ModList.get().isLoaded("animalbonds")) pl.kubalte.gospodarstwo.compat.AnimalBondsCompat.init(modBus);
     }

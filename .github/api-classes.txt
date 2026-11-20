@@ -16,3 +16,8 @@ net.minecraft.world.level.block.CandleBlock
 net.minecraft.world.level.block.BedBlock
 net.minecraft.client.renderer.item.ItemModel
 net.minecraft.world.entity.decoration.ItemFrame
+net.minecraft.world.level.block.CarpetBlock
+net.minecraft.world.level.block.LanternBlock
+net.minecraft.world.effect.MobEffect
+net.minecraft.world.entity.decoration.ArmorStand
+net.minecraft.client.color.block.BlockTintSource

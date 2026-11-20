@@ -1,0 +1,7 @@
+{
+ "parent": "minecraft:item/generated",
+ "textures": {
+  "layer0": "gospodarstwo:item/curtain",
+  "layer1": "gospodarstwo:item/curtain_rod"
+ }
+}

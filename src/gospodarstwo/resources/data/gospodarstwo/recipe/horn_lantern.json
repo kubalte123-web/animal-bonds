@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "NNN",
+  "HTH",
+  "NNN"
+ ],
+ "key": {
+  "N": "minecraft:iron_nugget",
+  "H": "gospodarstwo:horn",
+  "T": "minecraft:torch"
+ },
+ "result": {
+  "id": "gospodarstwo:horn_lantern",
+  "count": 1
+ }
+}

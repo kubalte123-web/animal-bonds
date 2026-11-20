@@ -1,0 +1,9 @@
+{
+ "type": "minecraft:crafting_transmute",
+ "category": "building",
+ "input": "#gospodarstwo:cloths",
+ "material": "minecraft:stick",
+ "result": {
+  "id": "gospodarstwo:curtain"
+ }
+}

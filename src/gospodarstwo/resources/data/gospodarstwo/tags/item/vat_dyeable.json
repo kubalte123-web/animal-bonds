@@ -17,6 +17,13 @@
   "gospodarstwo:llama_cloth",
   "gospodarstwo:felt",
   "gospodarstwo:yarn_silk",
-  "gospodarstwo:silk"
+  "gospodarstwo:silk",
+  "gospodarstwo:wool_cap",
+  "gospodarstwo:wool_sweater",
+  "gospodarstwo:wool_trousers",
+  "gospodarstwo:linen_shirt",
+  "gospodarstwo:linen_trousers",
+  "gospodarstwo:curtain",
+  "gospodarstwo:wool_rug"
  ]
 }

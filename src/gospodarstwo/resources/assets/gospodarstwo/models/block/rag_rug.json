@@ -1,0 +1,6 @@
+{
+ "parent": "minecraft:block/carpet",
+ "textures": {
+  "wool": "gospodarstwo:block/rag_rug"
+ }
+}
