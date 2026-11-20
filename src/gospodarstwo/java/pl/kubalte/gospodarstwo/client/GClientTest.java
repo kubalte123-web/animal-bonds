@@ -73,7 +73,17 @@ public final class GClientTest {
                     B.getZ() - 1.2)));
             case 800 -> shot(m + "loom");
             case 830 -> shot(m + "loom2");
-            case 880 -> {
+            case 860 -> server.execute(() -> textiles(server));
+            case 900 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 30", B.getX() + 116.0, B.getY() + 1,
+                    B.getZ() - 2.6)));
+            case 980 -> shot(m + "textiles");
+            case 1000 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 127.5, B.getY() + 1.2,
+                    B.getZ() - 3.6)));
+            case 1080 -> shot(m + "items1");
+            case 1100 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 136.5, B.getY() + 1.2,
+                    B.getZ() - 3.6)));
+            case 1180 -> shot(m + "items2");
+            case 1220 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
                 mc.stop();
             }
@@ -100,6 +110,49 @@ public final class GClientTest {
         if (baby && mob instanceof AgeableMob a) a.setBaby(true);
         if (breed != null || BreedEvents.breedsOf(mob).size() > 0) BreedEvents.setBreed(mob, breed);
         return mob;
+    }
+
+    /** Spinning wheel, dye vat and a loom at work, and a wall of item frames with every item of the mod. */
+    static void textiles(MinecraftServer server) {
+        ServerLevel level = server.overworld();
+        var p = server.getPlayerList().getPlayers().get(0);
+        for (int x = 108; x <= 150; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
+            level.setBlockAndUpdate(B.offset(x, y, z), Blocks.AIR.defaultBlockState());
+        BlockPos wheel = B.offset(114, 0, 0), vat = B.offset(116, 0, 0), loom = B.offset(118, 0, 0);
+        level.setBlockAndUpdate(wheel, Gospodarstwo.SPINNING_WHEEL.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.block.StationBlock.FACING,
+                net.minecraft.core.Direction.WEST));
+        level.setBlockAndUpdate(vat, Gospodarstwo.DYE_VAT.get().defaultBlockState());
+        level.setBlockAndUpdate(loom, Gospodarstwo.WEAVING_LOOM.get().defaultBlockState());
+        if (level.getBlockEntity(wheel) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) be.insert(p, new ItemStack(Items.RED_WOOL, 64));
+        if (level.getBlockEntity(vat) instanceof pl.kubalte.gospodarstwo.block.DyeVatBlockEntity be) {
+            be.use(p, net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.WATER_BUCKET));
+            be.use(p, net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Gospodarstwo.PLUM.get()));
+        }
+        ItemStack purple = new ItemStack(Gospodarstwo.YARN_MERINO.get(), 60);
+        pl.kubalte.gospodarstwo.craft.Dyes.setColor(purple, 0x6A2C70);
+        if (level.getBlockEntity(loom) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) be.insert(p, purple);
+
+        // item wall: planks with frames in front, facing north
+        java.util.List<ItemStack> items = new java.util.ArrayList<>();
+        for (var h : Gospodarstwo.ITEMS.getEntries()) items.add(new ItemStack(h.get()));
+        int[] colours = {0xB02E26, 0x3C44AA, 0xF9D849, 0x5E7C16, 0x6A2C70};
+        for (int c : colours) {
+            ItemStack y = new ItemStack(Gospodarstwo.YARN_WOOL.get());
+            pl.kubalte.gospodarstwo.craft.Dyes.setColor(y, c);
+            items.add(y);
+            ItemStack cl = new ItemStack(Gospodarstwo.WOOLEN_CLOTH.get());
+            pl.kubalte.gospodarstwo.craft.Dyes.setColor(cl, c);
+            items.add(cl);
+        }
+        int perRow = 9;
+        for (int i = 0; i < items.size(); i++) {
+            int col = i % (perRow * 2), row = i / (perRow * 2);
+            BlockPos at = B.offset(123 + col, 4 - row, 1);
+            level.setBlockAndUpdate(at.south(), Blocks.SPRUCE_PLANKS.defaultBlockState());
+            net.minecraft.world.entity.decoration.ItemFrame f = new net.minecraft.world.entity.decoration.ItemFrame(level, at, net.minecraft.core.Direction.NORTH);
+            f.setItem(items.get(i), false);
+            level.addFreshEntity(f);
+        }
     }
 
     static void scene(MinecraftServer server) {

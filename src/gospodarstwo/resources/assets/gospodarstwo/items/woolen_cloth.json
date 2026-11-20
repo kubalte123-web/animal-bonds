@@ -1,6 +1,12 @@
 {
  "model": {
   "type": "minecraft:model",
-  "model": "gospodarstwo:item/woolen_cloth"
+  "model": "gospodarstwo:item/woolen_cloth",
+  "tints": [
+   {
+    "type": "minecraft:dye",
+    "default": -3620168
+   }
+  ]
  }
 }

@@ -186,10 +186,45 @@ public final class GSelfTest {
         check(loom.output().is(Gospodarstwo.CANVAS.get()) && loom.output().getCount() == 2, "loom weaves 8 string into 2 canvas (" + loom.output() + ")");
         loom.take(player);
         check(player.getInventory().countItem(Gospodarstwo.CANVAS.get()) == 2, "cloth taken from the loom");
-        ItemStack fibre = new ItemStack(Gospodarstwo.FLAX_FIBER.get(), 3);
-        loom.insert(player, fibre);
+        ItemStack linenYarn = new ItemStack(Gospodarstwo.YARN_LINEN.get(), 3);
+        loom.insert(player, linenYarn);
         for (int k = 0; k < GConfig.LOOM_TICKS.get() + 5; k++) LoomBlockEntity.tick(level, loomPos, level.getBlockState(loomPos), loom);
-        check(loom.output().is(Gospodarstwo.LINEN.get()), "flax fibre becomes linen");
+        check(loom.output().is(Gospodarstwo.LINEN.get()), "linen yarn becomes linen");
+        loom.take(player);
+
+        // ---- textiles: spinning wheel, dye vat, dyed cloth ----
+        BlockPos wheelPos = O.offset(6, 0, 8);
+        level.setBlockAndUpdate(wheelPos, Gospodarstwo.SPINNING_WHEEL.get().defaultBlockState());
+        var wheel = (pl.kubalte.gospodarstwo.block.SpinningWheelBlockEntity) level.getBlockEntity(wheelPos);
+        wheel.insert(player, new ItemStack(Items.RED_WOOL, 2));
+        for (int k = 0; k < GConfig.LOOM_TICKS.get() * 2 + 10; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, wheelPos, level.getBlockState(wheelPos), wheel);
+        check(wheel.output().is(Gospodarstwo.YARN_WOOL.get()) && wheel.output().getCount() == 4, "spinning 2 red wool gives 4 wool yarn (" + wheel.output() + ")");
+        check(pl.kubalte.gospodarstwo.craft.Dyes.colorOf(wheel.output()) >= 0, "yarn from red wool is red");
+        wheel.take(player);
+        wheel.insert(player, new ItemStack(Gospodarstwo.FLAX_FIBER.get(), 4));
+        for (int k = 0; k < GConfig.LOOM_TICKS.get() * 2 + 10; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, wheelPos, level.getBlockState(wheelPos), wheel);
+        check(wheel.output().is(Gospodarstwo.YARN_LINEN.get()) && wheel.output().getCount() == 2, "flax fibre spins into linen yarn");
+
+        BlockPos vatPos = O.offset(8, 0, 8);
+        level.setBlockAndUpdate(vatPos, Gospodarstwo.DYE_VAT.get().defaultBlockState());
+        var vat = (pl.kubalte.gospodarstwo.block.DyeVatBlockEntity) level.getBlockEntity(vatPos);
+        ItemStack dye = new ItemStack(Gospodarstwo.PLUM.get());
+        vat.use(player, InteractionHand.MAIN_HAND, dye);
+        check(vat.charges() == 0, "no dye without water");
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.WATER_BUCKET));
+        vat.use(player, InteractionHand.MAIN_HAND, player.getMainHandItem());
+        check(vat.hasWater(), "vat filled with water");
+        vat.use(player, InteractionHand.MAIN_HAND, dye);
+        check(vat.charges() == 8 && vat.color() == 0x6A2C70, "plums dye the water purple");
+        ItemStack yarn = new ItemStack(Gospodarstwo.YARN_MERINO.get(), 6);
+        vat.use(player, InteractionHand.MAIN_HAND, yarn);
+        check(pl.kubalte.gospodarstwo.craft.Dyes.colorOf(yarn) == 0x6A2C70 && vat.charges() == 2, "merino yarn dipped in the vat turns purple");
+        loom.insert(player, yarn);
+        for (int k = 0; k < GConfig.LOOM_TICKS.get() * 2 + 10; k++) LoomBlockEntity.tick(level, loomPos, level.getBlockState(loomPos), loom);
+        check(loom.output().is(Gospodarstwo.MERINO_CLOTH.get()) && pl.kubalte.gospodarstwo.craft.Dyes.colorOf(loom.output()) == 0x6A2C70,
+                "purple yarn weaves into purple merino cloth (" + loom.output() + ")");
+        vat.use(player, InteractionHand.MAIN_HAND, new ItemStack(Items.YELLOW_DYE));
+        check(vat.charges() == 10 && vat.color() != 0x6A2C70, "a second dye mixes into the bath");
 
         // ---- animals ----
         Mob duck = Gospodarstwo.DUCK.get().spawn(level, O.offset(10, 0, 12), EntitySpawnReason.COMMAND);
@@ -220,6 +255,18 @@ public final class GSelfTest {
         player.interactOn(sheep, InteractionHand.MAIN_HAND, sheep.position());
         check(itemsAround(level, sheep.blockPosition(), Gospodarstwo.MERINO_WOOL.get()) > 0, "merino gives merino wool when sheared");
 
+        Mob goat = EntityTypes.GOAT.spawn(level, O.offset(28, 0, 16), EntitySpawnReason.COMMAND);
+        player.setPos(goat.getX() + 1, goat.getY(), goat.getZ());
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Gospodarstwo.CURRY_COMB.get()));
+        player.interactOn(goat, InteractionHand.MAIN_HAND, goat.position());
+        check(itemsAround(level, goat.blockPosition(), Gospodarstwo.CASHMERE.get()) > 0, "brushing a goat gives cashmere");
+        Mob llama = EntityTypes.LLAMA.spawn(level, O.offset(32, 0, 16), EntitySpawnReason.COMMAND);
+        player.setPos(llama.getX() + 1, llama.getY(), llama.getZ());
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SHEARS));
+        player.interactOn(llama, InteractionHand.MAIN_HAND, llama.position());
+        check(itemsAround(level, llama.blockPosition(), Gospodarstwo.LLAMA_WOOL.get()) > 0, "shearing a llama gives llama wool");
+        goat.discard();
+        llama.discard();
         check(Breed.byIndex(Breed.ANGORA.index()) == Breed.ANGORA && BreedEvents.breedsOf(cow).contains(Breed.HIGHLAND), "breed lookup");
         for (Mob m : new Mob[] {duck, goose, turkey, snail, cow, sheep}) if (m != null) m.discard();
     }

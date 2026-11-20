@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "gospodarstwo:block/spinning_wheel"
+  },
+  "facing=east": {
+   "model": "gospodarstwo:block/spinning_wheel",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "gospodarstwo:block/spinning_wheel",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "gospodarstwo:block/spinning_wheel",
+   "y": 270
+  }
+ }
+}

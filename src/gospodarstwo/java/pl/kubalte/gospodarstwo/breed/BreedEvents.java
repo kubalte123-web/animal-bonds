@@ -81,8 +81,14 @@ public final class BreedEvents {
     static void onInteract(PlayerInteractEvent.EntityInteract e) {
         Player p = e.getEntity();
         Entity target = e.getTarget();
-        Breed b = breed(target);
         ItemStack stack = e.getItemStack();
+        if (stack.is(Items.SHEARS) && (target.getType() == net.minecraft.world.entity.EntityTypes.LLAMA
+                || target.getType() == net.minecraft.world.entity.EntityTypes.TRADER_LLAMA) && target instanceof Mob llama) {
+            e.setCancellationResult(pl.kubalte.gospodarstwo.craft.Grooming.shearLlama(stack, p, llama));
+            e.setCanceled(true);
+            return;
+        }
+        Breed b = breed(target);
         if (b == null) return;
         // sneak + empty hand: tell the breed
         if (stack.isEmpty() && p.isShiftKeyDown()) {

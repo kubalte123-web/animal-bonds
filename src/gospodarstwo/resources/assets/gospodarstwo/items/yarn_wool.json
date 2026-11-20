@@ -1,0 +1,12 @@
+{
+ "model": {
+  "type": "minecraft:model",
+  "model": "gospodarstwo:item/yarn_wool",
+  "tints": [
+   {
+    "type": "minecraft:dye",
+    "default": -1184275
+   }
+  ]
+ }
+}

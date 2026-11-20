@@ -35,6 +35,8 @@ public class GClient {
     static void renderers(EntityRenderersEvent.RegisterRenderers e) {
         e.registerBlockEntityRenderer(Gospodarstwo.BONSAI_BE.get(), BonsaiRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.LOOM_BE.get(), LoomRenderer::new);
+        e.registerBlockEntityRenderer(Gospodarstwo.SPINNING_WHEEL_BE.get(), SpinningWheelRenderer::new);
+        e.registerBlockEntityRenderer(Gospodarstwo.DYE_VAT_BE.get(), DyeVatRenderer::new);
         if (useGecko()) {
             pl.kubalte.gospodarstwo.client.compat.GeckoCreatures.register(e);
             return;

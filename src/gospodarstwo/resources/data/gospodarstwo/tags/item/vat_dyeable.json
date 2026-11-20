@@ -1,0 +1,20 @@
+{
+ "replace": false,
+ "values": [
+  "gospodarstwo:yarn_wool",
+  "gospodarstwo:yarn_linen",
+  "gospodarstwo:yarn_merino",
+  "gospodarstwo:yarn_angora",
+  "gospodarstwo:yarn_cashmere",
+  "gospodarstwo:yarn_llama",
+  "gospodarstwo:yarn_coarse",
+  "gospodarstwo:canvas",
+  "gospodarstwo:linen",
+  "gospodarstwo:woolen_cloth",
+  "gospodarstwo:merino_cloth",
+  "gospodarstwo:angora_cloth",
+  "gospodarstwo:cashmere_cloth",
+  "gospodarstwo:llama_cloth",
+  "gospodarstwo:felt"
+ ]
+}

@@ -47,8 +47,10 @@ public class LoomRenderer implements BlockEntityRenderer<LoomBlockEntity, LoomRe
         BlockEntityRenderer.super.extractRenderState(be, s, partialTick, camera, crumbling);
         s.facing = be.getBlockState().hasProperty(WeavingLoomBlock.FACING) ? be.getBlockState().getValue(WeavingLoomBlock.FACING) : Direction.NORTH;
         LoomRecipes.Recipe in = LoomRecipes.find(be.input());
-        s.yarn = in == null ? -1 : in.yarnColor();
-        s.cloth = clothColor(be.output(), in);
+        int dyedIn = pl.kubalte.gospodarstwo.craft.Dyes.colorOf(be.input());
+        s.yarn = in == null ? -1 : dyedIn >= 0 ? dyedIn : in.yarnColor();
+        int dyedOut = pl.kubalte.gospodarstwo.craft.Dyes.colorOf(be.output());
+        s.cloth = dyedOut >= 0 ? dyedOut : !be.output().isEmpty() ? clothColor(be.output(), in) : dyedIn >= 0 ? dyedIn : clothColor(be.output(), in);
         s.clothCount = be.output().getCount();
         s.weaving = be.weaving();
         s.anim = be.animTicks + (be.weaving() ? partialTick : 0F);

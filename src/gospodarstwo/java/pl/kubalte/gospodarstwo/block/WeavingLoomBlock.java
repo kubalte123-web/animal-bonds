@@ -2,73 +2,29 @@ package pl.kubalte.gospodarstwo.block;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import pl.kubalte.gospodarstwo.Gospodarstwo;
 
 /**
- * Krosno tkackie: put in thread, flax fibre or wool (right-click), and it weaves cloth by itself - you can watch the
- * heddles go up and down and the shuttle fly. Right-click with an empty hand takes the cloth; sneaking takes back the yarn.
+ * Krosno tkackie: put in yarn (or string) and it weaves cloth by itself - you can watch the heddles go up and down and
+ * the shuttle fly. Dyed yarn gives dyed cloth.
  */
-public class WeavingLoomBlock extends BaseEntityBlock {
+public class WeavingLoomBlock extends StationBlock {
     public static final MapCodec<WeavingLoomBlock> CODEC = simpleCodec(WeavingLoomBlock::new);
-    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
-    private static final VoxelShape SHAPE = Shapes.or(Block.box(0, 0, 1, 16, 15, 15));
 
     public WeavingLoomBlock(Properties props) {
-        super(props);
-        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
+        super(props, Block.box(0, 0, 1, 16, 15, 15));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-    }
-
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-        return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
-    }
-
-    @Override
-    protected BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
-    }
-
-    @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
-    }
-
-    @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return SHAPE;
     }
 
     @Override
@@ -78,19 +34,6 @@ public class WeavingLoomBlock extends BaseEntityBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, Gospodarstwo.LOOM_BE.get(), LoomBlockEntity::tick);
-    }
-
-    @Override
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-                                          BlockHitResult hit) {
-        if (level.getBlockEntity(pos) instanceof LoomBlockEntity be && be.insert(player, stack)) return InteractionResult.SUCCESS;
-        return InteractionResult.TRY_WITH_EMPTY_HAND;
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level.getBlockEntity(pos) instanceof LoomBlockEntity be) return be.take(player);
-        return InteractionResult.PASS;
+        return createTickerHelper(type, Gospodarstwo.LOOM_BE.get(), StationBlockEntity::tick);
     }
 }

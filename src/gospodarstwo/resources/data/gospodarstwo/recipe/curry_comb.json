@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "tools",
+ "pattern": [
+  "NNN",
+  "SPS"
+ ],
+ "key": {
+  "N": "minecraft:iron_nugget",
+  "S": "minecraft:stick",
+  "P": "#minecraft:planks"
+ },
+ "result": {
+  "id": "gospodarstwo:curry_comb",
+  "count": 1
+ }
+}

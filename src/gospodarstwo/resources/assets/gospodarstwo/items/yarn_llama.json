@@ -1,0 +1,12 @@
+{
+ "model": {
+  "type": "minecraft:model",
+  "model": "gospodarstwo:item/yarn_llama",
+  "tints": [
+   {
+    "type": "minecraft:dye",
+    "default": -2506080
+   }
+  ]
+ }
+}

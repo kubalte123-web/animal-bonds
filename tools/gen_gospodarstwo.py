@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Assets of Swojskie Gospodarstwo: animal models/animations/textures, item and block textures, models, blockstates,
 loot tables, recipes, tags, worldgen, spawns and language files."""
-import importlib.util, json, math, os, random
+import importlib.util, json, math, os, random, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sprites as SP
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -513,9 +515,7 @@ def models():
 
     simple = ['flax_seeds', 'flax_fiber', 'cabbage_seeds', 'cabbage', 'onion', 'strawberry_runner', 'strawberry', 'gooseberries', 'plum',
               'duck_egg', 'goose_egg', 'green_egg', 'raw_duck', 'cooked_duck', 'raw_goose', 'cooked_goose', 'raw_turkey', 'cooked_turkey',
-              'down', 'turkey_feather', 'snail_shell', 'snail_slime', 'highland_hair', 'merino_wool', 'mangalica_wool', 'angora_wool',
-              'canvas', 'linen', 'woolen_cloth', 'merino_cloth', 'angora_cloth', 'felt',
-              'duck_spawn_egg', 'goose_spawn_egg', 'turkey_spawn_egg', 'snail_spawn_egg']
+              'down', 'turkey_feather', 'snail_shell', 'snail_slime', 'duck_spawn_egg', 'goose_spawn_egg', 'turkey_spawn_egg', 'snail_spawn_egg']
     for n in simple:
         wj(f'{M}/item/{n}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{n}'}})
         wj(f'{IT}/{n}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{n}'}})
@@ -779,6 +779,159 @@ def lang():
     wj(f'{A}/lang/en_us.json', en)
 
 
+# =====================================================================================  stage 1: textiles
+YARN_NATURAL = {'yarn_wool': 0xEDEDED, 'yarn_linen': 0xD8CBA2, 'yarn_merino': 0xF4ECD6, 'yarn_angora': 0xFFFFFF,
+                'yarn_cashmere': 0xE8DCCB, 'yarn_llama': 0xD9C2A0, 'yarn_coarse': 0xA88A64}
+YARN_SHAPE = {'yarn_wool': 'yarn_ball', 'yarn_linen': 'yarn_hank', 'yarn_merino': 'yarn_ball', 'yarn_angora': 'yarn_fluffy',
+              'yarn_cashmere': 'yarn_fluffy', 'yarn_llama': 'yarn_ball', 'yarn_coarse': 'yarn_hank'}
+CLOTH_NATURAL = {'canvas': 0xD9D2BC, 'linen': 0xE6DCC0, 'woolen_cloth': 0xC8C2B8, 'merino_cloth': 0xEFE3C4, 'angora_cloth': 0xF8F4F8,
+                 'cashmere_cloth': 0xDCCDB6, 'llama_cloth': 0xC8AE88, 'felt': 0x9E8C70}
+FIBRES = {'cashmere': (0xE6D8C2, 'tuft'), 'llama_wool': (0xD4B88E, 'tuft'), 'camel_wool': (0xB98E5E, 'tuft'), 'dog_hair': (0x9A8670, 'tuft'),
+          'highland_hair': (0xC06A34, 'tuft'), 'merino_wool': (0xF2EAD4, 'tuft'), 'mangalica_wool': (0xD9C39A, 'tuft'),
+          'angora_wool': (0xF8F8F8, 'tuft'), 'horse_hair': (0x5A3A24, 'horse_hair')}
+
+
+def argb_int(rgb):
+    v = 0xFF000000 | rgb
+    return v - (1 << 32)
+
+
+def textiles():
+    T = f'{A}/textures/item'
+    bright = SP.grey(outline=70, dark=150, mid=200, light=230, high=252)
+    for name, shape in YARN_SHAPE.items():
+        wi(f'{T}/{name}.png', SP.render(SP.S[shape], bright))
+        wj(f'{A}/models/item/{name}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{name}'}})
+        wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{name}',
+                                                'tints': [{'type': 'minecraft:dye', 'default': argb_int(YARN_NATURAL[name])}]}})
+    for name, col in CLOTH_NATURAL.items():
+        wi(f'{T}/{name}.png', SP.render(SP.S['felt' if name == 'felt' else 'cloth'], bright))
+        wj(f'{A}/models/item/{name}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{name}'}})
+        wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{name}',
+                                                'tints': [{'type': 'minecraft:dye', 'default': argb_int(col)}]}})
+    for name, (col, shape) in FIBRES.items():
+        pal = SP.ramp(rgb(col))
+        pal['s'] = (230, 220, 190)
+        wi(f'{T}/{name}.png', SP.render(SP.S[shape], pal))
+        wj(f'{A}/models/item/{name}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{name}'}})
+        wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{name}'}})
+    wi(f'{T}/curry_comb.png', SP.render(SP.S['curry_comb'], SP.CURRY_PAL))
+    wj(f'{A}/models/item/curry_comb.json', {'parent': 'minecraft:item/handheld', 'textures': {'layer0': f'{NS}:item/curry_comb'}})
+    wj(f'{A}/items/curry_comb.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/curry_comb'}})
+
+    # liquid of the dye vat (grey ripples, tinted by the renderer)
+    img = Image.new('RGBA', (16, 16))
+    px_ = img.load()
+    for y in range(16):
+        for x in range(16):
+            v = 200 + int(30 * math.sin((x + y * 0.5) * 0.8) * math.cos(y * 0.6))
+            px_[x, y] = (v, v, v, 225)
+    wi(f'{A}/textures/block/dye_liquid.png', img)
+
+    def el(fr, to, tex, faces=('north', 'south', 'east', 'west', 'up', 'down')):
+        f = {}
+        for face in faces:
+            if face in ('up', 'down'):
+                uv = [fr[0], fr[2], to[0], to[2]]
+            elif face in ('north', 'south'):
+                uv = [fr[0], 16 - to[1], to[0], 16 - fr[1]]
+            else:
+                uv = [fr[2], 16 - to[1], to[2], 16 - fr[1]]
+            f[face] = {'texture': tex, 'uv': [max(0, min(16, v)) for v in uv]}
+        return {'from': fr, 'to': to, 'faces': f}
+
+    disp = {'gui': {'rotation': [30, 225, 0], 'translation': [0, 0, 0], 'scale': [0.625, 0.625, 0.625]},
+            'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.25, 0.25, 0.25]},
+            'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.5, 0.5, 0.5]},
+            'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.375, 0.375, 0.375]},
+            'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}}
+    W, L = '#wood', '#log'
+    wheel = [
+        # bench with four splayed legs
+        el([1, 4.5, 5], [15, 6, 11], W),
+        el([2, 0, 5.5], [3, 4.5, 6.5], L), el([13, 0, 5.5], [14, 4.5, 6.5], L), el([2, 0, 9.5], [3, 4.5, 10.5], L), el([13, 0, 9.5], [14, 4.5, 10.5], L),
+        # uprights holding the wheel axle
+        el([10.2, 6, 7.4], [11.2, 12.2, 8.6], L), el([12.3, 6, 7.4], [13.3, 12.2, 8.6], L), el([10.2, 10.5, 7.5], [13.3, 11.5, 8.5], W),
+        # mother-of-all and maidens holding the flyer and bobbin
+        el([2.5, 6, 7.2], [5, 7.5, 8.8], W), el([2.7, 7.5, 5.6], [3.5, 12.8, 6.4], L), el([2.7, 7.5, 9.6], [3.5, 12.8, 10.4], L),
+        # distaff (the post with fibre on top)
+        el([5.6, 6, 7.6], [6.4, 15.5, 8.4], L),
+        # treadle and footman
+        el([6, 0.5, 2.5], [11, 1.5, 5], W), el([11.4, 1.5, 4.2], [11.9, 9, 4.7], W),
+    ]
+    wj(f'{A}/models/block/spinning_wheel.json', {'parent': 'minecraft:block/block', 'textures': {
+        'particle': 'minecraft:block/oak_planks', 'wood': 'minecraft:block/oak_planks', 'log': 'minecraft:block/stripped_oak_log'},
+        'elements': wheel, 'display': disp})
+    wj(f'{A}/blockstates/spinning_wheel.json', {'variants': {f'facing={f}': ({'model': f'{NS}:block/spinning_wheel', 'y': y} if y else
+                                                                              {'model': f'{NS}:block/spinning_wheel'})
+                                                             for f, y in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
+    wj(f'{A}/items/spinning_wheel.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/spinning_wheel'}})
+
+    S_, I_ = '#staves', '#hoop'
+    vat = [el([2, 0, 2], [14, 1, 14], S_),
+           el([1, 0, 1], [15, 12, 2], S_), el([1, 0, 14], [15, 12, 15], S_), el([1, 0, 2], [2, 12, 14], S_), el([14, 0, 2], [15, 12, 14], S_),
+           el([2, 1, 2], [14, 1.01, 14], '#inner', faces=('up',))]
+    for y0 in (2.5, 8.5):
+        vat += [el([0.6, y0, 0.6], [15.4, y0 + 1.2, 1.0], I_), el([0.6, y0, 15.0], [15.4, y0 + 1.2, 15.4], I_),
+                el([0.6, y0, 1.0], [1.0, y0 + 1.2, 15.0], I_), el([15.0, y0, 1.0], [15.4, y0 + 1.2, 15.0], I_)]
+    wj(f'{A}/models/block/dye_vat.json', {'parent': 'minecraft:block/block', 'textures': {
+        'particle': 'minecraft:block/spruce_planks', 'staves': 'minecraft:block/spruce_planks', 'hoop': 'minecraft:block/iron_block',
+        'inner': 'minecraft:block/stripped_spruce_log'}, 'elements': vat, 'display': disp})
+    wj(f'{A}/blockstates/dye_vat.json', {'variants': {'': {'model': f'{NS}:block/dye_vat'}}})
+    wj(f'{A}/items/dye_vat.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/dye_vat'}})
+
+    G = lambda n: f'{NS}:{n}'
+    for b in ('spinning_wheel', 'dye_vat'):
+        wj(f'{D}/{NS}/loot_table/blocks/{b}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+                                                                                            'entries': [{'type': 'minecraft:item', 'name': G(b)}]}],
+                                                       'random_sequence': f'{NS}:blocks/{b}'})
+    R = f'{D}/{NS}/recipe'
+    wj(f'{R}/spinning_wheel.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['WS ', 'PPP', 'L L'],
+                                    'key': {'W': '#minecraft:wooden_slabs', 'S': 'minecraft:string', 'P': '#minecraft:planks', 'L': 'minecraft:stick'},
+                                    'result': {'id': G('spinning_wheel'), 'count': 1}})
+    wj(f'{R}/dye_vat.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['P P', 'PIP', 'PPP'],
+                             'key': {'P': '#minecraft:planks', 'I': 'minecraft:iron_ingot'}, 'result': {'id': G('dye_vat'), 'count': 1}})
+    wj(f'{R}/curry_comb.json', {'type': 'minecraft:crafting_shaped', 'category': 'tools', 'pattern': ['NNN', 'SPS'],
+                                'key': {'N': 'minecraft:iron_nugget', 'S': 'minecraft:stick', 'P': '#minecraft:planks'},
+                                'result': {'id': G('curry_comb'), 'count': 1}})
+    dyeable = [G(n) for n in list(YARN_NATURAL) + list(CLOTH_NATURAL)]
+    wj(f'{D}/{NS}/tags/item/vat_dyeable.json', {'replace': False, 'values': dyeable})
+    wj(f'{D}/minecraft/tags/item/dyeable.json', {'replace': False, 'values': dyeable})
+
+    for lang_file, extra in [('pl_pl', {
+        'block.gospodarstwo.spinning_wheel': 'Kołowrotek', 'block.gospodarstwo.dye_vat': 'Kadź farbiarska',
+        'item.gospodarstwo.curry_comb': 'Zgrzebło', 'item.gospodarstwo.horse_hair': 'Włosie końskie', 'item.gospodarstwo.cashmere': 'Kaszmir',
+        'item.gospodarstwo.llama_wool': 'Wełna lamy', 'item.gospodarstwo.camel_wool': 'Wełna wielbłądzia', 'item.gospodarstwo.dog_hair': 'Sierść psia',
+        'item.gospodarstwo.yarn_wool': 'Przędza wełniana', 'item.gospodarstwo.yarn_linen': 'Przędza lniana',
+        'item.gospodarstwo.yarn_merino': 'Przędza merynosowa', 'item.gospodarstwo.yarn_angora': 'Przędza angorska',
+        'item.gospodarstwo.yarn_cashmere': 'Przędza kaszmirowa', 'item.gospodarstwo.yarn_llama': 'Przędza z wełny lamy',
+        'item.gospodarstwo.yarn_coarse': 'Gruba przędza', 'item.gospodarstwo.cashmere_cloth': 'Tkanina kaszmirowa',
+        'item.gospodarstwo.llama_cloth': 'Tkanina z wełny lamy',
+        'station.gospodarstwo.empty': 'Pusto', 'station.gospodarstwo.other_input': 'Jest tu już inny materiał – zabierz go (kucnij + PPM)',
+        'spinning.gospodarstwo.empty': 'Kołowrotek jest pusty – włóż wełnę, włókno lniane, kaszmir albo sierść',
+        'loom.gospodarstwo.empty': 'Krosno jest puste – włóż przędzę albo sznurek',
+        'vat.gospodarstwo.no_water': 'Najpierw nalej wody (wiadro wody)', 'vat.gospodarstwo.empty': 'Kadź jest pusta – nalej wody, potem dodaj barwnik',
+        'vat.gospodarstwo.clean': 'Czysta woda – dodaj barwnik albo wypierz kolor z przędzy', 'vat.gospodarstwo.dye': 'Kąpiel barwiąca: starczy na %s sztuk',
+        'groom.gospodarstwo.groomed': 'Zwierzę jest już wyczesane – zadowolone, ale sierść jeszcze nie odrosła'}),
+        ('en_us', {
+        'block.gospodarstwo.spinning_wheel': 'Spinning Wheel', 'block.gospodarstwo.dye_vat': 'Dye Vat',
+        'item.gospodarstwo.curry_comb': 'Curry Comb', 'item.gospodarstwo.horse_hair': 'Horse Hair', 'item.gospodarstwo.cashmere': 'Cashmere',
+        'item.gospodarstwo.llama_wool': 'Llama Wool', 'item.gospodarstwo.camel_wool': 'Camel Wool', 'item.gospodarstwo.dog_hair': 'Dog Hair',
+        'item.gospodarstwo.yarn_wool': 'Wool Yarn', 'item.gospodarstwo.yarn_linen': 'Linen Yarn', 'item.gospodarstwo.yarn_merino': 'Merino Yarn',
+        'item.gospodarstwo.yarn_angora': 'Angora Yarn', 'item.gospodarstwo.yarn_cashmere': 'Cashmere Yarn', 'item.gospodarstwo.yarn_llama': 'Llama Yarn',
+        'item.gospodarstwo.yarn_coarse': 'Coarse Yarn', 'item.gospodarstwo.cashmere_cloth': 'Cashmere Cloth', 'item.gospodarstwo.llama_cloth': 'Llama Cloth',
+        'station.gospodarstwo.empty': 'Empty', 'station.gospodarstwo.other_input': 'Another material is here - take it back first (sneak + right-click)',
+        'spinning.gospodarstwo.empty': 'The spinning wheel is empty - put in wool, flax fibre, cashmere or hair',
+        'loom.gospodarstwo.empty': 'The loom is empty - put in yarn or string',
+        'vat.gospodarstwo.no_water': 'Fill it with water first (water bucket)', 'vat.gospodarstwo.empty': 'The vat is empty - add water, then a dye',
+        'vat.gospodarstwo.clean': 'Clean water - add a dye, or wash the colour out of yarn', 'vat.gospodarstwo.dye': 'Dye bath: enough for %s pieces',
+        'groom.gospodarstwo.groomed': 'Already groomed - happy, but the coat has not grown back yet'})]:
+        path = f'{A}/lang/{lang_file}.json'
+        d = json.load(open(path, encoding='utf-8'))
+        d.update(extra)
+        wj(path, d)
+
+
 if __name__ == '__main__':
     animal_assets()
     item_textures()
@@ -786,3 +939,4 @@ if __name__ == '__main__':
     models()
     data()
     lang()
+    textiles()

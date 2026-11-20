@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "WS ",
+  "PPP",
+  "L L"
+ ],
+ "key": {
+  "W": "#minecraft:wooden_slabs",
+  "S": "minecraft:string",
+  "P": "#minecraft:planks",
+  "L": "minecraft:stick"
+ },
+ "result": {
+  "id": "gospodarstwo:spinning_wheel",
+  "count": 1
+ }
+}
