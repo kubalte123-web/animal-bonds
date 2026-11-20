@@ -108,10 +108,10 @@ public final class GClientTest {
                     B.getZ() - 3.2)));
             case 3380 -> shot(m + "goblins");
             case 3420 -> server.execute(() -> {
-                var pl = server.getPlayerList().getPlayers().get(0);
-                for (var e : server.overworld().getEntitiesOfClass(pl.kubalte.gospodarstwo.goblin.Goblin.class,
+                var sp = server.getPlayerList().getPlayers().get(0);
+                for (var gob : server.overworld().getEntitiesOfClass(pl.kubalte.gospodarstwo.goblin.Goblin.class,
                         new net.minecraft.world.phys.AABB(B.offset(296, 0, -2)).inflate(1)))
-                    pl.kubalte.gospodarstwo.goblin.GoblinMenu.open(pl, e);
+                    pl.kubalte.gospodarstwo.goblin.GoblinMenu.open(sp, gob);
             });
             case 3500 -> shot(m + "goblinmenu");
             case 3540 -> server.execute(() -> server.getPlayerList().getPlayers().get(0).closeContainer());

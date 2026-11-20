@@ -53,7 +53,8 @@ public class GoblinScreen extends AbstractContainerScreen<GoblinMenu> {
         g.fill(l, t, l + W, t + H, PANEL);
         // the goblin, looking at the mouse
         g.fill(l + 30, t + 16, l + 94, t + 112, 0x30000000);
-        InventoryScreen.renderEntityInInventoryFollowsMouse(g, l + 30, t + 16, l + 94, t + 112, 42, 0.0625F, mouseX, mouseY, menu.goblin);
+        float ax = (float) Math.atan((l + 62 - mouseX) / 40F), ay = (float) Math.atan((t + 50 - mouseY) / 40F);
+        InventoryScreen.renderEntityInInventoryFollowsAngle(g, l + 30, t + 16, l + 94, t + 112, 70, 0.0625F, ax, ay, menu.goblin);
         for (Slot s : menu.slots) {
             boolean on = s.isActive();
             int c = on ? SLOT : 0xFFC8B89A;

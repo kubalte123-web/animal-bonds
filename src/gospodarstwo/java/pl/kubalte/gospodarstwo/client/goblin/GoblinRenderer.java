@@ -69,15 +69,15 @@ public class GoblinRenderer extends HumanoidMobRenderer<Goblin, GoblinRenderStat
             ps.pushPose();
             getParentModel().body.translateAndRotate(ps);
             // model units: 1/16 block per pixel; the body goes from y 0 (shoulders) to 12, z -2..2
-            col.submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(PLANKS), (pose, vc) -> {
+            col.submitCustomGeometry(ps, RenderTypes.entityCutout(PLANKS), (pose, vc) -> {
                 Boxes.box(pose, vc, -4.5F, 0.5F, 2.2F, 4.5F, 6.5F, 8.2F, 0xFFC89A60, light);   // body of the chest
                 Boxes.box(pose, vc, -4.7F, 6.5F, 2.0F, 4.7F, 9.0F, 8.4F, 0xFFB08450, light);   // lid
             });
-            col.submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(IRON), (pose, vc) -> {
+            col.submitCustomGeometry(ps, RenderTypes.entityCutout(IRON), (pose, vc) -> {
                 Boxes.box(pose, vc, -0.8F, 5.2F, 8.2F, 0.8F, 7.6F, 8.7F, 0xFFD8C070, light);   // latch
                 Boxes.box(pose, vc, -4.8F, 6.3F, 1.9F, 4.8F, 6.7F, 8.5F, 0xFF707070, light);   // band
             });
-            col.submitCustomGeometry(ps, RenderTypes.entityCutoutNoCull(STRAP), (pose, vc) -> {
+            col.submitCustomGeometry(ps, RenderTypes.entityCutout(STRAP), (pose, vc) -> {
                 Boxes.box(pose, vc, -3.2F, -0.2F, -2.3F, -2.2F, 7.5F, 2.3F, 0xFF6A4A2E, light);
                 Boxes.box(pose, vc, 2.2F, -0.2F, -2.3F, 3.2F, 7.5F, 2.3F, 0xFF6A4A2E, light);
             });

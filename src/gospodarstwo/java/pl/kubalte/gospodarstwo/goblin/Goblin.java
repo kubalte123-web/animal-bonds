@@ -274,7 +274,7 @@ public class Goblin extends TamableAnimal {
         Player giver = offeredBy == null ? null : level.getPlayerByUUID(offeredBy);
         boolean yes = giver != null && (forced != null ? forced : random.nextFloat() < liking(food));
         if (yes) {
-            level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, food), getX(), getEyeY(), getZ(), 12, 0.2, 0.1, 0.2, 0.05);
+            level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, food.getItem()), getX(), getEyeY(), getZ(), 12, 0.2, 0.1, 0.2, 0.05);
             playSound(SoundEvents.GENERIC_EAT.value(), 1F, 1.3F);
             setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
             tame(giver);
