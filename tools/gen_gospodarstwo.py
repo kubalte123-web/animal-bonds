@@ -1908,6 +1908,129 @@ def stage4():
         wj(path, d)
 
 
+# =====================================================================================  stage 5: tools and farm equipment
+def stage5():
+    T = f'{A}/textures/item'
+    METAL = {'b': (196, 200, 206), 'h': (240, 244, 248), 'w': (128, 86, 50), 'o': (40, 34, 30)}
+    wi(f'{T}/watering_can.png', SP.render(SP.S['watering_can'], SP.ramp((200, 116, 74))))
+    wi(f'{T}/scythe.png', SP.render(SP.S['scythe'], METAL))
+    wi(f'{T}/sickle.png', SP.render(SP.S['sickle'], METAL))
+    horn = SP.render(SP.S['horn'], SP.ramp((222, 206, 166)))
+    SP.spots(horn, (120, 78, 44), [(10, 5), (11, 5), (9, 6), (10, 6), (5, 9), (6, 9), (4, 10), (5, 10)])
+    wi(f'{T}/hunting_horn.png', horn)
+    war = SP.render(SP.S['horn'], SP.ramp((98, 86, 74)))
+    SP.spots(war, (232, 190, 70), [(10, 5), (11, 5), (9, 6), (10, 6), (5, 9), (6, 9), (4, 10), (5, 10), (3, 11), (4, 11)])
+    wi(f'{T}/war_horn.png', war)
+    for n, hand in (('watering_can', False), ('scythe', True), ('sickle', True), ('hunting_horn', False), ('war_horn', False)):
+        wj(f'{A}/models/item/{n}.json', {'parent': 'minecraft:item/handheld' if hand else 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{n}'}})
+        wj(f'{A}/items/{n}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{n}'}})
+
+    # fishing net texture: a diamond mesh of tarred rope
+    img = Image.new('RGBA', (16, 16))
+    px_ = img.load()
+    for y in range(16):
+        for x in range(16):
+            if (x + y) % 4 == 0 or (x - y) % 4 == 0:
+                knot = (x + y) % 4 == 0 and (x - y) % 4 == 0
+                px_[x, y] = (92, 70, 46, 255) if knot else (128, 102, 70, 255)
+    wi(f'{A}/textures/block/fishing_net.png', img)
+
+    def el(fr, to, tex, faces=('north', 'south', 'east', 'west', 'up', 'down'), light=None):
+        f = {}
+        for face in faces:
+            if face in ('up', 'down'):
+                uv = [fr[0], fr[2], to[0], to[2]]
+            elif face in ('north', 'south'):
+                uv = [fr[0], 16 - to[1], to[0], 16 - fr[1]]
+            else:
+                uv = [fr[2], 16 - to[1], to[2], 16 - fr[1]]
+            f[face] = {'texture': tex, 'uv': [max(0, min(16, v)) for v in uv]}
+        e = {'from': fr, 'to': to, 'faces': f}
+        if light:
+            e['light_emission'] = light
+        return e
+
+    def ring(x0, y0, z0, x1, y1, z1, t, tex):
+        return [el([x0, y0, z0], [x1, y1, z0 + t], tex), el([x0, y0, z1 - t], [x1, y1, z1], tex),
+                el([x0, y0, z0 + t], [x0 + t, y1, z1 - t], tex), el([x1 - t, y0, z0 + t], [x1, y1, z1 - t], tex)]
+    disp = {'gui': {'rotation': [30, 225, 0], 'translation': [0, 0, 0], 'scale': [0.625, 0.625, 0.625]},
+            'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.25, 0.25, 0.25]},
+            'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.5, 0.5, 0.5]},
+            'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.375, 0.375, 0.375]},
+            'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}}
+    inc = [el([1, 0, 1], [15, 1, 15], '#p')] + ring(1, 1, 1, 15, 5, 15, 1, '#p') + [
+        el([2, 1, 2], [14, 4.2, 14], '#h'),
+        el([12.5, 5, 12.5], [13.5, 12, 13.5], '#i'), el([7.5, 11, 12.5], [13.5, 12, 13.5], '#i'), el([7.5, 11, 7.5], [8.5, 12, 12.5], '#i'),
+        el([6, 9.8, 6], [10, 11, 10], '#c'), el([7, 9, 7], [9, 9.8, 9], '#g', light=15)]
+    net = [el([0, 0, 7], [1.5, 16, 9], '#l'), el([14.5, 0, 7], [16, 16, 9], '#l'), el([1.5, 14.5, 7.75], [14.5, 15, 8.25], '#r'),
+           el([1.5, 0, 8], [14.5, 14.5, 8], '#n', faces=('north', 'south'))]
+    for x in (3, 7.25, 11.5):
+        net.append(el([x, 14, 7.3], [x + 1.5, 15.5, 8.7], '#k'))
+    bed = [el([2, 0, 2], [14, 15, 14], '#d', faces=('up',))] + ring(0, 0, 0, 16, 16, 16, 2, '#p') + [el([2, 0, 2], [14, 0.01, 14], '#p', faces=('down',))]
+    bed[0]['faces']['up']['texture'] = '#f'
+    models = {
+        'incubator': ({'p': 'minecraft:block/spruce_planks', 'h': 'minecraft:block/hay_block_top', 'i': 'minecraft:block/anvil',
+                       'c': 'minecraft:block/copper_block', 'g': 'minecraft:block/glowstone', 'particle': 'minecraft:block/spruce_planks'}, inc),
+        'fishing_net': ({'l': 'minecraft:block/stripped_spruce_log', 'r': 'minecraft:block/brown_wool', 'n': f'{NS}:block/fishing_net',
+                         'k': 'minecraft:block/orange_terracotta', 'particle': 'minecraft:block/stripped_spruce_log'}, net),
+        'raised_bed': ({'p': 'minecraft:block/oak_planks', 'f': 'minecraft:block/farmland_moist', 'd': 'minecraft:block/dirt',
+                        'particle': 'minecraft:block/oak_planks'}, bed),
+    }
+    for name, (tex, els) in models.items():
+        m = {'parent': 'minecraft:block/block', 'textures': tex, 'elements': els, 'display': disp}
+        if name == 'fishing_net':
+            m['render_type'] = 'minecraft:cutout'
+            m['ambientocclusion'] = False
+        wj(f'{A}/models/block/{name}.json', m)
+        wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/{name}'}})
+        wj(f'{D}/{NS}/loot_table/blocks/{name}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+                                                                                               'entries': [{'type': 'minecraft:item', 'name': f'{NS}:{name}'}]}],
+                                                          'random_sequence': f'{NS}:blocks/{name}'})
+    wj(f'{A}/blockstates/incubator.json', {'variants': {'': {'model': f'{NS}:block/incubator'}}})
+    wj(f'{A}/blockstates/raised_bed.json', {'variants': {'': {'model': f'{NS}:block/raised_bed'}}})
+    wj(f'{A}/blockstates/fishing_net.json', {'variants': {f'facing={f}': ({'model': f'{NS}:block/fishing_net', 'y': y} if y else {'model': f'{NS}:block/fishing_net'})
+                                                          for f, y in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
+    G = lambda n: f'{NS}:{n}'
+    R = f'{D}/{NS}/recipe'
+
+    def shaped(name, pattern, key, count=1, cat='equipment'):
+        wj(f'{R}/{name}.json', {'type': 'minecraft:crafting_shaped', 'category': cat, 'pattern': pattern, 'key': key,
+                                'result': {'id': G(name), 'count': count}})
+    shaped('watering_can', ['C  ', 'CBC', ' C '], {'C': 'minecraft:copper_ingot', 'B': 'minecraft:bucket'})
+    shaped('scythe', ['III', '  S', '  S'], {'I': 'minecraft:iron_ingot', 'S': 'minecraft:stick'})
+    shaped('sickle', ['II', ' I', 'S '], {'I': 'minecraft:iron_ingot', 'S': 'minecraft:stick'})
+    shaped('hunting_horn', ['H', 'L'], {'H': G('horn'), 'L': 'minecraft:leather'})
+    shaped('war_horn', ['GHG', ' L '], {'H': G('ravager_horn'), 'G': 'minecraft:gold_ingot', 'L': 'minecraft:leather'})
+    shaped('incubator', ['ILI', 'DHD', 'PPP'], {'I': 'minecraft:iron_nugget', 'L': 'minecraft:lantern', 'D': G('down'), 'H': 'minecraft:hay_block',
+                                               'P': '#minecraft:planks'}, cat='misc')
+    shaped('fishing_net', ['SNS', 'NNN', 'SNS'], {'S': 'minecraft:stick', 'N': [G('net_scrap'), G('horse_hair'), 'minecraft:string']}, cat='misc')
+    shaped('raised_bed', ['P P', 'PDP'], {'P': '#minecraft:planks', 'D': 'minecraft:dirt'}, count=2, cat='building')
+    wj(f'{D}/minecraft/tags/block/mineable/axe.json', {'replace': False, 'values': [G(n) for n in (
+        'fruit_press', 'smokehouse', 'butter_churn', 'tanning_rack', 'spinning_wheel', 'weaving_loom', 'dye_vat', 'incubator', 'fishing_net', 'raised_bed')]})
+    wj(f'{D}/minecraft/tags/item/enchantable/durability.json', {'replace': False, 'values': [G('scythe'), G('sickle'), G('hunting_horn'), G('war_horn')]})
+
+    pl = {'item.gospodarstwo.watering_can': 'Konewka', 'item.gospodarstwo.scythe': 'Kosa', 'item.gospodarstwo.sickle': 'Sierp',
+          'item.gospodarstwo.hunting_horn': 'Róg myśliwski', 'item.gospodarstwo.war_horn': 'Róg bojowy',
+          'block.gospodarstwo.incubator': 'Wylęgarnia', 'block.gospodarstwo.fishing_net': 'Sieć rybacka', 'block.gospodarstwo.raised_bed': 'Grządka podniesiona',
+          'can.gospodarstwo.empty': 'Konewka jest pusta – nabierz wody (PPM na wodę)',
+          'incubator.gospodarstwo.empty': 'Wylęgarnia jest pusta – włóż do 4 jaj (kurze, kacze, gęsie, zielone)',
+          'incubator.gospodarstwo.other': 'W wylęgarni są już inne jaja',
+          'incubator.gospodarstwo.status': 'Jaja wysiadują się: %s%%',
+          'net.gospodarstwo.empty': 'Na razie nic się nie złapało', 'net.gospodarstwo.no_water': 'Sieć potrzebuje otwartej wody dookoła'}
+    en = {'item.gospodarstwo.watering_can': 'Watering Can', 'item.gospodarstwo.scythe': 'Scythe', 'item.gospodarstwo.sickle': 'Sickle',
+          'item.gospodarstwo.hunting_horn': 'Hunting Horn', 'item.gospodarstwo.war_horn': 'War Horn',
+          'block.gospodarstwo.incubator': 'Incubator', 'block.gospodarstwo.fishing_net': 'Fishing Net', 'block.gospodarstwo.raised_bed': 'Raised Bed',
+          'can.gospodarstwo.empty': 'The watering can is empty - fill it from water',
+          'incubator.gospodarstwo.empty': 'The incubator is empty - put in up to 4 eggs (chicken, duck, goose, green)',
+          'incubator.gospodarstwo.other': 'There are other eggs in the incubator', 'incubator.gospodarstwo.status': 'Incubating: %s%%',
+          'net.gospodarstwo.empty': 'Nothing caught yet', 'net.gospodarstwo.no_water': 'The net needs open water around it'}
+    for lang_file, extra in (('pl_pl', pl), ('en_us', en)):
+        path = f'{A}/lang/{lang_file}.json'
+        d = json.load(open(path, encoding='utf-8'))
+        d.update(extra)
+        wj(path, d)
+
+
 if __name__ == '__main__':
     animal_assets()
     item_textures()
@@ -1919,3 +2042,4 @@ if __name__ == '__main__':
     stage2()
     stage3()
     stage4()
+    stage5()

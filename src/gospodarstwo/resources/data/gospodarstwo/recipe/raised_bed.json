@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "P P",
+  "PDP"
+ ],
+ "key": {
+  "P": "#minecraft:planks",
+  "D": "minecraft:dirt"
+ },
+ "result": {
+  "id": "gospodarstwo:raised_bed",
+  "count": 2
+ }
+}

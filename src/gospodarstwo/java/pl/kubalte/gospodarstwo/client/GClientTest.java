@@ -101,7 +101,10 @@ public final class GClientTest {
             case 2820 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 24", B.getX() + 256.5, B.getY() + 1,
                     B.getZ() - 3.6)));
             case 2900 -> shot(m + "kitchen");
-            case 3060 -> {
+            case 3060 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 26", B.getX() + 276.5, B.getY() + 1,
+                    B.getZ() - 3.8)));
+            case 3140 -> shot(m + "tools");
+            case 3300 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
                 mc.stop();
             }
@@ -134,7 +137,7 @@ public final class GClientTest {
     static void textiles(MinecraftServer server) {
         ServerLevel level = server.overworld();
         var p = server.getPlayerList().getPlayers().get(0);
-        for (int x = 108; x <= 266; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
+        for (int x = 108; x <= 290; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
             level.setBlockAndUpdate(B.offset(x, y, z), Blocks.AIR.defaultBlockState());
         BlockPos wheel = B.offset(114, 0, 0), vat = B.offset(116, 0, 0), loom = B.offset(118, 0, 0);
         level.setBlockAndUpdate(wheel, Gospodarstwo.SPINNING_WHEEL.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.block.StationBlock.FACING,
@@ -181,6 +184,7 @@ public final class GClientTest {
 
         home(level, p);
         kitchen(level, p);
+        tools(level, p);
 
         int perRow = 18;
         for (int i = 0; i < items.size(); i++) {
@@ -286,6 +290,29 @@ public final class GClientTest {
             p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             for (int i = 0; i < pl.kubalte.gospodarstwo.GConfig.CHURN_STROKES.get(); i++) be.churn();
         }
+    }
+
+    /** Stage 5: raised beds with crops, an incubator with eggs, a fishing net in a pond. */
+    static void tools(ServerLevel level, net.minecraft.server.level.ServerPlayer p) {
+        CropBlock[] crops = {(CropBlock) Blocks.CARROTS, Gospodarstwo.CABBAGES.get(), (CropBlock) Blocks.WHEAT};
+        for (int i = 0; i < 3; i++) {
+            BlockPos b = B.offset(270 + i, 0, 1);
+            level.setBlockAndUpdate(b, Gospodarstwo.RAISED_BED.get().defaultBlockState());
+            level.setBlockAndUpdate(b.above(), crops[i].getStateForAge(crops[i].getMaxAge() - i));
+            level.setBlockAndUpdate(b.south(), Gospodarstwo.RAISED_BED.get().defaultBlockState());
+            level.setBlockAndUpdate(b.south().above(), crops[i].getStateForAge(i + 2));
+        }
+        BlockPos inc = B.offset(275, 0, 0);
+        level.setBlockAndUpdate(inc, Gospodarstwo.INCUBATOR.get().defaultBlockState());
+        if (level.getBlockEntity(inc) instanceof pl.kubalte.gospodarstwo.tools.IncubatorBlockEntity be) be.use(p, new ItemStack(Gospodarstwo.DUCK_EGG.get(), 3));
+        BlockPos inc2 = B.offset(276, 0, 1);
+        level.setBlockAndUpdate(inc2, Gospodarstwo.INCUBATOR.get().defaultBlockState());
+        if (level.getBlockEntity(inc2) instanceof pl.kubalte.gospodarstwo.tools.IncubatorBlockEntity be) be.use(p, new ItemStack(Gospodarstwo.GREEN_EGG.get(), 4));
+        // a little pond (one block deep) with a net that already caught something
+        for (int x = 278; x <= 283; x++) for (int z = -1; z <= 3; z++) level.setBlockAndUpdate(B.offset(x, -1, z), Blocks.WATER.defaultBlockState());
+        BlockPos net = B.offset(280, -1, 1);
+        level.setBlockAndUpdate(net, Gospodarstwo.FISHING_NET.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.tools.FishingNetBlock.WATERLOGGED, true));
+        if (level.getBlockEntity(net) instanceof pl.kubalte.gospodarstwo.tools.FishingNetBlockEntity be) for (int i = 0; i < 4; i++) be.catchOne();
     }
 
     static void scene(MinecraftServer server) {

@@ -109,8 +109,11 @@ public class BonsaiPotBlockEntity extends BlockEntity {
             }
             return InteractionResult.SUCCESS;
         }
-        if (stack.is(Items.WATER_BUCKET) || (stack.is(Items.POTION) && isWaterBottle(stack))) {
+        boolean can = stack.is(Gospodarstwo.WATERING_CAN.get()) && pl.kubalte.gospodarstwo.tools.WateringCanItem.water(stack) > 0;
+        if (stack.is(Items.WATER_BUCKET) || (stack.is(Items.POTION) && isWaterBottle(stack)) || can) {
             if (!level.isClientSide()) {
+                if (can && !player.getAbilities().instabuild)
+                    pl.kubalte.gospodarstwo.tools.WateringCanItem.setWater(stack, pl.kubalte.gospodarstwo.tools.WateringCanItem.water(stack) - 1);
                 setData(new BonsaiData(d.sapling(), d.growth(), d.trims(), d.seed(), GConfig.BONSAI_WATER.get(), d.lastTrimGrowth()));
                 level.playSound(null, worldPosition, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1F, 1F);
                 ((ServerLevel) level).sendParticles(ParticleTypes.SPLASH, worldPosition.getX() + 0.5, worldPosition.getY() + 0.4,

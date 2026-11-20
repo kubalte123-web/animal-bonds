@@ -376,6 +376,9 @@ public final class GSelfTest {
 
         // ---- stage 4: kitchen ----
         kitchen(level, player);
+
+        // ---- stage 5: tools and farm equipment ----
+        tools(level, player);
         check(Breed.byIndex(Breed.ANGORA.index()) == Breed.ANGORA && BreedEvents.breedsOf(cow).contains(Breed.HIGHLAND), "breed lookup");
         for (Mob m : new Mob[] {duck, goose, turkey, snail, cow, sheep}) if (m != null) m.discard();
     }
@@ -448,5 +451,75 @@ public final class GSelfTest {
         work(level, ke, kettle, GConfig.KETTLE_TICKS.get() * 4 + 5);
         check(kettle.output().is(Gospodarstwo.PIEROGI.get()) && kettle.output().getCount() == 4, "pierogi boil in the kettle");
         check(Gospodarstwo.BIGOS.get().getDefaultInstance().get(net.minecraft.core.component.DataComponents.FOOD) != null, "bigos is food");
+    }
+
+    static void tools(ServerLevel level, FakePlayer player) {
+        BlockPos f = O.offset(2, 0, 20);
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
+            level.setBlockAndUpdate(f.offset(dx, -1, dz), Blocks.FARMLAND.defaultBlockState());
+            level.setBlockAndUpdate(f.offset(dx, 0, dz), ((CropBlock) Blocks.WHEAT).getStateForAge(0));
+        }
+        ItemStack can = new ItemStack(Gospodarstwo.WATERING_CAN.get());
+        check(pl.kubalte.gospodarstwo.tools.WateringCanItem.water(can) == 0, "a new watering can is empty");
+        pl.kubalte.gospodarstwo.tools.WateringCanItem.setWater(can, 24);
+        for (int k = 0; k < 6; k++) pl.kubalte.gospodarstwo.tools.WateringCanItem.waterArea(level, f, level.getRandom());
+        int grown = 0;
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) grown += ((CropBlock) Blocks.WHEAT).getAge(level.getBlockState(f.offset(dx, 0, dz)));
+        check(grown >= 9, "watering makes the crops grow (" + grown + " stages)");
+        check(level.getBlockState(f.offset(1, -1, 1)).getValue(net.minecraft.world.level.block.FarmBlock.MOISTURE) == 7, "watering wets the farmland");
+
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) level.setBlockAndUpdate(f.offset(dx, 0, dz), ((CropBlock) Blocks.WHEAT).getStateForAge(7));
+        int reaped = pl.kubalte.gospodarstwo.tools.ScytheItem.reap(level, f, player, new ItemStack(Gospodarstwo.SCYTHE.get()));
+        check(reaped == 9, "the scythe reaps 9 ripe crops (" + reaped + ")");
+        check(level.getBlockState(f).is(Blocks.WHEAT) && ((CropBlock) Blocks.WHEAT).getAge(level.getBlockState(f)) == 0, "and sows them again");
+        check(itemsAround(level, f, Items.WHEAT) >= 9, "wheat lies on the field");
+
+        BlockPos g = O.offset(8, 0, 20);
+        BlockState grass = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("short_grass"))
+                .defaultBlockState();
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) level.setBlockAndUpdate(g.offset(dx, 0, dz), grass);
+        int cut = pl.kubalte.gospodarstwo.tools.ToolEvents.cut(level, g, player);
+        check(cut == 8, "the sickle cuts the grass around too (" + cut + ")");
+
+        net.minecraft.world.entity.TamableAnimal wolf = (net.minecraft.world.entity.TamableAnimal) EntityTypes.WOLF.spawn(level, O.offset(20, 0, 24),
+                EntitySpawnReason.COMMAND);
+        wolf.tame(player);
+        player.setPos(O.getX() + 4.5, O.getY(), O.getZ() + 24.5);
+        int called = pl.kubalte.gospodarstwo.tools.HornItem.call(level, player);
+        check(called == 1 && !wolf.getNavigation().isDone(), "the hunting horn calls your wolf (" + called + ")");
+        wolf.discard();
+        Mob zombie = EntityTypes.ZOMBIE.spawn(level, O.offset(8, 0, 24), EntitySpawnReason.COMMAND);
+        int scared = pl.kubalte.gospodarstwo.tools.HornItem.scare(level, player);
+        check(scared >= 1 && zombie.hasEffect(net.minecraft.world.effect.MobEffects.WEAKNESS), "the war horn scares monsters");
+        zombie.discard();
+
+        BlockPos inc = O.offset(14, 0, 20);
+        level.setBlockAndUpdate(inc, Gospodarstwo.INCUBATOR.get().defaultBlockState());
+        var incubator = (pl.kubalte.gospodarstwo.tools.IncubatorBlockEntity) level.getBlockEntity(inc);
+        ItemStack eggs = new ItemStack(Gospodarstwo.GREEN_EGG.get(), 6);
+        incubator.use(player, eggs);
+        check(incubator.eggs().getCount() == 4 && eggs.getCount() == 2, "4 eggs fit in the incubator");
+        for (int k = 0; k < GConfig.INCUBATE_TICKS.get() + 5; k++)
+            pl.kubalte.gospodarstwo.tools.IncubatorBlockEntity.tick(level, inc, level.getBlockState(inc), incubator);
+        var chicks = level.getEntitiesOfClass(Mob.class, new AABB(inc).inflate(2), m -> m.getType() == EntityTypes.CHICKEN);
+        check(chicks.size() == 4 && chicks.stream().allMatch(c -> c.isBaby() && BreedEvents.breed(c) == Breed.GREENLEG),
+                "green eggs hatch into 4 greenleg chicks (" + chicks.size() + ")");
+        chicks.forEach(Mob::discard);
+
+        BlockPos pond = O.offset(20, 0, 20);
+        for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) level.setBlockAndUpdate(pond.offset(dx, 0, dz), Blocks.WATER.defaultBlockState());
+        level.setBlockAndUpdate(pond, Gospodarstwo.FISHING_NET.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.tools.FishingNetBlock.WATERLOGGED, true));
+        var net = (pl.kubalte.gospodarstwo.tools.FishingNetBlockEntity) level.getBlockEntity(pond);
+        check(net.water() >= 24, "the net stands in open water (" + net.water() + ")");
+        for (int k = 0; k < 8; k++) net.catchOne();
+        check(net.catches().size() == 6, "the net holds up to 6 catches");
+        net.take(player);
+        check(net.catches().isEmpty(), "the catch is taken out");
+
+        BlockPos bed = O.offset(26, 0, 20);
+        level.setBlockAndUpdate(bed, Gospodarstwo.RAISED_BED.get().defaultBlockState());
+        level.setBlockAndUpdate(bed.above(), ((CropBlock) Blocks.CARROTS).getStateForAge(0));
+        check(level.getBlockState(bed.above()).canSurvive(level, bed.above()), "carrots grow on the raised bed");
+        check(level.getBlockState(bed).isFertile(level, bed), "the raised bed is always watered");
     }
 }

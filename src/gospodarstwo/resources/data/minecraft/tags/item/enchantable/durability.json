@@ -1,0 +1,9 @@
+{
+ "replace": false,
+ "values": [
+  "gospodarstwo:scythe",
+  "gospodarstwo:sickle",
+  "gospodarstwo:hunting_horn",
+  "gospodarstwo:war_horn"
+ ]
+}

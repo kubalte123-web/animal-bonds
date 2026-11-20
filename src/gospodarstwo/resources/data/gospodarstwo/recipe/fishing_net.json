@@ -1,0 +1,21 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "SNS",
+  "NNN",
+  "SNS"
+ ],
+ "key": {
+  "S": "minecraft:stick",
+  "N": [
+   "gospodarstwo:net_scrap",
+   "gospodarstwo:horse_hair",
+   "minecraft:string"
+  ]
+ },
+ "result": {
+  "id": "gospodarstwo:fishing_net",
+  "count": 1
+ }
+}

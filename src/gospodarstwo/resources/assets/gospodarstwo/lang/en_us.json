@@ -197,5 +197,19 @@
  "crock.gospodarstwo.empty": "The crock is empty - put in cabbage, beetroots, onions or apple juice",
  "smokehouse.gospodarstwo.empty": "The smokehouse is empty - hang meat, fatback, fish or sausages",
  "smokehouse.gospodarstwo.cold": "A campfire must burn under the smokehouse",
- "churn.gospodarstwo.empty": "Pour in a bucket of milk, then churn (right-click) until it turns into butter"
+ "churn.gospodarstwo.empty": "Pour in a bucket of milk, then churn (right-click) until it turns into butter",
+ "item.gospodarstwo.watering_can": "Watering Can",
+ "item.gospodarstwo.scythe": "Scythe",
+ "item.gospodarstwo.sickle": "Sickle",
+ "item.gospodarstwo.hunting_horn": "Hunting Horn",
+ "item.gospodarstwo.war_horn": "War Horn",
+ "block.gospodarstwo.incubator": "Incubator",
+ "block.gospodarstwo.fishing_net": "Fishing Net",
+ "block.gospodarstwo.raised_bed": "Raised Bed",
+ "can.gospodarstwo.empty": "The watering can is empty - fill it from water",
+ "incubator.gospodarstwo.empty": "The incubator is empty - put in up to 4 eggs (chicken, duck, goose, green)",
+ "incubator.gospodarstwo.other": "There are other eggs in the incubator",
+ "incubator.gospodarstwo.status": "Incubating: %s%%",
+ "net.gospodarstwo.empty": "Nothing caught yet",
+ "net.gospodarstwo.no_water": "The net needs open water around it"
 }

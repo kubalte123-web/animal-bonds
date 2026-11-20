@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "gospodarstwo:block/fishing_net"
+  },
+  "facing=east": {
+   "model": "gospodarstwo:block/fishing_net",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "gospodarstwo:block/fishing_net",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "gospodarstwo:block/fishing_net",
+   "y": 270
+  }
+ }
+}

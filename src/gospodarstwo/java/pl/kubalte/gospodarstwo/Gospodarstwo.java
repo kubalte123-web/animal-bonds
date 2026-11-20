@@ -203,6 +203,19 @@ public class Gospodarstwo {
             "smokehouse", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.SmokehouseBlockEntity::new, SMOKEHOUSE.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity>> CHURN_BE = BLOCK_ENTITIES.register("butter_churn",
             () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity::new, BUTTER_CHURN.get()));
+    // ---------------- farm equipment (stage 5) ----------------
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.tools.IncubatorBlock> INCUBATOR = BLOCKS.registerBlock("incubator",
+            pl.kubalte.gospodarstwo.tools.IncubatorBlock::new, p -> p.mapColor(MapColor.WOOD).strength(1.5F).sound(SoundType.WOOD).noOcclusion()
+                    .lightLevel(st -> 10));
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.tools.FishingNetBlock> FISHING_NET = BLOCKS.registerBlock("fishing_net",
+            pl.kubalte.gospodarstwo.tools.FishingNetBlock::new, p -> p.mapColor(MapColor.WOOD).strength(0.8F).sound(SoundType.WOOL).noOcclusion()
+                    .noCollision());
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.tools.RaisedBedBlock> RAISED_BED = BLOCKS.registerBlock("raised_bed",
+            pl.kubalte.gospodarstwo.tools.RaisedBedBlock::new, p -> p.mapColor(MapColor.DIRT).strength(1.0F).sound(SoundType.WOOD).randomTicks());
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.tools.IncubatorBlockEntity>> INCUBATOR_BE = BLOCK_ENTITIES.register("incubator",
+            () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.tools.IncubatorBlockEntity::new, INCUBATOR.get()));
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.tools.FishingNetBlockEntity>> FISHING_NET_BE = BLOCK_ENTITIES.register(
+            "fishing_net", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.tools.FishingNetBlockEntity::new, FISHING_NET.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.TanningRackBlockEntity>> TANNING_RACK_BE = BLOCK_ENTITIES.register(
             "tanning_rack", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.TanningRackBlockEntity::new, TANNING_RACK.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.KettleBlockEntity>> KETTLE_BE = BLOCK_ENTITIES.register("kettle",
@@ -216,6 +229,8 @@ public class Gospodarstwo {
     public static final Supplier<BlockEntityType<LoomBlockEntity>> LOOM_BE = BLOCK_ENTITIES.register("weaving_loom",
             () -> new BlockEntityType<>(LoomBlockEntity::new, WEAVING_LOOM.get()));
 
+    public static final Supplier<net.minecraft.core.component.DataComponentType<Integer>> WATER = COMPONENTS.registerComponentType("water",
+            b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
     public static final Supplier<net.minecraft.core.component.DataComponentType<BonsaiData>> BONSAI_DATA = COMPONENTS.registerComponentType("bonsai",
             b -> b.persistent(BonsaiData.CODEC).networkSynchronized(BonsaiData.STREAM_CODEC));
 
@@ -325,6 +340,20 @@ public class Gospodarstwo {
     public static final DeferredItem<Item> APPLE_PIE = food("apple_pie", 9, 0.6F);
     public static final DeferredItem<Item> BIGOS = dish("bigos", 12, 1.0F, net.minecraft.world.item.Items.BOWL);
     public static final DeferredItem<Item> BREAD_WITH_BUTTER = food("bread_with_butter", 7, 0.8F);
+
+    // ---------------- tools (stage 5) ----------------
+    public static final DeferredItem<BlockItem> INCUBATOR_ITEM = tab(ITEMS.registerSimpleBlockItem("incubator", INCUBATOR));
+    public static final DeferredItem<BlockItem> FISHING_NET_ITEM = tab(ITEMS.registerSimpleBlockItem("fishing_net", FISHING_NET));
+    public static final DeferredItem<BlockItem> RAISED_BED_ITEM = tab(ITEMS.registerSimpleBlockItem("raised_bed", RAISED_BED));
+    public static final DeferredItem<pl.kubalte.gospodarstwo.tools.WateringCanItem> WATERING_CAN = tab(ITEMS.registerItem("watering_can",
+            pl.kubalte.gospodarstwo.tools.WateringCanItem::new, p -> p.stacksTo(1)));
+    public static final DeferredItem<pl.kubalte.gospodarstwo.tools.ScytheItem> SCYTHE = tab(ITEMS.registerItem("scythe",
+            pl.kubalte.gospodarstwo.tools.ScytheItem::new, p -> p.durability(500)));
+    public static final DeferredItem<Item> SICKLE = tab(ITEMS.registerSimpleItem("sickle", p -> p.durability(300)));
+    public static final DeferredItem<pl.kubalte.gospodarstwo.tools.HornItem> HUNTING_HORN = tab(ITEMS.registerItem("hunting_horn",
+            p -> new pl.kubalte.gospodarstwo.tools.HornItem(p, false), p -> p.durability(200)));
+    public static final DeferredItem<pl.kubalte.gospodarstwo.tools.HornItem> WAR_HORN = tab(ITEMS.registerItem("war_horn",
+            p -> new pl.kubalte.gospodarstwo.tools.HornItem(p, true), p -> p.durability(64).rarity(net.minecraft.world.item.Rarity.UNCOMMON)));
 
     public static final DeferredItem<Item> PILLOW = tab(ITEMS.registerSimpleItem("pillow", p -> p.stacksTo(16)));
     public static final DeferredItem<Item> FEATHERBED = tab(ITEMS.registerSimpleItem("featherbed", p -> p.stacksTo(16)));
@@ -449,6 +478,7 @@ public class Gospodarstwo {
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Clothing::onTick);
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onUse);
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onBreak);
+        NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.tools.ToolEvents::onBreak);
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onSleepFinished);
         GSelfTest.register(NeoForge.EVENT_BUS);
         if (ModList.get().isLoaded("animalbonds")) pl.kubalte.gospodarstwo.compat.AnimalBondsCompat.init(modBus);

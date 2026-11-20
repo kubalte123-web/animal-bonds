@@ -197,5 +197,19 @@
  "crock.gospodarstwo.empty": "Garnek jest pusty – włóż kapustę, buraki, cebulę albo sok jabłkowy",
  "smokehouse.gospodarstwo.empty": "Wędzarnia jest pusta – zawieś mięso, słoninę, ryby albo kiełbasę",
  "smokehouse.gospodarstwo.cold": "Pod wędzarnią musi się palić ognisko",
- "churn.gospodarstwo.empty": "Wlej wiadro mleka, potem ubijaj (PPM) aż powstanie masło"
+ "churn.gospodarstwo.empty": "Wlej wiadro mleka, potem ubijaj (PPM) aż powstanie masło",
+ "item.gospodarstwo.watering_can": "Konewka",
+ "item.gospodarstwo.scythe": "Kosa",
+ "item.gospodarstwo.sickle": "Sierp",
+ "item.gospodarstwo.hunting_horn": "Róg myśliwski",
+ "item.gospodarstwo.war_horn": "Róg bojowy",
+ "block.gospodarstwo.incubator": "Wylęgarnia",
+ "block.gospodarstwo.fishing_net": "Sieć rybacka",
+ "block.gospodarstwo.raised_bed": "Grządka podniesiona",
+ "can.gospodarstwo.empty": "Konewka jest pusta – nabierz wody (PPM na wodę)",
+ "incubator.gospodarstwo.empty": "Wylęgarnia jest pusta – włóż do 4 jaj (kurze, kacze, gęsie, zielone)",
+ "incubator.gospodarstwo.other": "W wylęgarni są już inne jaja",
+ "incubator.gospodarstwo.status": "Jaja wysiadują się: %s%%",
+ "net.gospodarstwo.empty": "Na razie nic się nie złapało",
+ "net.gospodarstwo.no_water": "Sieć potrzebuje otwartej wody dookoła"
 }

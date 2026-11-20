@@ -7,6 +7,9 @@
   "gospodarstwo:tanning_rack",
   "gospodarstwo:spinning_wheel",
   "gospodarstwo:weaving_loom",
-  "gospodarstwo:dye_vat"
+  "gospodarstwo:dye_vat",
+  "gospodarstwo:incubator",
+  "gospodarstwo:fishing_net",
+  "gospodarstwo:raised_bed"
  ]
 }

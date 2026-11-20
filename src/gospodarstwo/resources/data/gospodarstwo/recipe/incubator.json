@@ -1,0 +1,20 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "ILI",
+  "DHD",
+  "PPP"
+ ],
+ "key": {
+  "I": "minecraft:iron_nugget",
+  "L": "minecraft:lantern",
+  "D": "gospodarstwo:down",
+  "H": "minecraft:hay_block",
+  "P": "#minecraft:planks"
+ },
+ "result": {
+  "id": "gospodarstwo:incubator",
+  "count": 1
+ }
+}

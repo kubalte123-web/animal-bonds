@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "equipment",
+ "pattern": [
+  "H",
+  "L"
+ ],
+ "key": {
+  "H": "gospodarstwo:horn",
+  "L": "minecraft:leather"
+ },
+ "result": {
+  "id": "gospodarstwo:hunting_horn",
+  "count": 1
+ }
+}
