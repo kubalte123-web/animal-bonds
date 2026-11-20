@@ -56,8 +56,8 @@ public class CurtainRenderer implements BlockEntityRenderer<CurtainBlockEntity, 
         if (be.getLevel() != null) {
             s.top = !same(be, st, be.getBlockPos().above());
             s.bottom = !same(be, st, be.getBlockPos().below());
-            // facing north we look at it from the north: the player's left is west (-x)
-            Direction leftDir = s.facing.getClockWise();
+            // drawn as if facing north, where local -x is west: "left" is the -x side
+            Direction leftDir = s.facing.getCounterClockWise();
             s.left = !same(be, st, be.getBlockPos().relative(leftDir));
             s.right = !same(be, st, be.getBlockPos().relative(leftDir.getOpposite()));
         }

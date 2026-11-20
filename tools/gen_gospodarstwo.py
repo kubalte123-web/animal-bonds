@@ -1281,14 +1281,15 @@ def armour_textures():
             return tint(FELT, 0.45)
         if y < 3:
             return None
-        if y == 3:
-            return tint(FELT, 1.22)
+        if y in (3, 4):
+            return noisy(rnd, tint(FELT, 1.25 if y == 3 else 1.12), 0.04)  # turned-down cuff
+        if y == 5:
+            return tint(FELT, 0.8)
         if y == h - 1:
-            return tint(FELT, 0.5)
-        c = noisy(rnd, FELT, 0.07)
-        if face == 'front' and y in (6, 7) and x in (1, 2):
-            return tint(FELT, 0.75)  # stitched seam
-        return c
+            return tint(FELT, 0.45)  # sole
+        if y == h - 2:
+            return tint(FELT, 0.85)
+        return noisy(rnd, FELT, 0.07)
     paint(felt, LEG, boots)
     wi(f'{E}/humanoid/felt.png', felt)
 
