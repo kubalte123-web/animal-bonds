@@ -95,9 +95,10 @@ public class Gospodarstwo {
     public static final Supplier<AttachmentType<Integer>> BREED = ATTACHMENTS.register("breed",
             () -> AttachmentType.builder(() -> 0).serialize(Codec.INT.fieldOf("value")).sync(ByteBufCodecs.VAR_INT).build());
     /** Game time when the animal was last sheared / gave its product. */
-    /** On a bed's head block entity: 1 = pillow, 2 = featherbed. */
-    public static final Supplier<AttachmentType<Integer>> BED_COMFORT = ATTACHMENTS.register("bed_comfort",
-            () -> AttachmentType.builder(() -> 0).serialize(Codec.INT.fieldOf("value")).build());
+    /** On the level: bed head position (as a long, in a string) -> 1 = pillow, 2 = featherbed. Beds have no block entity. */
+    public static final Supplier<AttachmentType<java.util.Map<String, Integer>>> BED_COMFORT = ATTACHMENTS.register("bed_comfort",
+            () -> AttachmentType.<java.util.Map<String, Integer>>builder(() -> new java.util.HashMap<>())
+                    .serialize(Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("beds")).build());
     public static final Supplier<AttachmentType<Long>> LAST_HARVEST = ATTACHMENTS.register("last_harvest",
             () -> AttachmentType.builder(() -> -1_000_000L).serialize(Codec.LONG.fieldOf("value")).build());
 

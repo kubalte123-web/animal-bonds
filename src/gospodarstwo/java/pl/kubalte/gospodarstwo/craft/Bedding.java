@@ -12,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -35,11 +34,20 @@ public final class Bedding {
         return state.getValue(BedBlock.PART) == BedPart.HEAD ? pos : pos.relative(state.getValue(BedBlock.FACING));
     }
 
+    private static int get(Level level, BlockPos head) {
+        return level.getData(Gospodarstwo.BED_COMFORT.get()).getOrDefault(Long.toString(head.asLong()), 0);
+    }
+
+    private static void set(Level level, BlockPos head, int c) {
+        java.util.Map<String, Integer> m = new java.util.HashMap<>(level.getData(Gospodarstwo.BED_COMFORT.get()));
+        if (c == 0) m.remove(Long.toString(head.asLong()));
+        else m.put(Long.toString(head.asLong()), c);
+        level.setData(Gospodarstwo.BED_COMFORT.get(), m);
+    }
+
     public static int comfort(Level level, BlockPos pos) {
         BlockPos h = head(level.getBlockState(pos), pos);
-        if (h == null) return 0;
-        BlockEntity be = level.getBlockEntity(h);
-        return be == null ? 0 : be.getData(Gospodarstwo.BED_COMFORT.get());
+        return h == null ? 0 : get(level, h);
     }
 
     /** Puts the pillow / featherbed on the bed; true if it was used. */
@@ -47,15 +55,12 @@ public final class Bedding {
         int bit = stack.is(Gospodarstwo.PILLOW.get()) ? PILLOW : stack.is(Gospodarstwo.FEATHERBED.get()) ? FEATHERBED : 0;
         BlockPos h = head(level.getBlockState(pos), pos);
         if (bit == 0 || h == null) return false;
-        BlockEntity be = level.getBlockEntity(h);
-        if (be == null) return false;
-        int c = be.getData(Gospodarstwo.BED_COMFORT.get());
+        int c = get(level, h);
         if ((c & bit) != 0) {
             player.sendOverlayMessage(Component.translatable(bit == PILLOW ? "bed.gospodarstwo.has_pillow" : "bed.gospodarstwo.has_featherbed"));
             return true;
         }
-        be.setData(Gospodarstwo.BED_COMFORT.get(), c | bit);
-        be.setChanged();
+        set(level, h, c | bit);
         if (!player.getAbilities().instabuild) stack.shrink(1);
         level.playSound(null, h, SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 1F, 0.9F);
         player.sendOverlayMessage(Component.translatable((c | bit) == 3 ? "bed.gospodarstwo.cosy" : "bed.gospodarstwo.added"));
@@ -76,12 +81,11 @@ public final class Bedding {
         if (!(e.getLevel() instanceof Level level)) return;
         BlockPos h = head(e.getState(), e.getPos());
         if (h == null) return;
-        BlockEntity be = level.getBlockEntity(h);
-        if (be == null) return;
-        int c = be.getData(Gospodarstwo.BED_COMFORT.get());
+        int c = get(level, h);
+        if (c == 0) return;
         if ((c & PILLOW) != 0) Block.popResource(level, e.getPos(), new ItemStack(Gospodarstwo.PILLOW.get()));
         if ((c & FEATHERBED) != 0) Block.popResource(level, e.getPos(), new ItemStack(Gospodarstwo.FEATHERBED.get()));
-        be.setData(Gospodarstwo.BED_COMFORT.get(), 0);
+        set(level, h, 0);
     }
 
     /** Gives the rested effect to a player who slept in a bed with the given comfort. */
