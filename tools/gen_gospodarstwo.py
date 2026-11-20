@@ -891,7 +891,7 @@ def textiles():
                                     'result': {'id': G('spinning_wheel'), 'count': 1}})
     wj(f'{R}/dye_vat.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['P P', 'PIP', 'PPP'],
                              'key': {'P': '#minecraft:planks', 'I': 'minecraft:iron_ingot'}, 'result': {'id': G('dye_vat'), 'count': 1}})
-    wj(f'{R}/curry_comb.json', {'type': 'minecraft:crafting_shaped', 'category': 'tools', 'pattern': ['NNN', 'SPS'],
+    wj(f'{R}/curry_comb.json', {'type': 'minecraft:crafting_shaped', 'category': 'equipment', 'pattern': ['NNN', 'SPS'],
                                 'key': {'N': 'minecraft:iron_nugget', 'S': 'minecraft:stick', 'P': '#minecraft:planks'},
                                 'result': {'id': G('curry_comb'), 'count': 1}})
     dyeable = [G(n) for n in list(YARN_NATURAL) + list(CLOTH_NATURAL)]
@@ -932,6 +932,219 @@ def textiles():
         wj(path, d)
 
 
+# =====================================================================================  stage 2: drops, rack, kettle
+DROP_SPRITES = {
+    'raw_hide': ('hide', 0xC9A27E), 'tallow': ('lump', 0xEDE3C8), 'horn': ('horn', 0xCDBB92), 'sinew': ('cord', 0xC89A80),
+    'fatback': ('fatback', None), 'bristles': ('bristles', None), 'gut': ('cord', 0xD9A08A), 'rabbit_fur': ('hide', 0xB89A78),
+    'fox_fur': ('hide', 0xD9782E), 'bear_fur': ('hide', 0xEDE8DA), 'bear_claw': ('claw', 0x4A4440), 'poultry_bone': ('small_bone', 0xEDE6D2),
+    'swim_bladder': ('sac', 0xE6DCC4), 'tentacle': ('tentacle', 0x4A6A86), 'spinneret': ('sac', 0x5C4A44), 'venom_gland': ('sac', 0x58A03E),
+    'rags': ('rag', 0x8A7E62), 'net_scrap': ('net', 0xA8966A), 'bone_marrow': ('jar', 0xE8C890), 'creeper_skin': ('hide', 0x5BAA48),
+    'herb_pouch': ('pouch', 0x8A6440), 'strider_skin': ('hide', 0xB04A40), 'blaze_ash': ('pile', 0xE89A2A), 'ghast_membrane': ('hide', 0xE4E4EA),
+    'thick_hide': ('hide', 0x7A5E48), 'hoglin_tusk': ('horn', 0xEDE2C6), 'ravager_horn': ('horn', 0x5E544A), 'guardian_spike': ('spike', 0xD8885A),
+    'wind_fibre': ('wisp', 0xC8DAF2), 'poison_mycelium': ('pile', 0x5E8A3C), 'sculk_core': ('core', 0x1A8A9A), 'dragon_scale': ('scale', 0x4A3466),
+    'thick_leather': ('hide', 0x5E3E24), 'beeswax': ('bar', 0xE8B23A), 'glue': ('jar', 0xDCCB8E), 'lard': ('jar', 0xF4EEE2), 'soap': ('bar', 0xD6E6DC),
+}
+DROP_NAMES = {
+    'raw_hide': ('Surowa skóra', 'Raw Hide'), 'tallow': ('Łój', 'Tallow'), 'horn': ('Róg', 'Horn'), 'sinew': ('Ścięgno', 'Sinew'),
+    'fatback': ('Słonina', 'Fatback'), 'bristles': ('Szczecina', 'Bristles'), 'gut': ('Jelito', 'Gut'), 'rabbit_fur': ('Futro królika', 'Rabbit Fur'),
+    'fox_fur': ('Futro lisa', 'Fox Fur'), 'bear_fur': ('Futro niedźwiedzia', 'Bear Fur'), 'bear_claw': ('Pazur niedźwiedzia', 'Bear Claw'),
+    'poultry_bone': ('Kostka drobiowa', 'Poultry Bone'), 'swim_bladder': ('Pęcherz pławny', 'Swim Bladder'), 'tentacle': ('Macka', 'Tentacle'),
+    'spinneret': ('Kądziołek pajęczy', 'Spinneret'), 'venom_gland': ('Gruczoł jadowy', 'Venom Gland'), 'rags': ('Szmaty', 'Rags'),
+    'net_scrap': ('Strzęp sieci', 'Net Scrap'), 'bone_marrow': ('Szpik kostny', 'Bone Marrow'), 'creeper_skin': ('Skóra creepera', 'Creeper Skin'),
+    'herb_pouch': ('Sakiewka z ziołami', 'Herb Pouch'), 'strider_skin': ('Skóra lawochoda', 'Strider Skin'), 'blaze_ash': ('Popiół płomyka', 'Blaze Ash'),
+    'ghast_membrane': ('Błona ghasta', 'Ghast Membrane'), 'thick_hide': ('Gruba skóra', 'Thick Hide'), 'hoglin_tusk': ('Kieł hoglina', 'Hoglin Tusk'),
+    'ravager_horn': ('Róg niszczyciela', 'Ravager Horn'), 'guardian_spike': ('Kolec strażnika', 'Guardian Spike'), 'wind_fibre': ('Włókno wiatru', 'Wind Fibre'),
+    'poison_mycelium': ('Trująca grzybnia', 'Poison Mycelium'), 'sculk_core': ('Rdzeń sculku', 'Sculk Core'), 'dragon_scale': ('Smocza łuska', 'Dragon Scale'),
+    'thick_leather': ('Gruba skóra wyprawiona', 'Thick Leather'), 'beeswax': ('Wosk pszczeli', 'Beeswax'), 'glue': ('Klej kostny', 'Bone Glue'),
+    'lard': ('Smalec', 'Lard'), 'soap': ('Mydło', 'Soap'),
+}
+
+
+def stage2():
+    T = f'{A}/textures/item'
+    for name, (shape, col) in DROP_SPRITES.items():
+        if name == 'fatback':
+            pal = SP.ramp((244, 236, 222))
+            pal.update({'p': (222, 140, 130), 'P': (188, 98, 92)})
+        elif name == 'bristles':
+            pal = SP.ramp((70, 60, 54))
+            pal['s'] = (168, 120, 70)
+        else:
+            pal = SP.ramp(rgb(col))
+        if shape == 'pouch':
+            pal.update({'g': (98, 160, 64), 'G': (60, 112, 42)})
+        if shape == 'jar':
+            pal.update({'b': (150, 104, 60), 'c': (214, 214, 220)})
+        if name == 'ghast_membrane':
+            pal = {k: v + (200,) for k, v in pal.items()}
+        img = SP.render(SP.S[shape], pal)
+        if name == 'rabbit_fur':
+            pal['t'] = (240, 236, 228)
+            img = SP.render(SP.S['pelt'], pal)
+        elif name == 'fox_fur':
+            pal['t'] = (248, 244, 236)
+            img = SP.render(SP.S['pelt'], pal)
+        elif name == 'bear_fur':
+            pal['t'] = pal['d']
+            img = SP.render(SP.S['pelt'], pal)
+        elif name == 'thick_leather':
+            pal['c'] = (60, 40, 26)
+            img = SP.render(SP.S['roll'], pal)
+        elif name == 'creeper_skin':
+            SP.spots(img, (40, 88, 34), [(5, 5), (6, 6), (10, 5), (9, 6), (7, 8), (8, 8), (7, 9), (8, 9), (6, 10), (9, 10), (11, 9), (4, 8)])
+        elif name == 'strider_skin':
+            SP.spots(img, (230, 120, 100), [(5, 4), (9, 5), (6, 8), (11, 7), (8, 10), (5, 11), (10, 11)])
+        elif name == 'ghast_membrane':
+            SP.spots(img, (190, 190, 200), [(6, 6), (7, 7), (9, 6), (8, 9), (6, 10), (10, 10)])
+        wi(f'{T}/{name}.png', img)
+        wj(f'{A}/models/item/{name}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{name}'}})
+        wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{name}'}})
+    bright = SP.grey(outline=70, dark=150, mid=200, light=230, high=252)
+    wi(f'{T}/yarn_silk.png', SP.render(SP.S['yarn_hank'], bright))
+    wi(f'{T}/silk.png', SP.render(SP.S['cloth'], bright))
+    for name, col in (('yarn_silk', 0xF4F4F8), ('silk', 0xF0F0F6)):
+        wj(f'{A}/models/item/{name}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{name}'}})
+        wj(f'{A}/items/{name}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{name}',
+                                                'tints': [{'type': 'minecraft:dye', 'default': argb_int(col)}]}})
+
+    # stretched hide on the rack: grey (tinted in game) with grain, stretched corners and lace holes
+    rnd = random.Random(7)
+    img = Image.new('RGBA', (16, 16))
+    p_ = img.load()
+    for y in range(16):
+        for x in range(16):
+            # pinched edges between the lace points
+            ex = min(x, 15 - x)
+            ey = min(y, 15 - y)
+            wav_x = 1 if (y % 4 in (1, 2)) else 0
+            wav_y = 1 if (x % 4 in (1, 2)) else 0
+            if ex < wav_x or ey < wav_y:
+                continue
+            if (ex == 0 and ey == 0):
+                continue
+            v = 196 + rnd.randint(-14, 14) + int(10 * math.sin(x * 0.9 + y * 0.3))
+            if ex <= wav_x or ey <= wav_y:
+                v -= 40
+            p_[x, y] = (v, v, v, 255)
+    for (x, y) in [(1, 3), (1, 7), (1, 11), (14, 3), (14, 7), (14, 11), (4, 1), (8, 1), (12, 1), (4, 14), (8, 14), (12, 14)]:
+        p_[x, y] = (70, 70, 70, 255)
+    wi(f'{A}/textures/block/stretched_hide.png', img)
+
+    def el(fr, to, tex, faces=('north', 'south', 'east', 'west', 'up', 'down')):
+        f = {}
+        for face in faces:
+            if face in ('up', 'down'):
+                uv = [fr[0], fr[2], to[0], to[2]]
+            elif face in ('north', 'south'):
+                uv = [fr[0], 16 - to[1], to[0], 16 - fr[1]]
+            else:
+                uv = [fr[2], 16 - to[1], to[2], 16 - fr[1]]
+            f[face] = {'texture': tex, 'uv': [max(0, min(16, v)) for v in uv]}
+        return {'from': fr, 'to': to, 'faces': f}
+
+    disp = {'gui': {'rotation': [30, 225, 0], 'translation': [0, 0, 0], 'scale': [0.625, 0.625, 0.625]},
+            'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.25, 0.25, 0.25]},
+            'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.5, 0.5, 0.5]},
+            'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.375, 0.375, 0.375]},
+            'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}}
+    L, W = '#log', '#wood'
+    rack = [
+        # two posts with splayed feet
+        el([0.5, 0, 7], [2, 16, 9], L), el([14, 0, 7], [15.5, 16, 9], L),
+        el([0, 0, 4], [2.5, 1.5, 12], W), el([13.5, 0, 4], [16, 1.5, 12], W),
+        # braces from the feet to the posts
+        el([0.8, 1.5, 5], [1.7, 4, 6], W), el([0.8, 1.5, 10], [1.7, 4, 11], W),
+        el([14.3, 1.5, 5], [15.2, 4, 6], W), el([14.3, 1.5, 10], [15.2, 4, 11], W),
+        # top and bottom rails, with pegs sticking out
+        el([2, 14, 7.25], [14, 15.5, 8.75], L), el([2, 1.5, 7.25], [14, 3, 8.75], L),
+        el([-0.5, 14.3, 7.6], [0.5, 15.2, 8.4], W), el([15.5, 14.3, 7.6], [16.5, 15.2, 8.4], W),
+    ]
+    wj(f'{A}/models/block/tanning_rack.json', {'parent': 'minecraft:block/block', 'textures': {
+        'particle': 'minecraft:block/spruce_planks', 'log': 'minecraft:block/stripped_spruce_log', 'wood': 'minecraft:block/spruce_planks'},
+        'elements': rack, 'display': disp})
+    # pot made of walls, a rim, three feet and a bail handle
+    P, I, H = '#side', '#inner', '#iron'
+    pot = [el([4, 1, 4], [12, 2, 12], P),
+           el([3, 1, 3], [13, 9, 4], P), el([3, 1, 12], [13, 9, 13], P), el([3, 1, 4], [4, 9, 12], P), el([12, 1, 4], [13, 9, 12], P),
+           el([4, 2, 4], [12, 2.01, 12], I, faces=('up',)),
+           el([2.5, 8.5, 2.5], [13.5, 9.8, 3.5], H), el([2.5, 8.5, 12.5], [13.5, 9.8, 13.5], H),
+           el([2.5, 8.5, 3.5], [3.5, 9.8, 12.5], H), el([12.5, 8.5, 3.5], [13.5, 9.8, 12.5], H),
+           el([4, 0, 4], [5.5, 1, 5.5], H), el([10.5, 0, 4], [12, 1, 5.5], H), el([7.25, 0, 10.5], [8.75, 1, 12], H),
+           # ears and the handle
+           el([2, 8, 7.4], [2.5, 11, 8.6], H), el([13.5, 8, 7.4], [14, 11, 8.6], H),
+           el([2.1, 11, 7.7], [2.6, 13.5, 8.3], H), el([13.4, 11, 7.7], [13.9, 13.5, 8.3], H),
+           el([2.1, 13.5, 7.7], [13.9, 14, 8.3], H)]
+    wj(f'{A}/models/block/kettle.json', {'parent': 'minecraft:block/block', 'textures': {
+        'particle': 'minecraft:block/cauldron_side', 'side': 'minecraft:block/cauldron_side', 'inner': 'minecraft:block/cauldron_inner',
+        'iron': 'minecraft:block/anvil'}, 'elements': pot, 'display': disp})
+    wj(f'{A}/blockstates/tanning_rack.json', {'variants': {f'facing={f}': ({'model': f'{NS}:block/tanning_rack', 'y': y} if y else
+                                                                            {'model': f'{NS}:block/tanning_rack'})
+                                                           for f, y in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
+    wj(f'{A}/blockstates/kettle.json', {'variants': {f'facing={f}': ({'model': f'{NS}:block/kettle', 'y': y} if y else {'model': f'{NS}:block/kettle'})
+                                                     for f, y in [('north', 0), ('east', 90), ('south', 180), ('west', 270)]}})
+    for b in ('tanning_rack', 'kettle'):
+        wj(f'{A}/items/{b}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:block/{b}'}})
+        wj(f'{D}/{NS}/loot_table/blocks/{b}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'conditions': [{'condition': 'minecraft:survives_explosion'}],
+                                                                                            'entries': [{'type': 'minecraft:item', 'name': f'{NS}:{b}'}]}],
+                                                       'random_sequence': f'{NS}:blocks/{b}'})
+    G = lambda n: f'{NS}:{n}'
+    R = f'{D}/{NS}/recipe'
+    wj(f'{R}/tanning_rack.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['SLS', 'S S', 'PLP'],
+                                  'key': {'S': 'minecraft:stick', 'L': '#minecraft:logs', 'P': '#minecraft:planks'},
+                                  'result': {'id': G('tanning_rack'), 'count': 1}})
+    wj(f'{R}/kettle.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': [' S ', 'I I', 'III'],
+                            'key': {'S': 'minecraft:stick', 'I': 'minecraft:iron_ingot'}, 'result': {'id': G('kettle'), 'count': 1}})
+    wj(f'{R}/soap.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                          'ingredients': [G('tallow'), G('tallow'), 'minecraft:charcoal'], 'result': {'id': G('soap'), 'count': 2}})
+    wj(f'{R}/soap_from_lard.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                    'ingredients': [G('lard'), 'minecraft:charcoal'], 'result': {'id': G('soap'), 'count': 1}})
+    wj(f'{R}/candle_from_tallow.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                        'ingredients': [G('tallow'), 'minecraft:string'], 'result': {'id': 'minecraft:candle', 'count': 1}})
+    wj(f'{R}/candle_from_beeswax.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                         'ingredients': [G('beeswax'), 'minecraft:string'], 'result': {'id': 'minecraft:candle', 'count': 2}})
+    wj(f'{R}/string_from_sinew.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                       'ingredients': [G('sinew')], 'result': {'id': 'minecraft:string', 'count': 2}})
+    wj(f'{R}/string_from_gut.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                     'ingredients': [G('gut')], 'result': {'id': 'minecraft:string', 'count': 1}})
+    wj(f'{R}/leather_from_furs.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                       'ingredients': [[G('rabbit_fur'), G('fox_fur')], [G('rabbit_fur'), G('fox_fur')]],
+                                       'result': {'id': 'minecraft:leather', 'count': 1}})
+    wj(f'{R}/bone_meal_from_poultry_bone.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                                 'ingredients': [G('poultry_bone')], 'result': {'id': 'minecraft:bone_meal', 'count': 2}})
+    wj(f'{R}/paper_from_rags.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                     'ingredients': [G('rags'), G('rags'), G('rags'), 'minecraft:water_bucket'],
+                                     'result': {'id': 'minecraft:paper', 'count': 3}})
+    wj(f'{R}/string_from_net_scrap.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+                                           'ingredients': [G('net_scrap')], 'result': {'id': 'minecraft:string', 'count': 3}})
+    wj(f'{R}/cooked_tentacle.json', {'type': 'minecraft:smelting', 'category': 'food', 'ingredient': G('tentacle'),
+                                     'result': {'id': G('cooked_tentacle')}, 'experience': 0.2, 'cookingtime': 200})
+    T2 = f'{A}/textures/item'
+    wi(f'{T2}/cooked_tentacle.png', SP.render(SP.S['tentacle'], SP.ramp((196, 120, 84))))
+    wj(f'{A}/models/item/cooked_tentacle.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/cooked_tentacle'}})
+    wj(f'{A}/items/cooked_tentacle.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/cooked_tentacle'}})
+
+    pl = {f'item.{NS}.{k}': v[0] for k, v in DROP_NAMES.items()}
+    en = {f'item.{NS}.{k}': v[1] for k, v in DROP_NAMES.items()}
+    pl.update({'item.gospodarstwo.yarn_silk': 'Przędza jedwabna', 'item.gospodarstwo.silk': 'Jedwab', 'item.gospodarstwo.cooked_tentacle': 'Pieczona macka',
+               'block.gospodarstwo.tanning_rack': 'Rama garbarska', 'block.gospodarstwo.kettle': 'Kocioł rzemieślniczy',
+               'rack.gospodarstwo.empty': 'Rama jest pusta – rozepnij na niej surową albo grubą skórę',
+               'kettle.gospodarstwo.empty': 'Kocioł jest pusty – wrzuć plaster miodu, kości, szpik, pęcherz albo słoninę',
+               'kettle.gospodarstwo.cold': 'Kocioł jest zimny – postaw go na rozpalonym ognisku, ogniu albo magmie'})
+    en.update({'item.gospodarstwo.yarn_silk': 'Silk Yarn', 'item.gospodarstwo.silk': 'Silk', 'item.gospodarstwo.cooked_tentacle': 'Grilled Tentacle',
+               'block.gospodarstwo.tanning_rack': 'Tanning Rack', 'block.gospodarstwo.kettle': 'Craft Kettle',
+               'rack.gospodarstwo.empty': 'The rack is empty - stretch a raw or thick hide on it',
+               'kettle.gospodarstwo.empty': 'The kettle is empty - add honeycomb, bones, marrow, a swim bladder or fatback',
+               'kettle.gospodarstwo.cold': 'The kettle is cold - stand it on a lit campfire, fire or magma'})
+    for lang_file, extra in (('pl_pl', pl), ('en_us', en)):
+        path = f'{A}/lang/{lang_file}.json'
+        d = json.load(open(path, encoding='utf-8'))
+        d.update(extra)
+        wj(path, d)
+    dyeable = [G(n) for n in list(YARN_NATURAL) + list(CLOTH_NATURAL) + ['yarn_silk', 'silk']]
+    wj(f'{D}/{NS}/tags/item/vat_dyeable.json', {'replace': False, 'values': dyeable})
+    wj(f'{D}/minecraft/tags/item/dyeable.json', {'replace': False, 'values': dyeable})
+
+
 if __name__ == '__main__':
     animal_assets()
     item_textures()
@@ -940,3 +1153,4 @@ if __name__ == '__main__':
     data()
     lang()
     textiles()
+    stage2()

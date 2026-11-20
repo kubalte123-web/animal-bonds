@@ -46,6 +46,13 @@ public final class Boxes {
         vc.addVertex(pose, x, y, z).setColor(color).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, nx, ny, nz);
     }
 
+    /** A double-sided vertical panel in the XY plane at depth z (pixels), with the whole texture stretched over it. */
+    public static void panel(PoseStack.Pose pose, VertexConsumer vc, float x0, float y0, float x1, float y1, float z, int color, int light) {
+        float a = x0 / 16F, b = y0 / 16F, d = x1 / 16F, e = y1 / 16F, f = z / 16F;
+        quad(pose, vc, a, e, f, a, b, f, d, b, f, d, e, f, 0, 0, 1, 1, 0, 0, 1, color, light);
+        quad(pose, vc, d, e, f, d, b, f, a, b, f, a, e, f, 1, 0, 0, 1, 0, 0, -1, color, light);
+    }
+
     /** Two crossed quads (like a sapling or a flower), standing on (cx, y0, cz). */
     public static void cross(PoseStack.Pose pose, VertexConsumer vc, float cx, float y0, float cz, float size, int color, int light) {
         float h = size / 32F, x = cx / 16F, z = cz / 16F, b = y0 / 16F, t = (y0 + size) / 16F;

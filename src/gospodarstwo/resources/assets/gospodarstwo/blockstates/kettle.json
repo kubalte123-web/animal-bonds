@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "gospodarstwo:block/kettle"
+  },
+  "facing=east": {
+   "model": "gospodarstwo:block/kettle",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "gospodarstwo:block/kettle",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "gospodarstwo:block/kettle",
+   "y": 270
+  }
+ }
+}

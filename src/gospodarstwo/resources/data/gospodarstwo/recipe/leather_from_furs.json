@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  [
+   "gospodarstwo:rabbit_fur",
+   "gospodarstwo:fox_fur"
+  ],
+  [
+   "gospodarstwo:rabbit_fur",
+   "gospodarstwo:fox_fur"
+  ]
+ ],
+ "result": {
+  "id": "minecraft:leather",
+  "count": 1
+ }
+}

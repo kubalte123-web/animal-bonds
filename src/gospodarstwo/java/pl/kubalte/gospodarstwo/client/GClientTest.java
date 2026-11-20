@@ -77,13 +77,22 @@ public final class GClientTest {
             case 900 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 30", B.getX() + 116.0, B.getY() + 1,
                     B.getZ() - 2.6)));
             case 980 -> shot(m + "textiles");
-            case 1000 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 127.5, B.getY() + 1.2,
+            case 1140 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 127.5, B.getY() + 1.2,
                     B.getZ() - 3.6)));
-            case 1080 -> shot(m + "items1");
-            case 1100 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 136.5, B.getY() + 1.2,
+            case 1220 -> shot(m + "items1");
+            case 1380 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 136.5, B.getY() + 1.2,
                     B.getZ() - 3.6)));
-            case 1180 -> shot(m + "items2");
-            case 1220 -> {
+            case 1460 -> shot(m + "items2");
+            case 1620 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 147.5, B.getY() + 1.2,
+                    B.getZ() - 3.6)));
+            case 1700 -> shot(m + "items3");
+            case 1860 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %.1f %.1f 0 0", B.getX() + 156.5, B.getY() + 1.2,
+                    B.getZ() - 3.6)));
+            case 1940 -> shot(m + "items4");
+            case 2100 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 35", B.getX() + 111.5, B.getY() + 1,
+                    B.getZ() - 2.4)));
+            case 2180 -> shot(m + "workshop");
+            case 2340 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
                 mc.stop();
             }
@@ -116,7 +125,7 @@ public final class GClientTest {
     static void textiles(MinecraftServer server) {
         ServerLevel level = server.overworld();
         var p = server.getPlayerList().getPlayers().get(0);
-        for (int x = 108; x <= 150; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
+        for (int x = 108; x <= 166; x++) for (int z = -8; z <= 6; z++) for (int y = 0; y < 6; y++)
             level.setBlockAndUpdate(B.offset(x, y, z), Blocks.AIR.defaultBlockState());
         BlockPos wheel = B.offset(114, 0, 0), vat = B.offset(116, 0, 0), loom = B.offset(118, 0, 0);
         level.setBlockAndUpdate(wheel, Gospodarstwo.SPINNING_WHEEL.get().defaultBlockState().setValue(pl.kubalte.gospodarstwo.block.StationBlock.FACING,
@@ -144,9 +153,23 @@ public final class GClientTest {
             pl.kubalte.gospodarstwo.craft.Dyes.setColor(cl, c);
             items.add(cl);
         }
-        int perRow = 9;
+        // stage 2 workshop: a hide half tanned on the rack, a kettle bubbling on a campfire
+        BlockPos rackPos = B.offset(110, 0, 0), kettlePos = B.offset(112, 1, 0);
+        level.setBlockAndUpdate(rackPos, Gospodarstwo.TANNING_RACK.get().defaultBlockState());
+        if (level.getBlockEntity(rackPos) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) {
+            be.insert(p, new ItemStack(Gospodarstwo.RAW_HIDE.get(), 4));
+            be.debugProgress(pl.kubalte.gospodarstwo.GConfig.TAN_TICKS.get() / 2);
+        }
+        level.setBlockAndUpdate(kettlePos.below(), Blocks.CAMPFIRE.defaultBlockState());
+        level.setBlockAndUpdate(kettlePos, Gospodarstwo.KETTLE.get().defaultBlockState());
+        if (level.getBlockEntity(kettlePos) instanceof pl.kubalte.gospodarstwo.block.StationBlockEntity be) be.insert(p, new ItemStack(Items.HONEYCOMB, 64));
+        BlockPos cold = B.offset(113, 0, 1);
+        level.setBlockAndUpdate(cold, Gospodarstwo.KETTLE.get().defaultBlockState());
+
+        int perRow = 18;
         for (int i = 0; i < items.size(); i++) {
-            int col = i % (perRow * 2), row = i / (perRow * 2);
+            int wall = i / (perRow * 5), k = i % (perRow * 5);
+            int col = k % perRow + wall * 20, row = k / perRow;
             BlockPos at = B.offset(123 + col, 4 - row, 1);
             level.setBlockAndUpdate(at.south(), Blocks.SPRUCE_PLANKS.defaultBlockState());
             net.minecraft.world.entity.decoration.ItemFrame f = new net.minecraft.world.entity.decoration.ItemFrame(level, at, net.minecraft.core.Direction.NORTH);

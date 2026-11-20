@@ -63,6 +63,12 @@ public abstract class StationBlockEntity extends BlockEntity {
         return working;
     }
 
+    /** Tests: jump the work forward. */
+    public void debugProgress(int p) {
+        progress = p;
+        sync();
+    }
+
     public int progress() {
         return progress;
     }
@@ -92,14 +98,26 @@ public abstract class StationBlockEntity extends BlockEntity {
             else be.output.grow(j.result().getCount());
             level.playSound(null, pos, SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 0.8F, 1.0F);
             be.sync();
+        } else if (be.syncEvery() > 0 && be.progress % be.syncEvery() == 0) {
+            be.sync();
         } else {
             be.setChanged();
         }
     }
 
+    /** How often (ticks of progress) to send the progress to clients; 0 = only when starting/stopping. */
+    protected int syncEvery() {
+        return 0;
+    }
+
     /** Right-click with material: puts it in (one kind at a time). */
     public boolean insert(Player player, ItemStack stack) {
         if (job(stack) == null) return false;
+        return insertAny(player, stack);
+    }
+
+    /** Puts the material in without checking whether it can be worked right now. */
+    protected boolean insertAny(Player player, ItemStack stack) {
         if (!input.isEmpty() && !ItemStack.isSameItemSameComponents(input, stack)) {
             if (level != null && !level.isClientSide()) player.sendOverlayMessage(Component.translatable("station.gospodarstwo.other_input"));
             return true;

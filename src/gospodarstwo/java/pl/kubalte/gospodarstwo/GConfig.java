@@ -28,6 +28,12 @@ public final class GConfig {
     }
     public static final ModConfigSpec.IntValue LOOM_TICKS = B.comment("Ile ticków trwa utkanie jednej sztuki materiału")
             .defineInRange("weaveTicks", 100, 1, 100_000);
+    public static final ModConfigSpec.IntValue TAN_TICKS = B.comment("Ile ticków trwa garbowanie skór na ramie (24000 = doba)")
+            .defineInRange("tanTicks", 12000, 1, 10_000_000);
+    public static final ModConfigSpec.IntValue KETTLE_TICKS = B.comment("Ile ticków trwa jedna porcja w kotle")
+            .defineInRange("kettleTicks", 160, 1, 100_000);
+    public static final ModConfigSpec.BooleanValue EXTRA_DROPS = B.comment("Dodatkowe łupy ze zwierząt i potworów (skóra, łój, rogi, gruczoły...)")
+            .define("extraDrops", true);
     static {
         B.pop();
     }

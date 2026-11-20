@@ -1,0 +1,12 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "gospodarstwo:tallow",
+  "minecraft:string"
+ ],
+ "result": {
+  "id": "minecraft:candle",
+  "count": 1
+ }
+}

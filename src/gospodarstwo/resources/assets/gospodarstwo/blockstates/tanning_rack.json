@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "gospodarstwo:block/tanning_rack"
+  },
+  "facing=east": {
+   "model": "gospodarstwo:block/tanning_rack",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "gospodarstwo:block/tanning_rack",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "gospodarstwo:block/tanning_rack",
+   "y": 270
+  }
+ }
+}

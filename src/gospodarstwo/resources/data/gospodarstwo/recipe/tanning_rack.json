@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "SLS",
+  "S S",
+  "PLP"
+ ],
+ "key": {
+  "S": "minecraft:stick",
+  "L": "#minecraft:logs",
+  "P": "#minecraft:planks"
+ },
+ "result": {
+  "id": "gospodarstwo:tanning_rack",
+  "count": 1
+ }
+}

@@ -147,6 +147,14 @@ public class Gospodarstwo {
     public static final DeferredBlock<pl.kubalte.gospodarstwo.block.DyeVatBlock> DYE_VAT = BLOCKS.registerBlock("dye_vat",
             pl.kubalte.gospodarstwo.block.DyeVatBlock::new, p -> p.mapColor(MapColor.WOOD).strength(2.0F).sound(SoundType.WOOD).noOcclusion());
 
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.block.TanningRackBlock> TANNING_RACK = BLOCKS.registerBlock("tanning_rack",
+            pl.kubalte.gospodarstwo.block.TanningRackBlock::new, p -> p.mapColor(MapColor.WOOD).strength(1.5F).sound(SoundType.WOOD).noOcclusion());
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.block.KettleBlock> KETTLE = BLOCKS.registerBlock("kettle",
+            pl.kubalte.gospodarstwo.block.KettleBlock::new, p -> p.mapColor(MapColor.METAL).strength(3.0F).sound(SoundType.METAL).noOcclusion());
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.TanningRackBlockEntity>> TANNING_RACK_BE = BLOCK_ENTITIES.register(
+            "tanning_rack", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.TanningRackBlockEntity::new, TANNING_RACK.get()));
+    public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.KettleBlockEntity>> KETTLE_BE = BLOCK_ENTITIES.register("kettle",
+            () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.KettleBlockEntity::new, KETTLE.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.SpinningWheelBlockEntity>> SPINNING_WHEEL_BE = BLOCK_ENTITIES.register(
             "spinning_wheel", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.block.SpinningWheelBlockEntity::new, SPINNING_WHEEL.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.block.DyeVatBlockEntity>> DYE_VAT_BE = BLOCK_ENTITIES.register("dye_vat",
@@ -191,6 +199,8 @@ public class Gospodarstwo {
     public static final DeferredItem<BlockItem> WEAVING_LOOM_ITEM = tab(ITEMS.registerSimpleBlockItem("weaving_loom", WEAVING_LOOM));
     public static final DeferredItem<BlockItem> SPINNING_WHEEL_ITEM = tab(ITEMS.registerSimpleBlockItem("spinning_wheel", SPINNING_WHEEL));
     public static final DeferredItem<BlockItem> DYE_VAT_ITEM = tab(ITEMS.registerSimpleBlockItem("dye_vat", DYE_VAT));
+    public static final DeferredItem<BlockItem> TANNING_RACK_ITEM = tab(ITEMS.registerSimpleBlockItem("tanning_rack", TANNING_RACK));
+    public static final DeferredItem<BlockItem> KETTLE_ITEM = tab(ITEMS.registerSimpleBlockItem("kettle", KETTLE));
     public static final DeferredItem<pl.kubalte.gospodarstwo.item.CurryCombItem> CURRY_COMB = tab(ITEMS.registerItem("curry_comb",
             pl.kubalte.gospodarstwo.item.CurryCombItem::new, p -> p.durability(128)));
 
@@ -218,6 +228,48 @@ public class Gospodarstwo {
     public static final DeferredItem<Item> CAMEL_WOOL = item("camel_wool");
     public static final DeferredItem<Item> DOG_HAIR = item("dog_hair");
 
+    // ---------------- items: from vanilla animals and monsters (stage 2) ----------------
+    public static final DeferredItem<Item> RAW_HIDE = item("raw_hide");
+    public static final DeferredItem<Item> TALLOW = item("tallow");
+    public static final DeferredItem<Item> HORN = item("horn");
+    public static final DeferredItem<Item> SINEW = item("sinew");
+    public static final DeferredItem<Item> FATBACK = food("fatback", 2, 0.4F);
+    public static final DeferredItem<Item> BRISTLES = item("bristles");
+    public static final DeferredItem<Item> GUT = item("gut");
+    public static final DeferredItem<Item> RABBIT_FUR = item("rabbit_fur");
+    public static final DeferredItem<Item> FOX_FUR = item("fox_fur");
+    public static final DeferredItem<Item> BEAR_FUR = item("bear_fur");
+    public static final DeferredItem<Item> BEAR_CLAW = item("bear_claw");
+    public static final DeferredItem<Item> POULTRY_BONE = item("poultry_bone");
+    public static final DeferredItem<Item> SWIM_BLADDER = item("swim_bladder");
+    public static final DeferredItem<Item> TENTACLE = food("tentacle", 2, 0.2F);
+    public static final DeferredItem<Item> COOKED_TENTACLE = food("cooked_tentacle", 5, 0.6F);
+    public static final DeferredItem<Item> SPINNERET = item("spinneret");
+    public static final DeferredItem<Item> VENOM_GLAND = item("venom_gland");
+    public static final DeferredItem<Item> RAGS = item("rags");
+    public static final DeferredItem<Item> NET_SCRAP = item("net_scrap");
+    public static final DeferredItem<Item> BONE_MARROW = item("bone_marrow");
+    public static final DeferredItem<Item> CREEPER_SKIN = item("creeper_skin");
+    public static final DeferredItem<Item> HERB_POUCH = item("herb_pouch");
+    public static final DeferredItem<Item> STRIDER_SKIN = tab(ITEMS.registerSimpleItem("strider_skin", p -> p.fireResistant()));
+    public static final DeferredItem<Item> BLAZE_ASH = tab(ITEMS.registerSimpleItem("blaze_ash", p -> p.fireResistant()));
+    public static final DeferredItem<Item> GHAST_MEMBRANE = item("ghast_membrane");
+    public static final DeferredItem<Item> THICK_HIDE = item("thick_hide");
+    public static final DeferredItem<Item> HOGLIN_TUSK = item("hoglin_tusk");
+    public static final DeferredItem<Item> RAVAGER_HORN = item("ravager_horn");
+    public static final DeferredItem<Item> GUARDIAN_SPIKE = item("guardian_spike");
+    public static final DeferredItem<Item> WIND_FIBRE = item("wind_fibre");
+    public static final DeferredItem<Item> POISON_MYCELIUM = item("poison_mycelium");
+    public static final DeferredItem<Item> SCULK_CORE = tab(ITEMS.registerSimpleItem("sculk_core", p -> p.rarity(net.minecraft.world.item.Rarity.RARE)));
+    public static final DeferredItem<Item> DRAGON_SCALE = tab(ITEMS.registerSimpleItem("dragon_scale",
+            p -> p.rarity(net.minecraft.world.item.Rarity.EPIC).fireResistant()));
+    // processed
+    public static final DeferredItem<Item> THICK_LEATHER = item("thick_leather");
+    public static final DeferredItem<Item> BEESWAX = item("beeswax");
+    public static final DeferredItem<Item> GLUE = item("glue");
+    public static final DeferredItem<Item> LARD = food("lard", 3, 0.5F);
+    public static final DeferredItem<Item> SOAP = item("soap");
+
     // ---------------- items: yarn (dyeable) ----------------
     public static final DeferredItem<Item> YARN_WOOL = item("yarn_wool");
     public static final DeferredItem<Item> YARN_LINEN = item("yarn_linen");
@@ -226,6 +278,7 @@ public class Gospodarstwo {
     public static final DeferredItem<Item> YARN_CASHMERE = item("yarn_cashmere");
     public static final DeferredItem<Item> YARN_LLAMA = item("yarn_llama");
     public static final DeferredItem<Item> YARN_COARSE = item("yarn_coarse");
+    public static final DeferredItem<Item> YARN_SILK = item("yarn_silk");
 
     // ---------------- items: fabrics ----------------
     public static final DeferredItem<Item> CANVAS = item("canvas");
@@ -236,6 +289,7 @@ public class Gospodarstwo {
     public static final DeferredItem<Item> FELT = item("felt");
     public static final DeferredItem<Item> CASHMERE_CLOTH = item("cashmere_cloth");
     public static final DeferredItem<Item> LLAMA_CLOTH = item("llama_cloth");
+    public static final DeferredItem<Item> SILK = item("silk");
 
     // ---------------- spawn eggs ----------------
     public static final DeferredItem<SpawnEggItem> DUCK_SPAWN_EGG = tab(ITEMS.registerItem("duck_spawn_egg", p -> new SpawnEggItem(p.spawnEgg(DUCK.get()))));
@@ -263,6 +317,7 @@ public class Gospodarstwo {
         modBus.addListener(GSetup::spawnPlacements);
         modBus.addListener((net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent e) -> e.enqueueWork(pl.kubalte.gospodarstwo.craft.Dyes::init));
         pl.kubalte.gospodarstwo.breed.BreedEvents.register(NeoForge.EVENT_BUS);
+        NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.MobDrops::onDrops);
         GSelfTest.register(NeoForge.EVENT_BUS);
         if (ModList.get().isLoaded("animalbonds")) pl.kubalte.gospodarstwo.compat.AnimalBondsCompat.init(modBus);
     }

@@ -1,0 +1,10 @@
+{
+ "type": "minecraft:smelting",
+ "category": "food",
+ "ingredient": "gospodarstwo:tentacle",
+ "result": {
+  "id": "gospodarstwo:cooked_tentacle"
+ },
+ "experience": 0.2,
+ "cookingtime": 200
+}

@@ -31,6 +31,7 @@ public final class LoomRecipes {
         add(new Recipe(s -> s.is(Gospodarstwo.YARN_CASHMERE.get()), 3, Gospodarstwo.CASHMERE_CLOTH, 0xE8DCCB, 0xDCCDB6));
         add(new Recipe(s -> s.is(Gospodarstwo.YARN_LLAMA.get()), 3, Gospodarstwo.LLAMA_CLOTH, 0xD9C2A0, 0xC8AE88));
         add(new Recipe(s -> s.is(Gospodarstwo.YARN_COARSE.get()), 3, Gospodarstwo.FELT, 0xA88A64, 0x9E8C70));
+        add(new Recipe(s -> s.is(Gospodarstwo.YARN_SILK.get()), 3, Gospodarstwo.SILK, 0xF4F4F8, 0xF0F0F6));
     }
 
     public static Recipe find(ItemStack s) {

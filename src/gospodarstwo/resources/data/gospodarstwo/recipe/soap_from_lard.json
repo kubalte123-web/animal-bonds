@@ -1,0 +1,12 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "gospodarstwo:lard",
+  "minecraft:charcoal"
+ ],
+ "result": {
+  "id": "gospodarstwo:soap",
+  "count": 1
+ }
+}

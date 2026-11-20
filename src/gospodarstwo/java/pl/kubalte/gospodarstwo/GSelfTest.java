@@ -267,6 +267,62 @@ public final class GSelfTest {
         check(itemsAround(level, llama.blockPosition(), Gospodarstwo.LLAMA_WOOL.get()) > 0, "shearing a llama gives llama wool");
         goat.discard();
         llama.discard();
+
+        // ---- stage 2: extra drops, tanning rack, kettle, silk ----
+        BlockPos rackPos = O.offset(10, 0, 8);
+        level.setBlockAndUpdate(rackPos, Gospodarstwo.TANNING_RACK.get().defaultBlockState());
+        var rack = (pl.kubalte.gospodarstwo.block.TanningRackBlockEntity) level.getBlockEntity(rackPos);
+        rack.insert(player, new ItemStack(Gospodarstwo.RAW_HIDE.get(), 3));
+        check(rack.input().getCount() == 3, "raw hides stretched on the tanning rack");
+        for (int k = 0; k < GConfig.TAN_TICKS.get() / 2; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, rackPos, level.getBlockState(rackPos), rack);
+        check(rack.output().isEmpty() && rack.tanFraction() > 0.4F, "half way the hides are still tanning (" + rack.tanFraction() + ")");
+        for (int k = 0; k < GConfig.TAN_TICKS.get() / 2 + 5; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, rackPos, level.getBlockState(rackPos), rack);
+        check(rack.output().is(Items.LEATHER) && rack.output().getCount() == 3, "all three hides become leather together (" + rack.output() + ")");
+        rack.take(player);
+        rack.insert(player, new ItemStack(Gospodarstwo.THICK_HIDE.get(), 1));
+        for (int k = 0; k < GConfig.TAN_TICKS.get() + 5; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, rackPos, level.getBlockState(rackPos), rack);
+        check(rack.output().is(Gospodarstwo.THICK_LEATHER.get()), "thick hide becomes thick leather");
+
+        BlockPos coldPos = O.offset(14, 0, 8);
+        level.setBlockAndUpdate(coldPos, Gospodarstwo.KETTLE.get().defaultBlockState());
+        var cold = (pl.kubalte.gospodarstwo.block.KettleBlockEntity) level.getBlockEntity(coldPos);
+        cold.insert(player, new ItemStack(Items.HONEYCOMB, 2));
+        for (int k = 0; k < GConfig.KETTLE_TICKS.get() * 3; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, coldPos, level.getBlockState(coldPos), cold);
+        check(cold.input().getCount() == 2 && cold.output().isEmpty(), "a kettle without fire does nothing");
+        BlockPos hotPos = O.offset(16, 0, 8);
+        level.setBlockAndUpdate(hotPos.below(), Blocks.CAMPFIRE.defaultBlockState());
+        level.setBlockAndUpdate(hotPos, Gospodarstwo.KETTLE.get().defaultBlockState());
+        var hot = (pl.kubalte.gospodarstwo.block.KettleBlockEntity) level.getBlockEntity(hotPos);
+        hot.insert(player, new ItemStack(Items.HONEYCOMB, 2));
+        for (int k = 0; k < GConfig.KETTLE_TICKS.get() * 2 + 5; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, hotPos, level.getBlockState(hotPos), hot);
+        check(hot.output().is(Gospodarstwo.BEESWAX.get()) && hot.output().getCount() == 4, "honeycomb renders into beeswax over a campfire (" + hot.output() + ")");
+        hot.take(player);
+        hot.insert(player, new ItemStack(Items.BONE, 3));
+        for (int k = 0; k < GConfig.KETTLE_TICKS.get() + 5; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, hotPos, level.getBlockState(hotPos), hot);
+        check(hot.output().is(Gospodarstwo.GLUE.get()), "bones boil into glue");
+        hot.take(player);
+        hot.insert(player, new ItemStack(Gospodarstwo.FATBACK.get(), 2));
+        for (int k = 0; k < GConfig.KETTLE_TICKS.get() + 5; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, hotPos, level.getBlockState(hotPos), hot);
+        check(hot.output().is(Gospodarstwo.LARD.get()), "fatback renders into lard");
+
+        wheel.take(player);
+        wheel.take(player);
+        wheel.insert(player, new ItemStack(Gospodarstwo.SPINNERET.get(), 2));
+        for (int k = 0; k < GConfig.LOOM_TICKS.get() + 10; k++) pl.kubalte.gospodarstwo.block.StationBlockEntity.tick(level, wheelPos, level.getBlockState(wheelPos), wheel);
+        check(wheel.output().is(Gospodarstwo.YARN_SILK.get()), "spider spinnerets spin into silk yarn (" + wheel.output() + ")");
+
+        check(!pl.kubalte.gospodarstwo.craft.MobDrops.dropsOf(EntityTypes.COW).isEmpty()
+                && !pl.kubalte.gospodarstwo.craft.MobDrops.dropsOf(EntityTypes.WARDEN).isEmpty(), "extra drops are defined for vanilla mobs");
+        BlockPos field = O.offset(26, 0, 22);
+        for (int k = 0; k < 16; k++) {
+            Mob c = EntityTypes.COW.spawn(level, field.offset(k % 4, 0, k / 4), EntitySpawnReason.COMMAND);
+            if (c != null) c.kill(level);
+        }
+        check(itemsAround(level, field.offset(2, 0, 2), Gospodarstwo.RAW_HIDE.get()) > 0, "cows drop raw hide");
+        check(itemsAround(level, field.offset(2, 0, 2), Gospodarstwo.TALLOW.get()) > 0, "cows drop tallow");
+        Mob rav = EntityTypes.RAVAGER.spawn(level, O.offset(36, 0, 27), EntitySpawnReason.COMMAND);
+        if (rav != null) rav.kill(level);
+        check(itemsAround(level, O.offset(36, 0, 27), Gospodarstwo.RAVAGER_HORN.get()) > 0, "a ravager always drops its horn");
         check(Breed.byIndex(Breed.ANGORA.index()) == Breed.ANGORA && BreedEvents.breedsOf(cow).contains(Breed.HIGHLAND), "breed lookup");
         for (Mob m : new Mob[] {duck, goose, turkey, snail, cow, sheep}) if (m != null) m.discard();
     }

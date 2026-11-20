@@ -34,6 +34,7 @@ public class SpinningWheelBlockEntity extends StationBlockEntity {
         add(new Spin(s -> s.is(Gospodarstwo.LLAMA_WOOL.get()) || s.is(Gospodarstwo.CAMEL_WOOL.get()), 1, Gospodarstwo.YARN_LLAMA, 2, 0xD9C2A0));
         add(new Spin(s -> s.is(Gospodarstwo.HIGHLAND_HAIR.get()) || s.is(Gospodarstwo.MANGALICA_WOOL.get()) || s.is(Gospodarstwo.DOG_HAIR.get())
                 || s.is(Gospodarstwo.HORSE_HAIR.get()), 2, Gospodarstwo.YARN_COARSE, 1, 0xA88A64));
+        add(new Spin(s -> s.is(Gospodarstwo.SPINNERET.get()), 2, Gospodarstwo.YARN_SILK, 1, 0xF4F4F8));
     }
 
     public static Spin find(ItemStack s) {
