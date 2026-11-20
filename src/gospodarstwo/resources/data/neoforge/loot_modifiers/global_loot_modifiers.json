@@ -1,9 +1,0 @@
-{
- "replace": false,
- "entries": [
-  "gospodarstwo:seeds_from_short_grass",
-  "gospodarstwo:seeds_from_tall_grass",
-  "gospodarstwo:seeds_from_fern",
-  "gospodarstwo:fruit_saplings_from_oak"
- ]
-}

@@ -64,7 +64,7 @@ public final class GClientTest {
             case 340 -> shot(m + "breeds");
             case 380 -> server.execute(() -> view(server, 44, 0));
             case 460 -> shot(m + "plants");
-            case 500 -> server.execute(() -> cmd(server, String.format("tp @p %d %d %d -150 25", B.getX() + 66, B.getY() + 2, B.getZ() - 3)));
+            case 500 -> server.execute(() -> cmd(server, String.format("tp @p %d %d %d 0 5", B.getX() + 65, B.getY() + 1, B.getZ() - 7)));
             case 580 -> shot(m + "trees");
             case 620 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 40", B.getX() + 84.5, B.getY() + 1,
                     B.getZ() - 1.6)));

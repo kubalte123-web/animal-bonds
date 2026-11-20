@@ -81,9 +81,9 @@ public class BonsaiRenderer implements BlockEntityRenderer<BonsaiPotBlockEntity,
         boolean neat = d.trims() >= BonsaiPotBlockEntity.TRIMS_NEEDED;
         Random r = new Random(d.seed());
         float soil = 3.5F;
-        float thick = 1.2F + 2.2F * g;
+        float thick = 1.0F + 1.8F * g;
         int segments = 3;
-        float segH = (2.5F + 3.2F * g);
+        float segH = (1.8F + 2.4F * g);
         float x = 8F + (r.nextFloat() - 0.5F) * 2F, z = 8F + (r.nextFloat() - 0.5F) * 1.5F, y = soil;
         List<float[]> tips = new ArrayList<>();
         for (int s = 0; s < segments; s++) {
@@ -97,7 +97,7 @@ public class BonsaiRenderer implements BlockEntityRenderer<BonsaiPotBlockEntity,
             if (s >= 1 && g > 0.25F) {
                 // a branch to one side
                 float dir = r.nextBoolean() ? 1 : -1;
-                float len = 2F + 3.5F * g;
+                float len = 1.6F + 2.8F * g;
                 float bx = x + dir * len, bz = z + (r.nextFloat() - 0.5F) * 2F;
                 float bt = Math.max(0.8F, t * 0.55F);
                 float by = y - segH * 0.4F;
@@ -107,7 +107,7 @@ public class BonsaiRenderer implements BlockEntityRenderer<BonsaiPotBlockEntity,
         }
         tips.add(new float[] {x, y, z});
         for (float[] tip : tips) {
-            float w = 2.5F + 5F * g;
+            float w = 2.5F + 4F * g;
             if (neat) {
                 float h = 1.2F + 1.3F * g;
                 out.add(new Piece(true, tip[0] - w / 2, tip[1] - 0.3F, tip[2] - w / 2.4F, tip[0] + w / 2, tip[1] + h, tip[2] + w / 2.4F));

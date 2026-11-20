@@ -680,8 +680,6 @@ def data():
             {'condition': 'neoforge:loot_table_id', 'loot_table_id': f'minecraft:blocks/{grass}'}, no_shears], 'table': G('gameplay/grass_seeds')})
     wj(f'{LM}/fruit_saplings_from_oak.json', {'type': 'neoforge:add_table', 'conditions': [
         {'condition': 'neoforge:loot_table_id', 'loot_table_id': 'minecraft:blocks/oak_leaves'}, no_shears], 'table': G('gameplay/fruit_saplings')})
-    wj(f'{D}/neoforge/loot_modifiers/global_loot_modifiers.json', {'replace': False, 'entries': [
-        G('seeds_from_short_grass'), G('seeds_from_tall_grass'), G('seeds_from_fern'), G('fruit_saplings_from_oak')]})
 
 
 def TREE_TEMPLATE(log, leaves):
