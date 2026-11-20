@@ -21,6 +21,8 @@ public final class AnimalBondsCompat {
             Breed b = BreedEvents.breed(mob);
             return b == null ? null : Component.translatable("breed.gospodarstwo.label", b.displayName());
         });
+        // the goblin has its own painted skin and clothes: no random recolouring
+        AnimalBondsApi.excludeFromTextureVariety("gospodarstwo:goblin");
         AnimalBondsApi.registerWork("gospodarstwo:goose", Work.GUARD); // geese are the best farm guards
         AnimalBondsApi.registerWork("gospodarstwo:duck", Work.COLLECTOR);
         AnimalBondsApi.registerWork("gospodarstwo:turkey", Work.FARMER);

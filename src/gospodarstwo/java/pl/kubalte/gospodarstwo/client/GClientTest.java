@@ -335,7 +335,7 @@ public final class GClientTest {
         for (BlockPos l : BlockPos.betweenClosed(tree.offset(-2, 3, -2), tree.offset(2, 5, 2)))
             if (level.getBlockState(l).isAir() && l.distManhattan(tree.above(4)) <= 3)
                 level.setBlockAndUpdate(l, Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true));
-        var wild = Gospodarstwo.GOBLIN.get().spawn(level, tree.south(), EntitySpawnReason.COMMAND);
+        var wild = Gospodarstwo.GOBLIN.get().spawn(level, tree.offset(-1, 0, 1), EntitySpawnReason.COMMAND);
         if (wild != null) {
             wild.setNoAi(true);
             wild.setHiding(true);
@@ -387,6 +387,7 @@ public final class GClientTest {
         if (sleepy != null) {
             sleepy.tame(p);
             sleepy.setNoAi(true);
+            sleepy.debugRest(100000);
             sleepy.startSleeping(foot.south());
         }
     }

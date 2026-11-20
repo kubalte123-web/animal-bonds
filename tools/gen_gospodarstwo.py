@@ -2175,7 +2175,7 @@ def goblin():
           'goblin.gospodarstwo.mode.sit': 'Czekaj tutaj', 'goblin.gospodarstwo.mode.store': 'Odłóż do skrzyń',
           'goblin.gospodarstwo.hands': 'Ręce', 'goblin.gospodarstwo.pack': 'Plecak', 'goblin.gospodarstwo.backpack': 'Zawartość plecaka',
           'goblin.gospodarstwo.no_pack': 'Daj mu skrzynię, a założy ją na plecy',
-          'goblin.gospodarstwo.work.0': 'odpoczywa', 'goblin.gospodarstwo.work.1': 'bawi się', 'goblin.gospodarstwo.work.2': 'zbiera plony',
+          'goblin.gospodarstwo.doing': 'Teraz:', 'goblin.gospodarstwo.work.0': 'odpoczywa', 'goblin.gospodarstwo.work.1': 'bawi się', 'goblin.gospodarstwo.work.2': 'zbiera plony',
           'goblin.gospodarstwo.work.3': 'pracuje', 'goblin.gospodarstwo.work.4': 'zbiera rzeczy', 'goblin.gospodarstwo.work.5': 'odkłada do skrzyń'}
     en = {'entity.gospodarstwo.goblin': 'Goblin', 'item.gospodarstwo.goblin_spawn_egg': 'Goblin Spawn Egg',
           'goblin.gospodarstwo.tamed': 'The goblin ate your treat and decided to stay with you!',
@@ -2185,7 +2185,7 @@ def goblin():
           'goblin.gospodarstwo.mode.follow': 'Come with me', 'goblin.gospodarstwo.mode.base': 'Stay and work', 'goblin.gospodarstwo.mode.sit': 'Wait here',
           'goblin.gospodarstwo.mode.store': 'Store in chests', 'goblin.gospodarstwo.hands': 'Hands', 'goblin.gospodarstwo.pack': 'Pack',
           'goblin.gospodarstwo.backpack': 'Backpack', 'goblin.gospodarstwo.no_pack': 'Give it a chest and it will wear it on its back',
-          'goblin.gospodarstwo.work.0': 'resting', 'goblin.gospodarstwo.work.1': 'playing', 'goblin.gospodarstwo.work.2': 'harvesting',
+          'goblin.gospodarstwo.doing': 'Now:', 'goblin.gospodarstwo.work.0': 'resting', 'goblin.gospodarstwo.work.1': 'playing', 'goblin.gospodarstwo.work.2': 'harvesting',
           'goblin.gospodarstwo.work.3': 'working', 'goblin.gospodarstwo.work.4': 'collecting', 'goblin.gospodarstwo.work.5': 'storing'}
     for lang_file, extra in (('pl_pl', pl), ('en_us', en)):
         path = f'{A}/lang/{lang_file}.json'

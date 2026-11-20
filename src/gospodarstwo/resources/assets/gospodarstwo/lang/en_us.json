@@ -227,6 +227,7 @@
  "goblin.gospodarstwo.pack": "Pack",
  "goblin.gospodarstwo.backpack": "Backpack",
  "goblin.gospodarstwo.no_pack": "Give it a chest and it will wear it on its back",
+ "goblin.gospodarstwo.doing": "Now:",
  "goblin.gospodarstwo.work.0": "resting",
  "goblin.gospodarstwo.work.1": "playing",
  "goblin.gospodarstwo.work.2": "harvesting",

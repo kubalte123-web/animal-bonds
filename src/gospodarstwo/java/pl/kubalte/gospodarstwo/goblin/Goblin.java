@@ -262,6 +262,12 @@ public class Goblin extends TamableAnimal {
         playSound(SoundEvents.ITEM_PICKUP, 0.6F, 1.4F);
     }
 
+    /** Tests / screenshots: rests (asleep if in a bed) for the given time. */
+    public void debugRest(int ticks) {
+        entityData.set(RESTING, true);
+        restTicks = ticks;
+    }
+
     /** Tests / screenshots: holds food and thinks it over. */
     public void debugConsider(ItemStack food) {
         setItemSlot(EquipmentSlot.MAINHAND, food);
