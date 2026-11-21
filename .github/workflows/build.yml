@@ -42,6 +42,10 @@ jobs:
         continue-on-error: true
         run: |
           JAR=$(find build ~/.gradle -name "*.jar" 2>/dev/null | grep -iE "neoforge-.*(merged|client|minecraft).*\.jar$|minecraft-.*\.jar$" | head -5)
+          GECKO=$(find ~/.gradle -name "geckolib-neoforge-*.jar" 2>/dev/null | grep -v sources | head -1)
+          NEO=$(find ~/.gradle build -name "neoforge-*-universal.jar" -o -name "neoforge-*.jar" 2>/dev/null | grep -v sources | head -2)
+          JAR=$(printf "%s\n%s\n%s" "$JAR" "$GECKO" "$NEO")
+          [ -n "$GECKO" ] && unzip -Z1 "$GECKO" | grep '\.class$' | grep -v '\$' > results/geckolib-classes.txt || true
           echo "$JAR" > results/api.txt
           J=$(echo "$JAR" | tr '\n' ':')
           for c in $(cat .github/api-classes.txt 2>/dev/null); do
