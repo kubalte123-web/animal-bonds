@@ -114,8 +114,29 @@ public final class GClientTest {
                     pl.kubalte.gospodarstwo.goblin.GoblinMenu.open(sp, gob);
             });
             case 3500 -> shot(m + "goblinmenu");
-            case 3540 -> server.execute(() -> server.getPlayerList().getPlayers().get(0).closeContainer());
-            case 3700 -> {
+            case 3540 -> {
+                if (mc.gui.screen() instanceof pl.kubalte.gospodarstwo.client.goblin.GoblinScreen gs)
+                    mc.gui.setScreen(new pl.kubalte.gospodarstwo.client.goblin.GoblinInfoScreen(gs, gs.getMenu()));
+            }
+            case 3620 -> shot(m + "goblininfo");
+            case 3660 -> server.execute(() -> server.getPlayerList().getPlayers().get(0).closeContainer());
+            case 3700 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 18", B.getX() + 319.5, B.getY() + 1,
+                    B.getZ() - 3.0)));
+            case 3780 -> shot(m + "goblinraces");
+            case 3820 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 20", B.getX() + 331.0, B.getY() + 1,
+                    B.getZ() - 4.0)));
+            case 3900 -> shot(m + "goblinhut");
+            case 3940 -> server.execute(() -> {
+                cmd(server, "time set 14000");
+                cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 24", B.getX() + 340.5, B.getY() + 1, B.getZ() - 4.0));
+            });
+            case 4040 -> shot(m + "goblindance");
+            case 4080 -> server.execute(() -> {
+                cmd(server, "time set 6000");
+                cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 16", B.getX() + 349.5, B.getY() + 1, B.getZ() - 3.5));
+            });
+            case 4160 -> shot(m + "goblinfight");
+            case 4300 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
                 mc.stop();
             }
@@ -197,6 +218,7 @@ public final class GClientTest {
         kitchen(level, p);
         tools(level, p);
         goblins(level, p);
+        goblins2(level, p);
 
         int perRow = 18;
         for (int i = 0; i < items.size(); i++) {
@@ -360,7 +382,7 @@ public final class GClientTest {
             tame.pack.addItem(new ItemStack(Items.WHEAT, 20));
             tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new ItemStack(Items.IRON_HELMET));
             tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, dyed(Gospodarstwo.WOOL_SWEATER.get(), 0xB02E26));
-            tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
+            tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
             tame.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new ItemStack(Gospodarstwo.SICKLE.get()));
             tame.setYRot(150);
             tame.yHeadRot = 150;
@@ -452,5 +474,63 @@ public final class GClientTest {
         if (level.getBlockEntity(l1) instanceof LoomBlockEntity be) be.insert(p, new ItemStack(Items.STRING, 64));
         if (level.getBlockEntity(l2) instanceof LoomBlockEntity be) be.insert(p, new ItemStack(Gospodarstwo.MERINO_WOOL.get(), 30));
         level.setBlockAndUpdate(B.offset(97, 0, 0), Blocks.BARREL.defaultBlockState());
+    }
+
+    static pl.kubalte.gospodarstwo.goblin.Goblin gob(ServerLevel level, net.minecraft.server.level.ServerPlayer p, BlockPos at, float yaw,
+            pl.kubalte.gospodarstwo.goblin.Race race) {
+        var g = Gospodarstwo.GOBLIN.get().spawn(level, at, EntitySpawnReason.COMMAND);
+        if (g == null) return null;
+        g.tame(p);
+        g.setNoAi(true);
+        g.setRace(race);
+        g.setYRot(yaw);
+        g.yHeadRot = yaw;
+        g.yBodyRot = yaw;
+        return g;
+    }
+
+    /** The overhaul: the four races, a hut, dancing round a campfire at night, a fight and a shield. */
+    static void goblins2(ServerLevel level, net.minecraft.server.level.ServerPlayer p) {
+        for (int x = 311; x <= 360; x++) for (int z = -8; z <= 8; z++) for (int y = 0; y < 9; y++)
+            level.setBlockAndUpdate(B.offset(x, y, z), Blocks.AIR.defaultBlockState());
+        var R = pl.kubalte.gospodarstwo.goblin.Race.values();
+        for (int i = 0; i < 4; i++) gob(level, p, B.offset(316 + i * 2, 0, 1), 180, R[i]);
+        // the hut, finished, with its owner in front
+        pl.kubalte.gospodarstwo.goblin.GoblinHutBlock.place(level, B.offset(330, 0, 2), net.minecraft.core.Direction.NORTH, 3);
+        var builder = gob(level, p, B.offset(332, 0, 0), 160, R[0]);
+        if (builder != null) {
+            builder.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.STICK));
+            builder.act(pl.kubalte.gospodarstwo.goblin.Goblin.A_CHEER, 0);
+        }
+        // a campfire and three dancers
+        BlockPos fire = B.offset(340, 0, 2);
+        level.setBlockAndUpdate(fire, Blocks.CAMPFIRE.defaultBlockState());
+        int[] dances = {pl.kubalte.gospodarstwo.goblin.Goblin.A_DANCE1, pl.kubalte.gospodarstwo.goblin.Goblin.A_DANCE2,
+                pl.kubalte.gospodarstwo.goblin.Goblin.A_DANCE3};
+        for (int i = 0; i < 3; i++) {
+            double a = Math.PI * (0.15 + i * 0.35) + Math.PI;
+            BlockPos at = BlockPos.containing(fire.getX() + 0.5 + Math.cos(a) * 2.2, fire.getY(), fire.getZ() + 0.5 + Math.sin(a) * 2.2);
+            float yaw = (float) Math.toDegrees(Math.atan2(fire.getZ() - at.getZ(), fire.getX() - at.getX())) - 90F;
+            var d = gob(level, p, at, yaw, R[i]);
+            if (d != null) d.act(dances[i], 0);
+        }
+        // a fight: one leaping at a zombie, one blocking with a shield
+        var zombie = EntityTypes.ZOMBIE.spawn(level, B.offset(350, 0, 3), EntitySpawnReason.COMMAND);
+        if (zombie != null) {
+            zombie.setNoAi(true);
+            zombie.setYRot(0);
+            zombie.yBodyRot = 0;
+        }
+        var fighter = gob(level, p, B.offset(350, 0, 1), 0, R[1]);
+        if (fighter != null) {
+            fighter.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+            fighter.act(pl.kubalte.gospodarstwo.goblin.Goblin.A_WINDUP, 0);
+        }
+        var guard = gob(level, p, B.offset(347, 0, 1), 200, R[3]);
+        if (guard != null) {
+            guard.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
+            guard.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
+            guard.act(pl.kubalte.gospodarstwo.goblin.Goblin.A_BLOCK, 0);
+        }
     }
 }

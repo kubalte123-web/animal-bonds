@@ -2217,12 +2217,12 @@ def goblin_hut():
     left_roof, right_roof, gables = [], [], []
     for k in range(8):
         y0, y1 = 14 + 2 * k, 16 + 2 * k
-        left_roof.append(el([2 * k - 1, y0, -17], [2 * k + 3, y1, 17], '#thatch'))
-        right_roof.append(el([29 - 2 * k, y0, -17], [33 - 2 * k, y1, 17], '#thatch'))
+        left_roof.append(el([2 * k - 1, y0, -16], [2 * k + 3, y1, 16], '#thatch'))
+        right_roof.append(el([29 - 2 * k, y0, -16], [33 - 2 * k, y1, 16], '#thatch'))
         if 31 - 2 * k > 2 * k + 1:
             gables.append(el([2 * k + 1, y0, -16], [31 - 2 * k, y1, -15], '#planks'))
             gables.append(el([2 * k + 1, y0, 15], [31 - 2 * k, y1, 16], '#thatch'))
-    cap = [el([13, 30, -17], [19, 31, 17], '#thatch')]
+    cap = [el([13, 30, -16], [19, 31, 16], '#thatch')]
     door = [el([3, 1, 15.2], [12, 13, 15.8], '#curtain'), el([20, 1, 15.2], [29, 13, 15.8], '#curtain'),
             el([12, 12, 15], [20, 13, 16], '#log')]
     bed = [el([7, 0.5, -14], [25, 1.5, -5], '#bedding'), el([11, 1.5, -14], [21, 3, -11.5], '#bedding')]

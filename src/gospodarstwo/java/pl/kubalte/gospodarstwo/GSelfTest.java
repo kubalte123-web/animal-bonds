@@ -382,6 +382,7 @@ public final class GSelfTest {
 
         // ---- goblin helper ----
         goblin(level, player);
+        goblinWork(level, player);
         check(Breed.byIndex(Breed.ANGORA.index()) == Breed.ANGORA && BreedEvents.breedsOf(cow).contains(Breed.HIGHLAND), "breed lookup");
         for (Mob m : new Mob[] {duck, goose, turkey, snail, cow, sheep}) if (m != null) m.discard();
     }
@@ -605,5 +606,127 @@ public final class GSelfTest {
         check(gob2.isAlive() && gob2.resting() && gob2.getHealth() == gob2.getMaxHealth(), "a goblin that would die faints instead");
         check(gob2.blockPosition().closerThan(bedFoot, 3) && gob2.isSleeping(), "and wakes up in its friend's bed (" + gob2.blockPosition() + ")");
         gob2.discard();
+    }
+
+    static void platform(ServerLevel level, BlockPos from, BlockPos to, BlockState s) {
+        for (BlockPos p : BlockPos.betweenClosed(from, to)) level.setBlock(p, s, 18);
+    }
+
+    /** The goblin overhaul: races, character, work settings, tools, mine, hut, dancing, fears, guarding, shield. */
+    static void goblinWork(ServerLevel level, FakePlayer player) {
+        BlockPos at = O.offset(40, 0, 40);
+        platform(level, at.offset(-12, -1, -12), at.offset(20, -1, 12), Blocks.GRASS_BLOCK.defaultBlockState());
+        platform(level, at.offset(-12, 0, -12), at.offset(20, 8, 12), Blocks.AIR.defaultBlockState());
+        var gob = Gospodarstwo.GOBLIN.get().spawn(level, at, EntitySpawnReason.COMMAND);
+        if (gob == null) {
+            check(false, "a goblin for the work tests");
+            return;
+        }
+        gob.tame(player);
+        gob.setPack(true);
+        gob.setMode(pl.kubalte.gospodarstwo.goblin.Goblin.MODE_BASE);
+        // races and character
+        float forestHp = gob.getMaxHealth();
+        gob.setRace(pl.kubalte.gospodarstwo.goblin.Race.STONE);
+        check(gob.getMaxHealth() > forestHp && gob.race() == pl.kubalte.gospodarstwo.goblin.Race.STONE, "stone goblins are tougher");
+        boolean caveNeverDark = true;
+        var rnd = net.minecraft.util.RandomSource.create(7);
+        for (int i = 0; i < 60; i++) {
+            var t = pl.kubalte.gospodarstwo.goblin.Traits.roll(pl.kubalte.gospodarstwo.goblin.Race.CAVE, rnd);
+            if (t.fears(pl.kubalte.gospodarstwo.goblin.Traits.Fear.DARKNESS)) caveNeverDark = false;
+            var back = pl.kubalte.gospodarstwo.goblin.Traits.unpack(t.pack());
+            if (!back.likedFoods.equals(t.likedFoods) || !back.hatedFoods.equals(t.hatedFoods) || back.pastime != t.pastime
+                    || !new java.util.HashSet<>(back.fears).equals(new java.util.HashSet<>(t.fears))
+                    || !new java.util.HashSet<>(back.bothers).equals(new java.util.HashSet<>(t.bothers))) {
+                check(false, "traits survive syncing (" + t.save() + " vs " + back.save() + ")");
+                break;
+            }
+        }
+        check(caveNeverDark, "cave goblins are never afraid of the dark");
+        // work settings from the info page
+        gob.settingsClick(10);
+        gob.settingsClick(100);
+        var w = gob.settings();
+        var w2 = pl.kubalte.gospodarstwo.goblin.Work.unpack(w.packA(), w.packB());
+        check(w.axe == 0 && !w.wood(0) && w2.axe == 0 && !w2.wood(0) && w2.wood(1) && w2.mine == w.mine, "work settings change and sync");
+        gob.settingsClick(12);
+
+        // axe: the oak is not on the list, then it is
+        BlockPos tree = at.offset(6, 0, 0);
+        platform(level, tree.below(), tree.below(), Blocks.DIRT.defaultBlockState());
+        for (int y = 0; y < 5; y++) level.setBlock(tree.above(y), Blocks.OAK_LOG.defaultBlockState(), 18);
+        platform(level, tree.offset(-2, 4, -2), tree.offset(2, 5, 2), Blocks.OAK_LEAVES.defaultBlockState()
+                .setValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT, true));
+        for (int y = 0; y < 5; y++) level.setBlock(tree.above(y), Blocks.OAK_LOG.defaultBlockState(), 18);
+        gob.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
+        check(pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.chop(gob) == -1, "the goblin leaves wood you didn't tick alone");
+        gob.settingsClick(100);
+        gob.pack.addItem(new ItemStack(Items.OAK_SAPLING, 2));
+        int cut = pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.chop(gob);
+        check(cut == 5 && gob.pack.countItem(Items.OAK_LOG) == 5, "the goblin fells the whole tree into its pack (" + cut + ", "
+                + gob.pack.countItem(Items.OAK_LOG) + ")");
+        check(level.getBlockState(tree).is(Blocks.OAK_SAPLING), "and plants a sapling where it stood");
+        platform(level, tree.offset(-2, 0, -2), tree.offset(2, 5, 2), Blocks.AIR.defaultBlockState());
+
+        // pickaxe: its own mine, keeping only the ores
+        BlockPos entrance = at.offset(10, 0, 6);
+        platform(level, entrance.offset(0, -9, -2), entrance.offset(10, 1, 2), Blocks.STONE.defaultBlockState());
+        level.setBlock(entrance.offset(3, -2, 1), Blocks.COAL_ORE.defaultBlockState(), 18);
+        gob.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_PICKAXE));
+        BlockPos last = pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.mine(gob, entrance, 6);
+        check(level.getBlockState(last.above()).isAir() && level.getBlockState(last.above(2)).isAir(), "the goblin digs a staircase down ("
+                + last + ")");
+        check(gob.pack.countItem(Items.COAL) >= 1 && gob.pack.countItem(Items.COBBLESTONE) == 0, "it keeps the coal and throws the stone away");
+        platform(level, entrance.offset(0, -9, -2), entrance.offset(10, 1, 2), Blocks.AIR.defaultBlockState());
+
+        // shears
+        var sheep = net.minecraft.world.entity.EntityTypes.SHEEP.spawn(level, at.offset(-4, 0, 3), EntitySpawnReason.COMMAND);
+        gob.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.SHEARS));
+        check(sheep != null && pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.shear(gob), "the goblin shears a sheep");
+        check(sheep != null && pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.friendly(gob, sheep), "sheep are friends to guard");
+
+        // the hut, from the pack
+        gob.teleportTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5);
+        gob.setMode(pl.kubalte.gospodarstwo.goblin.Goblin.MODE_BASE);
+        gob.pack.clearContent();
+        gob.pack.addItem(new ItemStack(Items.STICK, 12));
+        gob.pack.addItem(new ItemStack(Items.OAK_LEAVES, 8));
+        gob.pack.addItem(new ItemStack(Items.WHITE_WOOL, 3));
+        BlockPos hut = pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.buildHut(gob);
+        check(hut != null && pl.kubalte.gospodarstwo.goblin.GoblinHut.isHut(level, hut), "the goblin builds itself a hut");
+        check(gob.pack.isEmpty(), "using up the sticks, leaves and wool");
+
+        // dancing by the campfire in the evening
+        BlockPos fire = at.offset(-6, 0, -6);
+        level.setBlock(fire, Blocks.CAMPFIRE.defaultBlockState(), 18);
+        gob.addNeeds(0, 0, -100, 0);
+        gob.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack().withSuppressedOutput(), "time set noon");
+        check(!pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.wantsToDance(gob), "no dancing at noon");
+        level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack().withSuppressedOutput(), "time set 13000");
+        check(pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.campfire(level, at) != null
+                && pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.wantsToDance(gob), "in the evening it wants to dance by the fire");
+        level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack().withSuppressedOutput(), "time set day");
+
+        // fears and the shield
+        var t = new pl.kubalte.gospodarstwo.goblin.Traits();
+        t.fears.add(pl.kubalte.gospodarstwo.goblin.Traits.Fear.CREEPERS);
+        pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.setTraits(gob, t);
+        var creeper = net.minecraft.world.entity.EntityTypes.CREEPER.spawn(level, at.offset(4, 0, -6), EntitySpawnReason.COMMAND);
+        var zombie = net.minecraft.world.entity.EntityTypes.ZOMBIE.spawn(level, at.offset(-4, 0, -6), EntitySpawnReason.COMMAND);
+        check(creeper != null && pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.scary(gob, creeper)
+                && !pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.scary(gob, zombie), "it is afraid of what its character says");
+        check(zombie != null && !pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.friendly(gob, zombie), "zombies are not friends");
+        if (creeper != null) creeper.discard();
+        if (zombie != null) zombie.discard();
+        gob.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
+        var arrow = net.minecraft.world.entity.EntityTypes.ARROW.spawn(level, at.offset(0, 1, 6), EntitySpawnReason.COMMAND);
+        if (arrow != null) {
+            arrow.setDeltaMovement(gob.getEyePosition().subtract(arrow.position()).normalize().scale(1.5));
+            check(pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.shield(gob, level), "it raises its shield against a flying arrow");
+            arrow.discard();
+        }
+        if (sheep != null) sheep.discard();
+        gob.discard();
     }
 }

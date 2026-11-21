@@ -118,6 +118,11 @@ public final class GoblinHut {
             setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
+        void forTest(BlockPos spot, Direction door) {
+            this.spot = spot;
+            this.door = door;
+        }
+
         @Override
         public boolean canUse() {
             if (!g.isTame() || g.mode() != Goblin.MODE_BASE || g.tickCount % 100 != 0 || g.depositing || g.getTarget() != null) return false;

@@ -161,6 +161,11 @@ public class Goblin extends TamableAnimal {
         return traits;
     }
 
+    void setTraitsForTest(Traits t) {
+        traits = t;
+        entityData.set(TRAITS, t.pack());
+    }
+
     public Work settings() {
         if (level().isClientSide()) return Work.unpack(entityData.get(SETTINGS), entityData.get(SETTINGS_MINE));
         return settings;

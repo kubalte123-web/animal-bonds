@@ -252,6 +252,14 @@ public final class GoblinNeeds {
             setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
+        boolean wouldDance() {
+            int t = g.tickCount;
+            g.tickCount = 0;
+            boolean r = canUse();
+            g.tickCount = t;
+            return r;
+        }
+
         @Override
         public boolean canUse() {
             if (g.tickCount % 40 != 0 || !evening(g.level()) || g.resting() || g.getTarget() != null || g.depositing || g.isSleeping()) return false;
