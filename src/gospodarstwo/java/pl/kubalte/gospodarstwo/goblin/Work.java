@@ -95,6 +95,27 @@ public final class Work {
         return t;
     }
 
+    /** Packed for syncing to the client: modes and woods in one int, the mine filter in another. */
+    public int packA() {
+        return axe | pick << 2 | hoe << 3 | (shear ? 1 : 0) << 5 | (guard ? 1 : 0) << 6 | woods << 7;
+    }
+
+    public int packB() {
+        return (int) mine;
+    }
+
+    public static Work unpack(int a, int b) {
+        Work w = new Work();
+        w.axe = a & 3;
+        w.pick = a >> 2 & 1;
+        w.hoe = a >> 3 & 3;
+        w.shear = (a >> 5 & 1) != 0;
+        w.guard = (a >> 6 & 1) != 0;
+        w.woods = a >>> 7;
+        w.mine = b & 0xFFFFFFFFL;
+        return w;
+    }
+
     public static Work load(CompoundTag t) {
         Work w = new Work();
         w.axe = t.getIntOr("axe", AXE_REPLANT);

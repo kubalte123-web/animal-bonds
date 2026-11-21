@@ -108,6 +108,40 @@ public final class Traits {
         return t;
     }
 
+    /** Packed into one int for syncing to the client (bit 31 marks "rolled"). */
+    public int pack() {
+        int dish = likedFoods.isEmpty() ? 15 : indexOr(DISHES, likedFoods.get(0), 15);
+        int plain = likedFoods.size() < 2 ? 15 : indexOr(PLAIN, likedFoods.get(1), 15);
+        int hated = 0;
+        if (!hatedFoods.isEmpty()) {
+            int i = indexOr(DISHES, hatedFoods.get(0), -1);
+            int j = indexOr(PLAIN, hatedFoods.get(0), -1);
+            hated = i >= 0 ? i + 1 : j >= 0 ? DISHES.length + j + 1 : 0;
+        }
+        int b = 0, f = 0;
+        for (Bother x : bothers) b |= 1 << x.ordinal();
+        for (Fear x : fears) f |= 1 << x.ordinal();
+        return dish | plain << 4 | hated << 8 | pastime.ordinal() << 13 | b << 17 | f << 23 | 1 << 31;
+    }
+
+    public static Traits unpack(int v) {
+        Traits t = new Traits();
+        int dish = v & 15, plain = v >> 4 & 15, hated = v >> 8 & 31;
+        if (dish < DISHES.length) t.likedFoods.add(DISHES[dish]);
+        if (plain < PLAIN.length) t.likedFoods.add(PLAIN[plain]);
+        if (hated > 0 && hated <= DISHES.length) t.hatedFoods.add(DISHES[hated - 1]);
+        else if (hated > DISHES.length && hated - DISHES.length - 1 < PLAIN.length) t.hatedFoods.add(PLAIN[hated - DISHES.length - 1]);
+        t.pastime = Pastime.values()[Math.min(Pastime.values().length - 1, v >> 13 & 15)];
+        for (Bother x : Bother.values()) if ((v >> 17 >> x.ordinal() & 1) != 0) t.bothers.add(x);
+        for (Fear x : Fear.values()) if ((v >> 23 >> x.ordinal() & 1) != 0) t.fears.add(x);
+        return t;
+    }
+
+    static int indexOr(String[] a, String s, int def) {
+        for (int i = 0; i < a.length; i++) if (a[i].equals(s)) return i;
+        return def;
+    }
+
     public static Traits load(CompoundTag t) {
         Traits x = new Traits();
         t.getListOrEmpty("liked").forEach(e -> e.asString().ifPresent(x.likedFoods::add));

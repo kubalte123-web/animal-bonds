@@ -72,10 +72,9 @@ public class Goblin extends TamableAnimal {
     private static final EntityDataAccessor<Integer> ACTION = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ACTION_SEQ = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> NEEDS = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<net.minecraft.nbt.CompoundTag> TRAITS = SynchedEntityData.defineId(Goblin.class,
-            EntityDataSerializers.COMPOUND_TAG);
-    private static final EntityDataAccessor<net.minecraft.nbt.CompoundTag> SETTINGS = SynchedEntityData.defineId(Goblin.class,
-            EntityDataSerializers.COMPOUND_TAG);
+    private static final EntityDataAccessor<Integer> TRAITS = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> SETTINGS = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> SETTINGS_MINE = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
 
     /** Animation actions (shown by the renderer). */
     public static final int A_NONE = 0, A_WINDUP = 1, A_LEAP = 2, A_STRIKE = 3, A_DODGE_L = 4, A_DODGE_R = 5, A_DODGE_B = 6, A_BLOCK = 7,
@@ -125,8 +124,9 @@ public class Goblin extends TamableAnimal {
         b.define(ACTION, 0);
         b.define(ACTION_SEQ, 0);
         b.define(NEEDS, pack4(80, 90, 70, 70));
-        b.define(TRAITS, new net.minecraft.nbt.CompoundTag());
-        b.define(SETTINGS, new Work().save());
+        b.define(TRAITS, 0);
+        b.define(SETTINGS, new Work().packA());
+        b.define(SETTINGS_MINE, new Work().packB());
     }
 
     static int pack4(float a, float b, float c, float d) {
@@ -148,17 +148,21 @@ public class Goblin extends TamableAnimal {
     }
 
     public Traits traits() {
+        if (level().isClientSide()) {
+            int t = entityData.get(TRAITS);
+            return t == 0 ? new Traits() : Traits.unpack(t);
+        }
         if (traits == null) {
-            net.minecraft.nbt.CompoundTag t = entityData.get(TRAITS);
-            traits = t.isEmpty() ? Traits.roll(race(), random) : Traits.load(t);
-            if (!level().isClientSide() && t.isEmpty()) entityData.set(TRAITS, traits.save());
+            int t = entityData.get(TRAITS);
+            traits = t == 0 ? Traits.roll(race(), random) : Traits.unpack(t);
+            if (!level().isClientSide() && t == 0) entityData.set(TRAITS, traits.pack());
             if (traits.fears(Traits.Fear.WATER)) setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.WATER, -1F);
         }
         return traits;
     }
 
     public Work settings() {
-        if (level().isClientSide()) return Work.load(entityData.get(SETTINGS));
+        if (level().isClientSide()) return Work.unpack(entityData.get(SETTINGS), entityData.get(SETTINGS_MINE));
         return settings;
     }
 
@@ -171,7 +175,8 @@ public class Goblin extends TamableAnimal {
     }
 
     void settingsChanged() {
-        entityData.set(SETTINGS, settings.save());
+        entityData.set(SETTINGS, settings.packA());
+        entityData.set(SETTINGS_MINE, settings.packB());
     }
 
     /** hunger, energy, fun, company as synced to the client (0..100). */
@@ -404,12 +409,12 @@ public class Goblin extends TamableAnimal {
     }
 
     @Override
-    public @Nullable net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level,
+    public net.minecraft.world.entity.@Nullable SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level,
             net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.EntitySpawnReason reason,
-            @Nullable net.minecraft.world.entity.SpawnGroupData data) {
+            net.minecraft.world.entity.@Nullable SpawnGroupData data) {
         setRace(raceFor(level, blockPosition()));
         traits = null;
-        entityData.set(TRAITS, new net.minecraft.nbt.CompoundTag());
+        entityData.set(TRAITS, 0);
         traits();
         return super.finalizeSpawn(level, difficulty, reason, data);
     }
@@ -663,8 +668,8 @@ public class Goblin extends TamableAnimal {
         setOrderedToSit(mode() == MODE_SIT);
         entityData.set(RACE, in.getIntOr("Race", 0));
         in.read("Traits", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(t -> {
-            entityData.set(TRAITS, t);
             traits = Traits.load(t);
+            entityData.set(TRAITS, traits.pack());
         });
         in.read("Settings", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(t -> settings = Work.load(t));
         settingsChanged();

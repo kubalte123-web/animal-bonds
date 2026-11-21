@@ -30,7 +30,7 @@ public class GoblinScreen extends AbstractContainerScreen<GoblinMenu> {
         sit = addRenderableWidget(Button.builder(Component.translatable("goblin.gospodarstwo.mode.sit"), b -> press(2)).bounds(x, y + 36, 96, 16).build());
         store = addRenderableWidget(Button.builder(Component.translatable("goblin.gospodarstwo.mode.store"), b -> press(3)).bounds(x, y + 58, 96, 16).build());
         addRenderableWidget(Button.builder(Component.translatable("goblin.gospodarstwo.info_button"), b -> {
-            if (minecraft != null) minecraft.setScreen(new GoblinInfoScreen(this, menu));
+            if (minecraft != null) minecraft.gui.setScreen(new GoblinInfoScreen(this, menu));
         }).bounds(leftPos + W - 22, topPos + 3, 18, 12).build());
     }
 

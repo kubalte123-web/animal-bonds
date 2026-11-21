@@ -75,8 +75,8 @@ public final class GoblinNeeds {
         if (g.level() instanceof ServerLevel sl)
             sl.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, food.getItem()), g.getX(), g.getEyeY(), g.getZ(), 8, 0.15, 0.1, 0.15, 0.05);
         g.playSound(SoundEvents.GENERIC_EAT.value(), 0.8F, 1.4F);
-        if (food.getItem().getCraftingRemainder() != null && !food.getItem().getCraftingRemainder().isEmpty())
-            g.stow(food.getItem().getCraftingRemainder().copy());
+        String path = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(food.getItem()).getPath();
+        if (path.endsWith("_stew") || path.endsWith("_soup") || path.equals("bigos")) g.stow(new ItemStack(net.minecraft.world.item.Items.BOWL));
         return true;
     }
 
@@ -87,7 +87,7 @@ public final class GoblinNeeds {
         if (type == net.minecraft.world.entity.EntityTypes.CREEPER) return t.fears(Traits.Fear.CREEPERS);
         if (type == net.minecraft.world.entity.EntityTypes.SPIDER || type == net.minecraft.world.entity.EntityTypes.CAVE_SPIDER)
             return t.fears(Traits.Fear.SPIDERS);
-        if (type.is(EntityTypeTags.UNDEAD) && e instanceof net.minecraft.world.entity.monster.Enemy) return t.fears(Traits.Fear.UNDEAD);
+        if (net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(EntityTypeTags.UNDEAD) && e instanceof net.minecraft.world.entity.monster.Enemy) return t.fears(Traits.Fear.UNDEAD);
         if (type == net.minecraft.world.entity.EntityTypes.WOLF && e instanceof net.minecraft.world.entity.TamableAnimal w && !w.isTame())
             return t.fears(Traits.Fear.WOLVES);
         if (type == net.minecraft.world.entity.EntityTypes.BEE) return t.fears(Traits.Fear.BEES);

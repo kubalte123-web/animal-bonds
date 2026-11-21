@@ -94,13 +94,13 @@ public class GoblinInfoScreen extends Screen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (g().tool() != shown) init(Minecraft.getInstance(), width, height);
+        if (g().tool() != shown) Minecraft.getInstance().gui.setScreen(new GoblinInfoScreen(parent, menu));
     }
 
     @Override
