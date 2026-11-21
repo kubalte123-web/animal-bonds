@@ -75,6 +75,7 @@ public class Goblin extends TamableAnimal {
     private static final EntityDataAccessor<Integer> TRAITS = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SETTINGS = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SETTINGS_MINE = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> CONSIDERING = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.BOOLEAN);
 
     /** Animation actions (shown by the renderer). */
     public static final int A_NONE = 0, A_WINDUP = 1, A_LEAP = 2, A_STRIKE = 3, A_DODGE_L = 4, A_DODGE_R = 5, A_DODGE_B = 6, A_BLOCK = 7,
@@ -140,6 +141,7 @@ public class Goblin extends TamableAnimal {
         b.define(ACTION_SEQ, 0);
         b.define(NEEDS, pack4(80, 90, 70, 70));
         b.define(TRAITS, 0);
+        b.define(CONSIDERING, false);
         b.define(SETTINGS, new Work().packA());
         b.define(SETTINGS_MINE, new Work().packB());
     }
@@ -327,6 +329,7 @@ public class Goblin extends TamableAnimal {
     }
 
     public int considering() {
+        if (level().isClientSide()) return entityData.get(CONSIDERING) ? 1 : 0;
         return considerTicks;
     }
 
@@ -411,6 +414,7 @@ public class Goblin extends TamableAnimal {
         if (refuseCooldown > 0) refuseCooldown--;
         if (depositing && --depositTimer <= 0) depositing = false;
         if (considerTicks > 0 && --considerTicks == 0) decide(sl, null);
+        entityData.set(CONSIDERING, considerTicks > 0);
         if (resting()) {
             if (--restTicks <= 0) wakeUp();
         } else if (isSleeping() && isTame() && !GoblinGoals.night(level())) {

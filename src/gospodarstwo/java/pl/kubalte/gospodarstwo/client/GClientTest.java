@@ -131,6 +131,18 @@ public final class GClientTest {
                 cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 24", B.getX() + 340.5, B.getY() + 1, B.getZ() - 4.0));
             });
             case 4040 -> shot(m + "goblindance");
+            case 4050 -> {
+                server.execute(() -> {
+                    for (var g : server.overworld().getEntitiesOfClass(pl.kubalte.gospodarstwo.goblin.Goblin.class,
+                            new net.minecraft.world.phys.AABB(B).inflate(400)))
+                        Gospodarstwo.LOGGER.info("GOBLIN SERVER id={} action={} seq={} hiding={} race={} noai={} class={}", g.getId(), g.action(),
+                                g.actionSeq(), g.hiding(), g.race(), g.isNoAi(), g.getClass().getSimpleName());
+                });
+                if (mc.level != null) for (var en : mc.level.entitiesForRendering())
+                    if (en instanceof pl.kubalte.gospodarstwo.goblin.Goblin g)
+                        Gospodarstwo.LOGGER.info("GOBLIN CLIENT id={} action={} seq={} hiding={} race={}", g.getId(), g.action(), g.actionSeq(),
+                                g.hiding(), g.race());
+            }
             case 4080 -> server.execute(() -> {
                 cmd(server, "time set 6000");
                 cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 16", B.getX() + 349.5, B.getY() + 1, B.getZ() - 3.5));
