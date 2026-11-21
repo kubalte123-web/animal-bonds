@@ -54,20 +54,8 @@ public class GeckoGoblin extends Goblin implements GeoEntity {
         controllers.add(new AnimationController<GeckoGoblin>("action", 3, this::doing));
     }
 
-    private static int debugLogs;
-
-    private void debug(String which, AnimationTest<GeckoGoblin> t, RawAnimation anim) {
-        if (debugLogs < 40 && Boolean.getBoolean("gospodarstwo.clienttest") && tickCount % 200 == 0) {
-            debugLogs++;
-            pl.kubalte.gospodarstwo.Gospodarstwo.LOGGER.info("GOBLIN ANIM {} id={} action={} anim={} current={} state={} animating={}", which, getId(),
-                    action(), anim, t.controller().getCurrentRawAnimation(), t.controller().getPlayState(), t.controller().isAnimatingBones());
-        }
-    }
-
     private PlayState base(AnimationTest<GeckoGoblin> t) {
-        RawAnimation a = baseAnim(t);
-        debug("base", t, a);
-        return t.setAndContinue(a);
+        return t.setAndContinue(baseAnim(t));
     }
 
     private RawAnimation baseAnim(AnimationTest<GeckoGoblin> t) {
@@ -95,7 +83,6 @@ public class GeckoGoblin extends Goblin implements GeoEntity {
             seenSeq = actionSeq();
             t.controller().reset();
         }
-        debug("action", t, ACTIONS[a]);
         return t.setAndContinue(ACTIONS[a]);
     }
 

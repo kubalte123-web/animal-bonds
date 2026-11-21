@@ -106,6 +106,7 @@ public final class GClientTest {
             case 3140 -> shot(m + "tools");
             case 3300 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 15", B.getX() + 299.5, B.getY() + 1,
                     B.getZ() - 3.2)));
+            case 3340 -> server.execute(() -> pose(server));
             case 3380 -> shot(m + "goblins");
             case 3420 -> server.execute(() -> {
                 var sp = server.getPlayerList().getPlayers().get(0);
@@ -122,31 +123,23 @@ public final class GClientTest {
             case 3660 -> server.execute(() -> server.getPlayerList().getPlayers().get(0).closeContainer());
             case 3700 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 18", B.getX() + 319.5, B.getY() + 1,
                     B.getZ() - 3.0)));
+            case 3740 -> server.execute(() -> pose(server));
             case 3780 -> shot(m + "goblinraces");
             case 3820 -> server.execute(() -> cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 20", B.getX() + 331.0, B.getY() + 1,
                     B.getZ() - 4.0)));
+            case 3860 -> server.execute(() -> pose(server));
             case 3900 -> shot(m + "goblinhut");
             case 3940 -> server.execute(() -> {
                 cmd(server, "time set 14000");
                 cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 24", B.getX() + 340.5, B.getY() + 1, B.getZ() - 4.0));
             });
+            case 4000 -> server.execute(() -> pose(server));
             case 4040 -> shot(m + "goblindance");
-            case 4050 -> {
-                server.execute(() -> {
-                    for (var g : server.overworld().getEntitiesOfClass(pl.kubalte.gospodarstwo.goblin.Goblin.class,
-                            new net.minecraft.world.phys.AABB(B).inflate(400)))
-                        Gospodarstwo.LOGGER.info("GOBLIN SERVER id={} action={} seq={} hiding={} race={} noai={} class={}", g.getId(), g.action(),
-                                g.actionSeq(), g.hiding(), g.race(), g.isNoAi(), g.getClass().getSimpleName());
-                });
-                if (mc.level != null) for (var en : mc.level.entitiesForRendering())
-                    if (en instanceof pl.kubalte.gospodarstwo.goblin.Goblin g)
-                        Gospodarstwo.LOGGER.info("GOBLIN CLIENT id={} action={} seq={} hiding={} race={}", g.getId(), g.action(), g.actionSeq(),
-                                g.hiding(), g.race());
-            }
             case 4080 -> server.execute(() -> {
                 cmd(server, "time set 6000");
                 cmd(server, String.format(java.util.Locale.ROOT, "tp @p %.1f %d %.1f 0 16", B.getX() + 349.5, B.getY() + 1, B.getZ() - 3.5));
             });
+            case 4120 -> server.execute(() -> pose(server));
             case 4160 -> shot(m + "goblinfight");
             case 4300 -> {
                 Gospodarstwo.LOGGER.info("GCLIENT DONE");
@@ -507,6 +500,8 @@ public final class GClientTest {
             level.setBlockAndUpdate(B.offset(x, y, z), Blocks.AIR.defaultBlockState());
         var R = pl.kubalte.gospodarstwo.goblin.Race.values();
         for (int i = 0; i < 4; i++) gob(level, p, B.offset(316 + i * 2, 0, 1), 180, R[i]);
+        var back = gob(level, p, B.offset(324, 0, 1), 20, R[0]);       // one turned away, to show the chest on its back
+        if (back != null) back.setPack(true);
         // the hut, finished, with its owner in front
         pl.kubalte.gospodarstwo.goblin.GoblinHutBlock.place(level, B.offset(330, 0, 2), net.minecraft.core.Direction.NORTH, 3);
         var builder = gob(level, p, B.offset(332, 0, 0), 160, R[0]);
@@ -543,6 +538,30 @@ public final class GClientTest {
             guard.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_SWORD));
             guard.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
             guard.act(pl.kubalte.gospodarstwo.goblin.Goblin.A_BLOCK, 0);
+        }
+    }
+
+    /**
+     * The scenes are built far from the camera, so their chunks are saved and loaded again before the shot; what a goblin
+     * is doing right now is not saved, so the poses are set again once the camera is there.
+     */
+    static void pose(MinecraftServer server) {
+        ServerLevel level = server.overworld();
+        var all = level.getEntitiesOfClass(pl.kubalte.gospodarstwo.goblin.Goblin.class, new net.minecraft.world.phys.AABB(B.offset(290, -2, -6))
+                .expandTowards(70, 8, 14));
+        int dancer = 0;
+        int[] dances = {pl.kubalte.gospodarstwo.goblin.Goblin.A_DANCE1, pl.kubalte.gospodarstwo.goblin.Goblin.A_DANCE2,
+                pl.kubalte.gospodarstwo.goblin.Goblin.A_DANCE3};
+        all.sort(java.util.Comparator.comparingDouble(g -> g.getX()));
+        for (var g : all) {
+            int x = g.blockPosition().getX() - B.getX();
+            var hand = g.getMainHandItem();
+            if (hand.is(Gospodarstwo.PIEROGI.get())) g.debugConsider(hand.copy());
+            else if (!g.isTame()) g.setHiding(true);
+            else if (x >= 336 && x <= 344) g.act(dances[dancer++ % 3], 0);
+            else if (hand.is(Items.IRON_SWORD)) g.act(pl.kubalte.gospodarstwo.goblin.Goblin.A_WINDUP, 0);
+            else if (g.getOffhandItem().is(Items.SHIELD)) g.act(pl.kubalte.gospodarstwo.goblin.Goblin.A_BLOCK, 0);
+            else if (hand.is(Items.STICK)) g.act(pl.kubalte.gospodarstwo.goblin.Goblin.A_CHEER, 0);
         }
     }
 }
