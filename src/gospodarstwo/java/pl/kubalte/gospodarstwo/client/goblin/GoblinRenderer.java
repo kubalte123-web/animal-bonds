@@ -19,6 +19,9 @@ import pl.kubalte.gospodarstwo.goblin.Goblin;
 /** Goblins are drawn at half the size of a player, with armour, held items and the chest on the back scaled with them. */
 public class GoblinRenderer extends HumanoidMobRenderer<Goblin, GoblinRenderState, GoblinModel> {
     static final Identifier TEXTURE = Gospodarstwo.id("textures/entity/goblin.png");
+    static final Identifier[] RACE_TEXTURES = {TEXTURE, Gospodarstwo.id("textures/entity/goblin_stone.png"),
+            Gospodarstwo.id("textures/entity/goblin_swamp.png"), Gospodarstwo.id("textures/entity/goblin_cave.png")};
+    static final float[] RACE_SCALE = {0.5F, 0.56F, 0.52F, 0.47F};
     public static final float SCALE = 0.5F;
 
     public GoblinRenderer(EntityRendererProvider.Context ctx) {
@@ -40,17 +43,19 @@ public class GoblinRenderer extends HumanoidMobRenderer<Goblin, GoblinRenderStat
         s.tame = g.isTame();
         s.considering = g.considering() > 0;
         s.resting = g.resting();
-        s.isCrouching = g.isCrouching();
+        s.isCrouching = g.isCrouching() || g.work() == 6;
+        s.race = g.race().ordinal();
     }
 
     @Override
     public Identifier getTextureLocation(GoblinRenderState s) {
-        return TEXTURE;
+        return RACE_TEXTURES[s.race];
     }
 
     @Override
     protected void scale(GoblinRenderState s, PoseStack ps) {
-        ps.scale(SCALE, SCALE, SCALE);
+        float k = RACE_SCALE[s.race];
+        ps.scale(k, k, k);
     }
 
     /** A small wooden chest strapped to the back. */

@@ -38,7 +38,12 @@ public final class GoblinGoals {
     public static final int RADIUS = 12;
 
     static boolean night(Level level) {
-        return level.isDarkOutside();
+        return GoblinNeeds.bedtime(level);
+    }
+
+    /** Is the goblin inside a hut right now? */
+    static boolean inHut(Goblin g) {
+        return g.level().getBlockState(g.blockPosition()).getBlock() instanceof GoblinHutBlock && g.work() == 6;
     }
 
     static Player nearestPlayer(Goblin g, double r) {
@@ -384,7 +389,8 @@ public final class GoblinGoals {
 
         @Override
         public boolean canUse() {
-            if (!g.isTame() || g.mode() != Goblin.MODE_BASE || g.depositing || g.resting()) return false;
+            if (!g.isTame() || g.mode() != Goblin.MODE_BASE || g.depositing || g.resting() || g.isSleeping() || g.work() == 6) return false;
+            if (g.tool() != Work.Tool.NONE && g.tool() != Work.Tool.SWORD || g.mood() < 15 || g.socialLock > 0) return false;
             if (cooldown > 0) {
                 cooldown--;
                 return false;
@@ -458,10 +464,6 @@ public final class GoblinGoals {
     static Job pick(Goblin g) {
         Level level = g.level();
         BlockPos home = g.home() == null ? g.blockPosition() : g.home();
-        if (night(level)) {
-            BlockPos bed = freeBed(level, home);
-            if (bed != null) return new SleepJob(bed);
-        }
         List<Job> options = new ArrayList<>();
         for (BlockPos p : BlockPos.betweenClosed(home.offset(-RADIUS, -3, -RADIUS), home.offset(RADIUS, 3, RADIUS))) {
             BlockEntity be = level.getBlockEntity(p);

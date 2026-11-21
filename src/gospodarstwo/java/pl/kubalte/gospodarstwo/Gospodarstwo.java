@@ -211,6 +211,9 @@ public class Gospodarstwo {
             "smokehouse", () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.SmokehouseBlockEntity::new, SMOKEHOUSE.get()));
     public static final Supplier<BlockEntityType<pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity>> CHURN_BE = BLOCK_ENTITIES.register("butter_churn",
             () -> new BlockEntityType<>(pl.kubalte.gospodarstwo.kitchen.ChurnBlockEntity::new, BUTTER_CHURN.get()));
+    public static final DeferredBlock<pl.kubalte.gospodarstwo.goblin.GoblinHutBlock> GOBLIN_HUT = BLOCKS.registerBlock("goblin_hut",
+            pl.kubalte.gospodarstwo.goblin.GoblinHutBlock::new, p -> p.mapColor(MapColor.COLOR_YELLOW).strength(0.8F).sound(SoundType.GRASS).noOcclusion()
+                    .ignitedByLava());
     // ---------------- farm equipment (stage 5) ----------------
     public static final DeferredBlock<pl.kubalte.gospodarstwo.tools.IncubatorBlock> INCUBATOR = BLOCKS.registerBlock("incubator",
             pl.kubalte.gospodarstwo.tools.IncubatorBlock::new, p -> p.mapColor(MapColor.WOOD).strength(1.5F).sound(SoundType.WOOD).noOcclusion()
@@ -352,6 +355,7 @@ public class Gospodarstwo {
     public static final DeferredItem<Item> BREAD_WITH_BUTTER = food("bread_with_butter", 7, 0.8F);
 
     // ---------------- tools (stage 5) ----------------
+    public static final DeferredItem<BlockItem> GOBLIN_HUT_ITEM = tab(ITEMS.registerSimpleBlockItem("goblin_hut", GOBLIN_HUT));
     public static final DeferredItem<BlockItem> INCUBATOR_ITEM = tab(ITEMS.registerSimpleBlockItem("incubator", INCUBATOR));
     public static final DeferredItem<BlockItem> FISHING_NET_ITEM = tab(ITEMS.registerSimpleBlockItem("fishing_net", FISHING_NET));
     public static final DeferredItem<BlockItem> RAISED_BED_ITEM = tab(ITEMS.registerSimpleBlockItem("raised_bed", RAISED_BED));
@@ -491,6 +495,11 @@ public class Gospodarstwo {
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onUse);
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.craft.Bedding::onBreak);
         NeoForge.EVENT_BUS.addListener(pl.kubalte.gospodarstwo.tools.ToolEvents::onBreak);
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.level.ExplosionEvent.Detonate e) -> {
+            var c = e.getExplosion().center();
+            for (var gob : e.getLevel().getEntitiesOfClass(pl.kubalte.gospodarstwo.goblin.Goblin.class,
+                    new net.minecraft.world.phys.AABB(c, c).inflate(16))) gob.heardNoise();
+        });
         NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent e) -> {
             if (e.getProblem() == null)
                 e.getEntity().setData(LAST_BED.get(), Optional.of(net.minecraft.core.GlobalPos.of(e.getLevel().dimension(), e.getPos())));

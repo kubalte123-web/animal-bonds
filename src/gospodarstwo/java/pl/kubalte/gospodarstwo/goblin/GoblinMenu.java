@@ -108,7 +108,7 @@ public class GoblinMenu extends AbstractContainerMenu {
                 player.closeContainer();
             }
             default -> {
-                return false;
+                if (!goblin.settingsClick(id)) return false;
             }
         }
         return true;

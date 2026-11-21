@@ -2194,6 +2194,167 @@ def goblin():
         wj(path, d)
 
 
+# =====================================================================================  goblin hut, races, info texts
+def goblin_hut():
+    def el(fr, to, tex, faces=('north', 'south', 'east', 'west', 'up', 'down')):
+        f = {}
+        for face in faces:
+            if face in ('up', 'down'):
+                uv = [fr[0], fr[2], to[0], to[2]]
+            elif face in ('north', 'south'):
+                uv = [fr[0], 16 - to[1], to[0], 16 - fr[1]]
+            else:
+                uv = [fr[2], 16 - to[1], to[2], 16 - fr[1]]
+            uv = [((v % 16) if v not in (0, 16) else v) for v in uv]
+            f[face] = {'texture': tex, 'uv': [max(0, min(16, v)) for v in uv]}
+        return {'from': fr, 'to': to, 'faces': f}
+    # frame: x 0..32, z -16..16 (door at +z), y 0..32
+    posts = [el([0, 0, -16], [2, 14, -14], '#log'), el([30, 0, -16], [32, 14, -14], '#log'), el([0, 0, 14], [2, 14, 16], '#log'),
+             el([30, 0, 14], [32, 14, 16], '#log'), el([15, 28, -16], [17, 30, 16], '#log'),
+             el([0, 13, -16], [32, 14, -15], '#log'), el([0, 13, 15], [32, 14, 16], '#log')]
+    floor = [el([1, 0, -15], [31, 0.5, 15], '#floor'), el([0, 0, -16], [32, 14, -15], '#planks')]
+    sides = [el([0, 0, -15], [1, 13, 15], '#planks'), el([31, 0, -15], [32, 13, 15], '#planks')]
+    left_roof, right_roof, gables = [], [], []
+    for k in range(8):
+        y0, y1 = 14 + 2 * k, 16 + 2 * k
+        left_roof.append(el([2 * k - 1, y0, -17], [2 * k + 3, y1, 17], '#thatch'))
+        right_roof.append(el([29 - 2 * k, y0, -17], [33 - 2 * k, y1, 17], '#thatch'))
+        if 31 - 2 * k > 2 * k + 1:
+            gables.append(el([2 * k + 1, y0, -16], [31 - 2 * k, y1, -15], '#planks'))
+            gables.append(el([2 * k + 1, y0, 15], [31 - 2 * k, y1, 16], '#thatch'))
+    cap = [el([13, 30, -17], [19, 31, 17], '#thatch')]
+    door = [el([3, 1, 15.2], [12, 13, 15.8], '#curtain'), el([20, 1, 15.2], [29, 13, 15.8], '#curtain'),
+            el([12, 12, 15], [20, 13, 16], '#log')]
+    bed = [el([7, 0.5, -14], [25, 1.5, -5], '#bedding'), el([11, 1.5, -14], [21, 3, -11.5], '#bedding')]
+    stages = [posts, posts + floor, posts + floor + sides + left_roof, posts + floor + sides + left_roof + right_roof + gables + cap + door + bed]
+    tex = {'log': 'minecraft:block/spruce_log', 'planks': 'minecraft:block/spruce_planks', 'thatch': 'minecraft:block/hay_block_side',
+           'floor': 'minecraft:block/hay_block_top', 'curtain': 'minecraft:block/brown_wool', 'bedding': 'minecraft:block/white_wool',
+           'particle': 'minecraft:block/hay_block_side'}
+    for i, els in enumerate(stages):
+        wj(f'{A}/models/block/goblin_hut_{i}.json', {'textures': tex, 'elements': els, 'ambientocclusion': False})
+    wj(f'{A}/models/block/goblin_hut_part.json', {'textures': {'particle': 'minecraft:block/hay_block_side'}})
+    rot = {'south': 0, 'west': 90, 'north': 180, 'east': 270}
+    variants = {}
+    for f, y in rot.items():
+        for part in range(8):
+            for st in range(4):
+                key = f'facing={f},part={part},stage={st}'
+                if part == 0:
+                    m = {'model': f'{NS}:block/goblin_hut_{st}'}
+                    if y:
+                        m['y'] = y
+                else:
+                    m = {'model': f'{NS}:block/goblin_hut_part'}
+                variants[key] = m
+    wj(f'{A}/blockstates/goblin_hut.json', {'variants': variants})
+    wj(f'{A}/models/item/goblin_hut.json', {'parent': f'{NS}:block/goblin_hut_3', 'display': {
+        'gui': {'rotation': [30, 225, 0], 'translation': [-2, -3, 0], 'scale': [0.3, 0.3, 0.3]},
+        'ground': {'rotation': [0, 0, 0], 'translation': [0, 2, 0], 'scale': [0.15, 0.15, 0.15]},
+        'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.3, 0.3, 0.3]},
+        'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.15, 0.15, 0.15]},
+        'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.2, 0.2, 0.2]}}})
+    wj(f'{A}/items/goblin_hut.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/goblin_hut'}})
+    wj(f'{D}/{NS}/recipe/goblin_hut.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['SLS', 'LWL', 'SLS'],
+                                            'key': {'S': 'minecraft:stick', 'L': '#minecraft:leaves', 'W': '#minecraft:wool'},
+                                            'result': {'id': f'{NS}:goblin_hut', 'count': 1}})
+
+    # fallback (no GeckoLib) skins for the races: the forest skin recoloured
+    base = Image.open(f'{A}/textures/entity/goblin.png').convert('RGBA')
+    recolor = {'stone': ((140, 140, 134), (110, 104, 96)), 'swamp': ((108, 122, 56), (70, 86, 64)), 'cave': ((200, 194, 176), (96, 90, 110))}
+    for race, (skin, cloth) in recolor.items():
+        img = base.copy()
+        px_ = img.load()
+        for y in range(img.height):
+            for x in range(img.width):
+                r, g, b, a = px_[x, y]
+                if a == 0:
+                    continue
+                if g > r and g > b:      # green skin
+                    k = (r + g + b) / (112 + 150 + 70)
+                    px_[x, y] = tuple(int(min(255, c * k)) for c in skin) + (a,)
+                elif r > g > b and r - b > 40 and not (r > 180 and g > 150):   # brown cloth
+                    k = (r + g + b) / (122 + 86 + 52)
+                    px_[x, y] = tuple(int(min(255, c * k)) for c in cloth) + (a,)
+        wi(f'{A}/textures/entity/goblin_{race}.png', img)
+
+    pl = {'block.gospodarstwo.goblin_hut': 'Szałas goblina',
+          'goblin.gospodarstwo.hut_built': '%s zbudował sobie szałas!', 'goblin.gospodarstwo.hungry': '%s jest głodny – daj mu coś do plecaka',
+          'goblin.gospodarstwo.tool_worn': '%s przestał pracować – narzędzie zaraz się zepsuje',
+          'goblin.gospodarstwo.mine_done': '%s skończył kopać sztolnię', 'goblin.gospodarstwo.info': 'O goblinie', 'goblin.gospodarstwo.info_button': 'i',
+          'goblin.gospodarstwo.back': 'Wróć', 'goblin.gospodarstwo.race.forest': 'Goblin leśny', 'goblin.gospodarstwo.race.stone': 'Goblin kamienny',
+          'goblin.gospodarstwo.race.swamp': 'Goblin bagienny', 'goblin.gospodarstwo.race.cave': 'Goblin jaskiniowy',
+          'goblin.gospodarstwo.mood': 'Nastrój', 'goblin.gospodarstwo.mood.happy': 'zadowolony', 'goblin.gospodarstwo.mood.ok': 'w porządku',
+          'goblin.gospodarstwo.mood.sad': 'smutny', 'goblin.gospodarstwo.mood.sulking': 'obrażony – nie pracuje',
+          'goblin.gospodarstwo.need.hunger': 'Najedzenie', 'goblin.gospodarstwo.need.energy': 'Wyspanie', 'goblin.gospodarstwo.need.fun': 'Zabawa',
+          'goblin.gospodarstwo.need.company': 'Towarzystwo', 'goblin.gospodarstwo.likes': 'Lubi', 'goblin.gospodarstwo.dislikes': 'Nie lubi',
+          'goblin.gospodarstwo.fears': 'Boi się',
+          'goblin.gospodarstwo.pastime.dancing': 'tańczyć', 'goblin.gospodarstwo.pastime.animals': 'zwierzęta', 'goblin.gospodarstwo.pastime.chopping': 'rąbać drewno',
+          'goblin.gospodarstwo.pastime.digging': 'kopać', 'goblin.gospodarstwo.pastime.farming': 'uprawiać', 'goblin.gospodarstwo.pastime.cooking': 'gotować',
+          'goblin.gospodarstwo.pastime.fishing': 'łowić', 'goblin.gospodarstwo.pastime.fighting': 'walczyć', 'goblin.gospodarstwo.pastime.company': 'towarzystwo',
+          'goblin.gospodarstwo.bother.rain': 'deszczu', 'goblin.gospodarstwo.bother.darkness': 'ciemności', 'goblin.gospodarstwo.bother.water': 'wody',
+          'goblin.gospodarstwo.bother.sun': 'słońca', 'goblin.gospodarstwo.bother.noise': 'hałasu', 'goblin.gospodarstwo.bother.loneliness': 'samotności',
+          'goblin.gospodarstwo.fear.creepers': 'creeperów', 'goblin.gospodarstwo.fear.spiders': 'pająków', 'goblin.gospodarstwo.fear.undead': 'nieumarłych',
+          'goblin.gospodarstwo.fear.water': 'głębokiej wody', 'goblin.gospodarstwo.fear.fire': 'ognia', 'goblin.gospodarstwo.fear.darkness': 'ciemności',
+          'goblin.gospodarstwo.fear.wolves': 'wilków', 'goblin.gospodarstwo.fear.bees': 'pszczół',
+          'goblin.gospodarstwo.work_title': 'Praca', 'goblin.gospodarstwo.work_hands': 'Z pustymi rękami pracuje przy stanowiskach: żarnach, kotle, wędzarni, maselnicy, sieci i wylęgarni. Daj mu narzędzie, a zajmie się czym innym.',
+          'goblin.gospodarstwo.work_can': 'Z konewką podlewa uprawy w bazie i sam nabiera wody.',
+          'goblin.gospodarstwo.work_shears': 'Strzyże owce w bazie; wełnę chowa do plecaka.',
+          'goblin.gospodarstwo.work_sword': 'Broni ciebie, zwierząt i innych goblinów przed potworami.',
+          'goblin.gospodarstwo.work_hoe': 'Zbiera dojrzałe plony i sieje z powrotem; przy „Uprawiaj” także zaorze ziemię obok pola i zasieje nasionami z plecaka.',
+          'goblin.gospodarstwo.chosen': 'Teraz', 'goblin.gospodarstwo.woods': 'Jakie drewno ścinać:', 'goblin.gospodarstwo.keep': 'Co zabierać ze sztolni:',
+          'goblin.gospodarstwo.axe.0': 'Nic nie rób', 'goblin.gospodarstwo.axe.1': 'Tylko ścinaj', 'goblin.gospodarstwo.axe.2': 'Ścinaj i sadź',
+          'goblin.gospodarstwo.pick.0': 'Nic nie rób', 'goblin.gospodarstwo.pick.1': 'Kop sztolnię',
+          'goblin.gospodarstwo.hoe.0': 'Nic nie rób', 'goblin.gospodarstwo.hoe.1': 'Tylko zbieraj', 'goblin.gospodarstwo.hoe.2': 'Uprawiaj',
+          'goblin.gospodarstwo.shear.on': 'Strzyże owce: TAK', 'goblin.gospodarstwo.shear.off': 'Strzyże owce: NIE',
+          'goblin.gospodarstwo.guard.on': 'Pilnuje: TAK', 'goblin.gospodarstwo.guard.off': 'Pilnuje: NIE',
+          'goblin.gospodarstwo.work.6': 'śpi', 'goblin.gospodarstwo.work.7': 'ścina drzewo', 'goblin.gospodarstwo.work.8': 'kopie sztolnię',
+          'goblin.gospodarstwo.work.9': 'strzyże owce', 'goblin.gospodarstwo.work.10': 'buduje szałas'}
+    en = {'block.gospodarstwo.goblin_hut': 'Goblin Hut',
+          'goblin.gospodarstwo.hut_built': '%s built itself a hut!', 'goblin.gospodarstwo.hungry': '%s is hungry - put some food in its pack',
+          'goblin.gospodarstwo.tool_worn': '%s stopped working - its tool is about to break', 'goblin.gospodarstwo.mine_done': '%s finished its mine',
+          'goblin.gospodarstwo.info': 'About the goblin', 'goblin.gospodarstwo.info_button': 'i', 'goblin.gospodarstwo.back': 'Back',
+          'goblin.gospodarstwo.race.forest': 'Forest goblin', 'goblin.gospodarstwo.race.stone': 'Stone goblin', 'goblin.gospodarstwo.race.swamp': 'Bog goblin',
+          'goblin.gospodarstwo.race.cave': 'Cave goblin', 'goblin.gospodarstwo.mood': 'Mood', 'goblin.gospodarstwo.mood.happy': 'happy',
+          'goblin.gospodarstwo.mood.ok': 'fine', 'goblin.gospodarstwo.mood.sad': 'sad', 'goblin.gospodarstwo.mood.sulking': 'sulking - won\'t work',
+          'goblin.gospodarstwo.need.hunger': 'Fed', 'goblin.gospodarstwo.need.energy': 'Rested', 'goblin.gospodarstwo.need.fun': 'Fun',
+          'goblin.gospodarstwo.need.company': 'Company', 'goblin.gospodarstwo.likes': 'Likes', 'goblin.gospodarstwo.dislikes': 'Dislikes',
+          'goblin.gospodarstwo.fears': 'Afraid of',
+          'goblin.gospodarstwo.pastime.dancing': 'dancing', 'goblin.gospodarstwo.pastime.animals': 'animals', 'goblin.gospodarstwo.pastime.chopping': 'chopping wood',
+          'goblin.gospodarstwo.pastime.digging': 'digging', 'goblin.gospodarstwo.pastime.farming': 'farming', 'goblin.gospodarstwo.pastime.cooking': 'cooking',
+          'goblin.gospodarstwo.pastime.fishing': 'fishing', 'goblin.gospodarstwo.pastime.fighting': 'fighting', 'goblin.gospodarstwo.pastime.company': 'company',
+          'goblin.gospodarstwo.bother.rain': 'rain', 'goblin.gospodarstwo.bother.darkness': 'darkness', 'goblin.gospodarstwo.bother.water': 'water',
+          'goblin.gospodarstwo.bother.sun': 'sunlight', 'goblin.gospodarstwo.bother.noise': 'noise', 'goblin.gospodarstwo.bother.loneliness': 'being alone',
+          'goblin.gospodarstwo.fear.creepers': 'creepers', 'goblin.gospodarstwo.fear.spiders': 'spiders', 'goblin.gospodarstwo.fear.undead': 'the undead',
+          'goblin.gospodarstwo.fear.water': 'deep water', 'goblin.gospodarstwo.fear.fire': 'fire', 'goblin.gospodarstwo.fear.darkness': 'the dark',
+          'goblin.gospodarstwo.fear.wolves': 'wolves', 'goblin.gospodarstwo.fear.bees': 'bees',
+          'goblin.gospodarstwo.work_title': 'Work', 'goblin.gospodarstwo.work_hands': 'With empty hands it works the stations: quern, kettle, smokehouse, churn, net and incubator. Give it a tool for other work.',
+          'goblin.gospodarstwo.work_can': 'With a watering can it waters the crops at the base and fetches water itself.',
+          'goblin.gospodarstwo.work_shears': 'Shears the sheep at the base and keeps the wool in its pack.',
+          'goblin.gospodarstwo.work_sword': 'Defends you, your animals and other goblins from monsters.',
+          'goblin.gospodarstwo.work_hoe': 'Harvests ripe crops and sows them again; with "Farm" it also tills the ground next to the field and sows seeds from its pack.',
+          'goblin.gospodarstwo.chosen': 'Now', 'goblin.gospodarstwo.woods': 'Which wood to cut:', 'goblin.gospodarstwo.keep': 'What to keep from the mine:',
+          'goblin.gospodarstwo.axe.0': 'Do nothing', 'goblin.gospodarstwo.axe.1': 'Just chop', 'goblin.gospodarstwo.axe.2': 'Chop and plant',
+          'goblin.gospodarstwo.pick.0': 'Do nothing', 'goblin.gospodarstwo.pick.1': 'Dig a mine',
+          'goblin.gospodarstwo.hoe.0': 'Do nothing', 'goblin.gospodarstwo.hoe.1': 'Just harvest', 'goblin.gospodarstwo.hoe.2': 'Farm',
+          'goblin.gospodarstwo.shear.on': 'Shears sheep: YES', 'goblin.gospodarstwo.shear.off': 'Shears sheep: NO',
+          'goblin.gospodarstwo.guard.on': 'Guards: YES', 'goblin.gospodarstwo.guard.off': 'Guards: NO',
+          'goblin.gospodarstwo.work.6': 'sleeping', 'goblin.gospodarstwo.work.7': 'chopping a tree', 'goblin.gospodarstwo.work.8': 'digging its mine',
+          'goblin.gospodarstwo.work.9': 'shearing sheep', 'goblin.gospodarstwo.work.10': 'building a hut'}
+    for lang_file, extra in (('pl_pl', pl), ('en_us', en)):
+        path = f'{A}/lang/{lang_file}.json'
+        d = json.load(open(path, encoding='utf-8'))
+        d.update(extra)
+        wj(path, d)
+    # more spawns: stone goblins in the mountains, bog goblins in swamps, cave goblins in lush and dripstone caves
+    BM = f'{D}/{NS}/neoforge/biome_modifier'
+    wj(f'{BM}/goblin_spawns_mountains.json', {'type': 'neoforge:add_spawns', 'biomes': '#minecraft:is_mountain',
+                                              'spawners': {'type': f'{NS}:goblin', 'weight': 3, 'minCount': 1, 'maxCount': 2}})
+    wj(f'{BM}/goblin_spawns_swamps.json', {'type': 'neoforge:add_spawns', 'biomes': ['minecraft:swamp', 'minecraft:mangrove_swamp'],
+                                           'spawners': {'type': f'{NS}:goblin', 'weight': 4, 'minCount': 1, 'maxCount': 2}})
+    wj(f'{BM}/goblin_spawns_caves.json', {'type': 'neoforge:add_spawns', 'biomes': ['minecraft:lush_caves', 'minecraft:dripstone_caves'],
+                                          'spawners': {'type': f'{NS}:goblin', 'weight': 6, 'minCount': 1, 'maxCount': 2}})
+
+
 if __name__ == '__main__':
     animal_assets()
     item_textures()
@@ -2207,3 +2368,4 @@ if __name__ == '__main__':
     stage4()
     stage5()
     goblin()
+    goblin_hut()

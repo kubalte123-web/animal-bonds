@@ -29,6 +29,9 @@ public class GoblinScreen extends AbstractContainerScreen<GoblinMenu> {
         base = addRenderableWidget(Button.builder(Component.translatable("goblin.gospodarstwo.mode.base"), b -> press(1)).bounds(x, y + 18, 96, 16).build());
         sit = addRenderableWidget(Button.builder(Component.translatable("goblin.gospodarstwo.mode.sit"), b -> press(2)).bounds(x, y + 36, 96, 16).build());
         store = addRenderableWidget(Button.builder(Component.translatable("goblin.gospodarstwo.mode.store"), b -> press(3)).bounds(x, y + 58, 96, 16).build());
+        addRenderableWidget(Button.builder(Component.translatable("goblin.gospodarstwo.info_button"), b -> {
+            if (minecraft != null) minecraft.setScreen(new GoblinInfoScreen(this, menu));
+        }).bounds(leftPos + W - 22, topPos + 3, 18, 12).build());
     }
 
     private void press(int id) {

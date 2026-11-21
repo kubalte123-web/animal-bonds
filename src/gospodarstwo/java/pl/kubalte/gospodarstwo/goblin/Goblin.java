@@ -68,8 +68,34 @@ public class Goblin extends TamableAnimal {
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> HIDING = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> WORK = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> RACE = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> ACTION = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> ACTION_SEQ = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> NEEDS = SynchedEntityData.defineId(Goblin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<net.minecraft.nbt.CompoundTag> TRAITS = SynchedEntityData.defineId(Goblin.class,
+            EntityDataSerializers.COMPOUND_TAG);
+    private static final EntityDataAccessor<net.minecraft.nbt.CompoundTag> SETTINGS = SynchedEntityData.defineId(Goblin.class,
+            EntityDataSerializers.COMPOUND_TAG);
+
+    /** Animation actions (shown by the renderer). */
+    public static final int A_NONE = 0, A_WINDUP = 1, A_LEAP = 2, A_STRIKE = 3, A_DODGE_L = 4, A_DODGE_R = 5, A_DODGE_B = 6, A_BLOCK = 7,
+            A_DANCE1 = 8, A_DANCE2 = 9, A_DANCE3 = 10, A_CHOP = 11, A_MINE = 12, A_HOE = 13, A_SHEAR = 14, A_WORK = 15, A_CHURN = 16,
+            A_BUILD = 17, A_PET = 18, A_PETTED = 19, A_POKE = 20, A_ANNOYED = 21, A_EAT = 22, A_WAVE = 23, A_SULK = 24, A_CHEER = 25,
+            A_PLAY = 26, A_SCARED = 27, A_PUNCH = 28;
 
     public final SimpleContainer pack = new SimpleContainer(27);
+    private Traits traits;
+    private Work settings = new Work();
+    /** Needs, 0..100: hunger (full = 100), energy, fun, company. */
+    float hunger = 80, energy = 90, fun = 70, social = 70;
+    private int actionTicks, noise;
+    @Nullable BlockPos hut;
+    @Nullable BlockPos mine;
+    int mineDepth;
+    /** While another goblin plays with it, its own goals wait. */
+    int socialLock;
+    /** Ticks left of holding the shield up. */
+    int blockTicks;
     private BlockPos home;
     private int restTicks, considerTicks, refuseCooldown, depositTimer;
     private @Nullable UUID offeredBy;
@@ -95,6 +121,127 @@ public class Goblin extends TamableAnimal {
         b.define(RESTING, false);
         b.define(HIDING, false);
         b.define(WORK, 0);
+        b.define(RACE, 0);
+        b.define(ACTION, 0);
+        b.define(ACTION_SEQ, 0);
+        b.define(NEEDS, pack4(80, 90, 70, 70));
+        b.define(TRAITS, new net.minecraft.nbt.CompoundTag());
+        b.define(SETTINGS, new Work().save());
+    }
+
+    static int pack4(float a, float b, float c, float d) {
+        return Math.round(Math.max(0, Math.min(100, a))) | Math.round(Math.max(0, Math.min(100, b))) << 8
+                | Math.round(Math.max(0, Math.min(100, c))) << 16 | Math.round(Math.max(0, Math.min(100, d))) << 24;
+    }
+
+    // ------------------------------------------------------------------ race, character, needs, settings
+    public Race race() {
+        return Race.byId(entityData.get(RACE));
+    }
+
+    public void setRace(Race r) {
+        entityData.set(RACE, r.ordinal());
+        getAttribute(Attributes.MAX_HEALTH).setBaseValue(r.health);
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(r.speed);
+        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(r.attack);
+        setHealth(getMaxHealth());
+    }
+
+    public Traits traits() {
+        if (traits == null) {
+            net.minecraft.nbt.CompoundTag t = entityData.get(TRAITS);
+            traits = t.isEmpty() ? Traits.roll(race(), random) : Traits.load(t);
+            if (!level().isClientSide() && t.isEmpty()) entityData.set(TRAITS, traits.save());
+            if (traits.fears(Traits.Fear.WATER)) setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.WATER, -1F);
+        }
+        return traits;
+    }
+
+    public Work settings() {
+        if (level().isClientSide()) return Work.load(entityData.get(SETTINGS));
+        return settings;
+    }
+
+    /** A button from the info page. */
+    public boolean settingsClick(int id) {
+        if (!settings.click(id)) return false;
+        if (id >= 13 && id <= 14 && settings.pick == Work.PICK_OFF) mine = null;
+        settingsChanged();
+        return true;
+    }
+
+    void settingsChanged() {
+        entityData.set(SETTINGS, settings.save());
+    }
+
+    /** hunger, energy, fun, company as synced to the client (0..100). */
+    public int[] needs() {
+        int n = entityData.get(NEEDS);
+        return new int[] {n & 255, n >> 8 & 255, n >> 16 & 255, n >>> 24 & 255};
+    }
+
+    public void addNeeds(float h, float e, float f, float s) {
+        hunger = Math.max(0, Math.min(100, hunger + h));
+        energy = Math.max(0, Math.min(100, energy + e));
+        fun = Math.max(0, Math.min(100, fun + f));
+        social = Math.max(0, Math.min(100, social + s));
+    }
+
+    /** 0..100: how it feels overall, after what bothers it right now. */
+    public int mood() {
+        int[] n = needs();
+        float m = (n[0] + n[1] + n[2] + n[3]) / 4F;
+        return Math.max(0, Math.min(100, Math.round(m - bother() - noise / 4F)));
+    }
+
+    /** How much the things it dislikes bother it right now. */
+    float bother() {
+        Traits t = traits();
+        float b = 0;
+        if (t.bothered(Traits.Bother.RAIN) && level().isRainingAt(blockPosition().above())) b += 15;
+        if (t.bothered(Traits.Bother.DARKNESS) && level().getMaxLocalRawBrightness(blockPosition()) < 5) b += 15;
+        if (t.bothered(Traits.Bother.WATER) && isInWater()) b += 20;
+        if (t.bothered(Traits.Bother.SUN) && level().isBrightOutside() && level().canSeeSky(blockPosition().above())) b += 20;
+        if (t.bothered(Traits.Bother.LONELINESS) && social < 40) b += 10;
+        return b;
+    }
+
+    /** Something loud went off nearby (explosions): goblins who mind noise sulk for a while. */
+    public void heardNoise() {
+        if (traits().bothered(Traits.Bother.NOISE)) noise = 400;
+        else noise = Math.max(noise, 80);
+    }
+
+    /** Liking of a food for this goblin: its favourites always win, the food it hates never. */
+    public float likingOf(ItemStack s) {
+        if (traits().likes(s)) return 0.95F;
+        if (traits().hates(s)) return 0F;
+        return liking(s);
+    }
+
+    // ------------------------------------------------------------------ animations
+    public int action() {
+        return entityData.get(ACTION);
+    }
+
+    public int actionSeq() {
+        return entityData.get(ACTION_SEQ);
+    }
+
+    /** Starts an animation that lasts the given ticks (0 = until replaced). */
+    public void act(int action, int ticks) {
+        entityData.set(ACTION, action);
+        entityData.set(ACTION_SEQ, entityData.get(ACTION_SEQ) + 1);
+        actionTicks = ticks;
+    }
+
+    /** Ticks left of the current timed animation. */
+    public int actionLeft() {
+        return actionTicks;
+    }
+
+    public Work.Tool tool() {
+        return Work.toolOf(getMainHandItem());
     }
 
     // ------------------------------------------------------------------ state
@@ -163,7 +310,9 @@ public class Goblin extends TamableAnimal {
                 return !isTame() && super.canUse();
             }
         });
-        goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.3, true));
+        goalSelector.addGoal(3, new GoblinNeeds.FleeFears(this));
+        goalSelector.addGoal(4, new GoblinCombat.Fight(this));
+        goalSelector.addGoal(5, new GoblinNeeds.Sleep(this));
         goalSelector.addGoal(5, new GoblinGoals.TakeOffer(this));
         goalSelector.addGoal(5, new GoblinGoals.Deposit(this));
         goalSelector.addGoal(6, new GoblinGoals.Hide(this));
@@ -178,7 +327,11 @@ public class Goblin extends TamableAnimal {
                 return mode() == MODE_FOLLOW && !depositing && super.canContinueToUse();
             }
         });
+        goalSelector.addGoal(6, new GoblinNeeds.Dance(this));
+        goalSelector.addGoal(7, new GoblinNeeds.Social(this));
         goalSelector.addGoal(8, new GoblinGoals.Collect(this));
+        goalSelector.addGoal(8, new GoblinHut.Build(this));
+        goalSelector.addGoal(9, new GoblinTools.ToolWork(this));
         goalSelector.addGoal(9, new GoblinGoals.BaseWork(this));
         goalSelector.addGoal(10, new GoblinGoals.GoHome(this));
         goalSelector.addGoal(11, new WaterAvoidingRandomStrollGoal(this, 0.9) {
@@ -191,6 +344,7 @@ public class Goblin extends TamableAnimal {
         goalSelector.addGoal(13, new RandomLookAroundGoal(this));
         targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
         targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
+        targetSelector.addGoal(3, new GoblinCombat.Guard(this));
     }
 
     /** While it rests after fainting (or sleeps at night) nothing else happens. */
@@ -226,6 +380,55 @@ public class Goblin extends TamableAnimal {
             stopSleeping();
         }
         if (tickCount % 20 == 0 && isTame() && getHealth() < getMaxHealth() && (resting() || isSleeping())) heal(1F);
+        if (actionTicks > 0 && --actionTicks == 0) entityData.set(ACTION, A_NONE);
+        if (noise > 0) noise--;
+        if (socialLock > 0) socialLock--;
+        if (tickCount % 20 == 0) needsTick(sl);
+        GoblinCombat.shieldTick(this, sl);
+    }
+
+    /** Once a second: needs go down (or up while sleeping, dancing, in company...). */
+    void needsTick(ServerLevel sl) {
+        boolean busy = work() != 0 || getTarget() != null;
+        boolean asleep = isSleeping() || resting() || GoblinGoals.inHut(this);
+        hunger -= busy ? 0.05F : 0.025F;
+        if (asleep) energy += 0.6F;
+        else energy -= busy ? 0.05F : 0.03F;
+        fun -= 0.05F;
+        boolean company = !sl.getEntitiesOfClass(Goblin.class, getBoundingBox().inflate(8), g -> g != this).isEmpty()
+                || getOwner() != null && getOwner().distanceTo(this) < 8;
+        social += company ? 0.25F : (traits().bothered(Traits.Bother.LONELINESS) ? -0.06F : -0.035F);
+        addNeeds(0, 0, 0, 0);
+        entityData.set(NEEDS, pack4(hunger, energy, fun, social));
+        if (isTame() && hunger < 30 && action() != A_EAT) GoblinNeeds.eatSomething(this);
+    }
+
+    @Override
+    public @Nullable net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level,
+            net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.EntitySpawnReason reason,
+            @Nullable net.minecraft.world.entity.SpawnGroupData data) {
+        setRace(raceFor(level, blockPosition()));
+        traits = null;
+        entityData.set(TRAITS, new net.minecraft.nbt.CompoundTag());
+        traits();
+        return super.finalizeSpawn(level, difficulty, reason, data);
+    }
+
+    /** Cave goblins spawn on stone in the dark of lush and dripstone caves. */
+    public static boolean caveSpawn(net.minecraft.world.level.ServerLevelAccessor level, BlockPos pos) {
+        return raceFor(level, pos) == Race.CAVE && level.getRawBrightness(pos, 0) < 8 && level.getBlockState(pos.below()).isSolid()
+                && !level.canSeeSky(pos);
+    }
+
+    /** Where it was born decides the race: mountains make stone goblins, swamps bog goblins, caves pale cave goblins. */
+    static Race raceFor(net.minecraft.world.level.LevelReader level, BlockPos pos) {
+        var biome = level.getBiome(pos);
+        String id = biome.unwrapKey().map(k -> k.identifier().getPath()).orElse("");
+        if (id.contains("swamp") || id.contains("mangrove")) return Race.SWAMP;
+        if (id.contains("cave") || id.contains("deep_dark") || pos.getY() < 40 && !level.canSeeSky(pos)) return Race.CAVE;
+        if (id.contains("peak") || id.contains("slope") || id.contains("mountain") || id.contains("hills") || id.contains("stony")
+                || id.contains("windswept") || id.contains("grove") || id.contains("meadow")) return Race.STONE;
+        return Race.FOREST;
     }
 
     // ------------------------------------------------------------------ taming
@@ -281,11 +484,13 @@ public class Goblin extends TamableAnimal {
         considerTicks = 0;
         Player giver = offeredBy == null ? null : level.getPlayerByUUID(offeredBy);
         if (giver == null && offeredPlayer != null && offeredPlayer.isAlive()) giver = offeredPlayer;
-        boolean yes = giver != null && (forced != null ? forced : random.nextFloat() < liking(food));
+        boolean yes = giver != null && (forced != null ? forced : random.nextFloat() < likingOf(food));
         if (yes) {
             level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, food.getItem()), getX(), getEyeY(), getZ(), 12, 0.2, 0.1, 0.2, 0.05);
             playSound(SoundEvents.GENERIC_EAT.value(), 1F, 1.3F);
             setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+            act(A_EAT, 30);
+            addNeeds(30, 0, traits().likes(food) ? 20 : 5, 10);
             tame(giver);
             setMode(MODE_FOLLOW);
             level.broadcastEntityEvent(this, (byte) 7);
@@ -456,6 +661,20 @@ public class Goblin extends TamableAnimal {
             for (int i = 0; i < l.size() && i < pack.getContainerSize(); i++) pack.setItem(i, l.get(i));
         });
         setOrderedToSit(mode() == MODE_SIT);
+        entityData.set(RACE, in.getIntOr("Race", 0));
+        in.read("Traits", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(t -> {
+            entityData.set(TRAITS, t);
+            traits = Traits.load(t);
+        });
+        in.read("Settings", net.minecraft.nbt.CompoundTag.CODEC).ifPresent(t -> settings = Work.load(t));
+        settingsChanged();
+        hunger = in.getFloatOr("Hunger", 80);
+        energy = in.getFloatOr("Energy", 90);
+        fun = in.getFloatOr("Fun", 70);
+        social = in.getFloatOr("Social", 70);
+        hut = in.read("Hut", BlockPos.CODEC).orElse(null);
+        mine = in.read("Mine", BlockPos.CODEC).orElse(null);
+        mineDepth = in.getIntOr("MineDepth", 0);
     }
 
     @Override
@@ -470,6 +689,16 @@ public class Goblin extends TamableAnimal {
         java.util.List<ItemStack> l = new java.util.ArrayList<>();
         for (int i = 0; i < pack.getContainerSize(); i++) l.add(pack.getItem(i));
         out.store("PackItems", ItemStack.OPTIONAL_CODEC.listOf(), l);
+        out.putInt("Race", entityData.get(RACE));
+        out.store("Traits", net.minecraft.nbt.CompoundTag.CODEC, traits().save());
+        out.store("Settings", net.minecraft.nbt.CompoundTag.CODEC, settings.save());
+        out.putFloat("Hunger", hunger);
+        out.putFloat("Energy", energy);
+        out.putFloat("Fun", fun);
+        out.putFloat("Social", social);
+        if (hut != null) out.store("Hut", BlockPos.CODEC, hut);
+        if (mine != null) out.store("Mine", BlockPos.CODEC, mine);
+        out.putInt("MineDepth", mineDepth);
     }
 
     /** Test helper: is a player within r blocks? */

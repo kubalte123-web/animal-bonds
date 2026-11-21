@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "SLS",
+  "LWL",
+  "SLS"
+ ],
+ "key": {
+  "S": "minecraft:stick",
+  "L": "#minecraft:leaves",
+  "W": "#minecraft:wool"
+ },
+ "result": {
+  "id": "gospodarstwo:goblin_hut",
+  "count": 1
+ }
+}

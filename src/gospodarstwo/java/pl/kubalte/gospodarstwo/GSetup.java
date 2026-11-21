@@ -23,8 +23,10 @@ final class GSetup {
 
     static void spawnPlacements(RegisterSpawnPlacementsEvent e) {
         var R = RegisterSpawnPlacementsEvent.Operation.REPLACE;
-        for (var type : java.util.List.of(Gospodarstwo.DUCK.get(), Gospodarstwo.GOOSE.get(), Gospodarstwo.TURKEY.get(), Gospodarstwo.SNAIL.get(),
-                Gospodarstwo.GOBLIN.get())) {
+        e.register(Gospodarstwo.GOBLIN.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                (t, l, r, p, rnd) -> GConfig.SPAWN_ANIMALS.get() && (pl.kubalte.gospodarstwo.goblin.Goblin.caveSpawn(l, p)
+                        || Animal.checkAnimalSpawnRules(t, l, r, p, rnd)), R);
+        for (var type : java.util.List.of(Gospodarstwo.DUCK.get(), Gospodarstwo.GOOSE.get(), Gospodarstwo.TURKEY.get(), Gospodarstwo.SNAIL.get())) {
             e.register(type, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     (t, l, r, p, rnd) -> GConfig.SPAWN_ANIMALS.get() && Animal.checkAnimalSpawnRules(t, l, r, p, rnd), R);
         }
