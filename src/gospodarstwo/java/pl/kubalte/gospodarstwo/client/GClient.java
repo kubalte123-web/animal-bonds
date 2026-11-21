@@ -36,7 +36,8 @@ public class GClient {
     }
 
     static void renderers(EntityRenderersEvent.RegisterRenderers e) {
-        e.registerEntityRenderer(Gospodarstwo.GOBLIN.get(), pl.kubalte.gospodarstwo.client.goblin.GoblinRenderer::new);
+        if (useGecko()) pl.kubalte.gospodarstwo.client.compat.GeckoCreatures.registerGoblin(e);
+        else e.registerEntityRenderer(Gospodarstwo.GOBLIN.get(), pl.kubalte.gospodarstwo.client.goblin.GoblinRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.BONSAI_BE.get(), BonsaiRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.LOOM_BE.get(), LoomRenderer::new);
         e.registerBlockEntityRenderer(Gospodarstwo.SPINNING_WHEEL_BE.get(), SpinningWheelRenderer::new);

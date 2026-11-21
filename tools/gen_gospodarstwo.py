@@ -2369,3 +2369,5 @@ if __name__ == '__main__':
     stage5()
     goblin()
     goblin_hut()
+    import goblin_gecko
+    goblin_gecko.generate(A, wj, wi)

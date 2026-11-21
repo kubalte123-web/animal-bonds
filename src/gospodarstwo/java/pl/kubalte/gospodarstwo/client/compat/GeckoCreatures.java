@@ -29,6 +29,12 @@ public final class GeckoCreatures {
         reg(e, Gospodarstwo.SNAIL.get(), "snail", 0.3F);
     }
 
+    /** Goblins made while GeckoLib is installed are GeckoGoblins, drawn by their own renderer. */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void registerGoblin(EntityRenderersEvent.RegisterRenderers e) {
+        e.registerEntityRenderer((EntityType) Gospodarstwo.GOBLIN.get(), ctx -> new GeckoGoblinRenderer(ctx));
+    }
+
     private static <E extends Mob> void reg(EntityRenderersEvent.RegisterRenderers e, EntityType<E> type, String name, float shadow) {
         Animatable anim = new Animatable();
         e.registerEntityRenderer(type, ctx -> new Renderer<E>(ctx, name, anim, shadow));

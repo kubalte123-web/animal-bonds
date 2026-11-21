@@ -247,7 +247,7 @@ public class Gospodarstwo {
 
     // ---------------- animals ----------------
     public static final DeferredHolder<EntityType<?>, EntityType<pl.kubalte.gospodarstwo.goblin.Goblin>> GOBLIN = ENTITIES.registerEntityType("goblin",
-            pl.kubalte.gospodarstwo.goblin.Goblin::new, MobCategory.CREATURE, b -> b.sized(0.45F, 0.95F).eyeHeight(0.8F).clientTrackingRange(10));
+            pl.kubalte.gospodarstwo.goblin.Goblin::create, MobCategory.CREATURE, b -> b.sized(0.45F, 0.95F).eyeHeight(0.8F).clientTrackingRange(10));
     public static final DeferredHolder<EntityType<?>, EntityType<Duck>> DUCK = ENTITIES.registerEntityType("duck", Duck::new, MobCategory.CREATURE,
             b -> b.sized(0.45F, 0.65F).clientTrackingRange(10));
     public static final DeferredHolder<EntityType<?>, EntityType<Goose>> GOOSE = ENTITIES.registerEntityType("goose", Goose::new, MobCategory.CREATURE,

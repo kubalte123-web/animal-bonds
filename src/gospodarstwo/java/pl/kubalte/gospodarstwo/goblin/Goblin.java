@@ -101,6 +101,21 @@ public class Goblin extends TamableAnimal {
     private @Nullable Player offeredPlayer;
     boolean depositing;
 
+    /** With GeckoLib installed goblins are the animated GeckoLib kind; without it, plain ones. */
+    public static Goblin create(EntityType<Goblin> type, Level level) {
+        if (GECKO) return GeckoMaker.make(type, level);
+        return new Goblin(type, level);
+    }
+
+    static final boolean GECKO = net.neoforged.fml.ModList.get().isLoaded("geckolib") && !Boolean.getBoolean("gospodarstwo.forceFallback");
+
+    /** Kept apart so the GeckoLib class is only loaded when GeckoLib is there. */
+    static final class GeckoMaker {
+        static Goblin make(EntityType<Goblin> type, Level level) {
+            return new pl.kubalte.gospodarstwo.goblin.gecko.GeckoGoblin(type, level);
+        }
+    }
+
     public Goblin(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         setCanPickUpLoot(false);
