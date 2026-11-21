@@ -1,0 +1,256 @@
+[02:54:51] [Worker-Main-3/ERROR] [minecraft/DedicatedServerProperties]: No key layers in MapLike[{}]
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pen detected next to fence
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pen area is 36 (was 36)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   open pen is not detected
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pedestal has block entity
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hilly pen detected with area 36 (was 36)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hill top floor is 3 blocks up
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pit floor is 4 blocks down
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   creatures on the hill and in the pit count as inside
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   creatures spawned
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   3 creatures in pen (was 3)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   fresh cow not bonded
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   wheat is cow's favourite
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bone is not cow's favourite
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bonded cow starts at level 1
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trough need unmet without trough
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   grass need met on grass
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   company need met with two cows
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   roof need unmet under open sky
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trough found in pen
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trough need met with filled trough
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   happiness rises with trough (37 -> 50)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trough feed values
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   xp reaches level 5 (got 5)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   level caps at 10
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   cow gives a gift at level 5 (1 minecraft:leather)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   no second gift right away
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pen scan sets home
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pen scan never removes xp
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bonded zombie does not target players
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bonded zombie does not attack other creatures
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   iron golem leaves a bonded zombie alone
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   zombie at level 7
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   zombie got a home pen
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   zombie moved out of the pen
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   level 7 zombie faints instead of dying
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   fainted zombie has no AI
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   fainted zombie is back in the pen
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   unbonded zombie dies normally
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   cow2 reaches riding level
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hand feeding wheat eventually bonds a sheep
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   treat gives xp (0 -> 25)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   second treat right away gives no xp
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   petting gives xp
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   petting has a cooldown
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   owner can use her creature
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   stranger cannot use someone else's creature
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   stranger is not trusted at the Chronicle
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trusted player can use the creature
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   stranger's treat gives no bond xp
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   new creature got a random size
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   size within range (0.977074514914547)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   sizes vary between creatures (0.9200540719734589 .. 1.155117706075899)
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   splicing cow + spider creates a hybrid
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid has the cow's body
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid remembers the chosen parts (HybridData[donorType=minecraft:spider, head=true, legs=true, extras=false, colors=2, movement=true, parents=Cow × Spider])
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid has the needs of both parents
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid likes the food of both parents
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   cow-spider hybrid climbs walls like a spider
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid is bonded to its maker
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   parents must rest before splicing again
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrids can't be spliced again
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid data save/load
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pig with phantom wings and movement flies
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   splicing is refused for strangers
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bond data codec round trip
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   book entry network round trip
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   book entry content
+[02:54:53] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   profiles for cow and zombie
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   all four new creatures spawn
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Żarołaz is always fire
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Szroniec is always ice
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   other creatures get an element roll
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Mchowiec eats berries (can be bred)
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Szroniec hovers
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   fire cow is tougher (10.176803588867188 -> 12.176804)
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   fire cow is immune to lava
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   ice sheep doesn't freeze
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   fire creature sets its target on fire
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   ice creature slows its target
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   electric hit jumps to a nearby enemy
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   dragon creature hits harder
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Nether creatures roll fire (54/200) and nothing else
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: pen found
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: fire creature warms the whole pen
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: Mchowiec gives the pen grass
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: dragon creature boosts bond xp and gifts
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: gifts in a pen with fire come out cooked
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: Mchowiec has its own needs and gifts
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: Mchowiec loves sweet berries
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: Mchowiec makes crops near the pen grow
+[02:54:54] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST RESULT: PASS (22 checks)
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   scratching post found in pen (1)
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   chest next to the pedestal is the pen storage
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST debug upgrades: mobs in pen=[Cow['Cow'/53, l='ServerLevel[world]', x=11.50, y=250.00, z=114.50], Strider['Strider'/54, l='ServerLevel[world]', x=12.50, y=250.00, z=115.50]] cow=BlockPos{x=11, y=250, z=114} lvl=5 strider=BlockPos{x=12, y=250, z=115} lvl=5 pet=-4611686018427387904
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   work mode off: nobody harvests
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   scratching post makes the cow feel petted (101)
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   empty trough refilled from the storage
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   gift went straight into the storage
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   work mode off: nothing smelted
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   farmer cow harvested and replanted the wheat
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   strider smelted the raw iron in the storage
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   jobs by species
+[02:54:59] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   Chronicle shows the job ({"text":"","extra":[{"translate":"work.animalbonds.label","with":[{"text":"","extra":[{"translate":"work.animalbonds.farmer"}]}]}]})
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:flax} can be planted on farmland
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:flax} grows
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:flax} drops gospodarstwo:flax_fiber and gospodarstwo:flax_seeds: [1 gospodarstwo:flax_fiber, 3 gospodarstwo:flax_seeds]
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:cabbages} can be planted on farmland
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:cabbages} grows
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:cabbages} drops gospodarstwo:cabbage and gospodarstwo:cabbage_seeds: [1 gospodarstwo:cabbage, 2 gospodarstwo:cabbage_seeds]
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:onions} can be planted on farmland
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:onions} grows
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:onions} drops gospodarstwo:onion and gospodarstwo:onion: [1 gospodarstwo:onion, 3 gospodarstwo:onion]
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:strawberries} can be planted on farmland
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:strawberries} grows
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:strawberries} drops gospodarstwo:strawberry and gospodarstwo:strawberry_runner: [1 gospodarstwo:strawberry_runner, 4 gospodarstwo:strawberry]
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   flax seeds plant flax
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   picking a ripe gooseberry bush gives gooseberries
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   picked bush starts over
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   apple sapling grows into an apple tree (55 leaves)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   plum sapling grows
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   ripe plum leaves give plums
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   fruit ripens again (blossom -> fruit)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   oak sapling planted in the bonsai pot
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   without water the bonsai doesn't grow
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   untrimmed tree stops as a shaggy bush (750)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   trimming twice while it grows (2)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cared-for tree becomes a finished bonsai
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   picking up the pot keeps the bonsai on the item ([1 gospodarstwo:bonsai_pot])
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   string goes into the loom
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   loom weaves 8 string into 2 canvas (2 gospodarstwo:canvas)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cloth taken from the loom
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   linen yarn becomes linen
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   spinning 2 red wool gives 4 wool yarn (4 gospodarstwo:yarn_wool)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   yarn from red wool is red
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   flax fibre spins into linen yarn
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   no dye without water
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   vat filled with water
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   plums dye the water purple
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   merino yarn dipped in the vat turns purple
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   purple yarn weaves into purple merino cloth (2 gospodarstwo:merino_cloth)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a second dye mixes into the bath
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   duck, goose, turkey and snail spawn
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   snail slime collected with a bottle
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   new cows get a breed roll
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   shearing a highland cow gives highland hair
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   hair needs time to grow back
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   merino gives merino wool when sheared
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   brushing a goat gives cashmere
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   shearing a llama gives llama wool
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   raw hides stretched on the tanning rack
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   half way the hides are still tanning (0.5)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   all three hides become leather together (3 minecraft:leather)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   thick hide becomes thick leather
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a kettle without fire does nothing
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   honeycomb renders into beeswax over a campfire (4 gospodarstwo:beeswax)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   bones boil into glue
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   fatback renders into lard
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   spider spinnerets spin into silk yarn (1 gospodarstwo:yarn_silk)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   extra drops are defined for vanilla mobs
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cows drop raw hide
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cows drop tallow
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a ravager always drops its horn
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a sweater is worn on the chest
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   felt boots go on the feet
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   wool clothes are warm and protect from freezing
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   linen clothes are airy
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   felt boots walk on powder snow
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   sweaters can be dyed
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a pillow is put on the bed
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a second pillow is not used up
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   pillow and featherbed on the bed
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   sleeping in a cosy bed makes you well rested (effect.gospodarstwo.rested x 2, Duration: 24000)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   rested gives extra hearts (28.0)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   breaking the bed gives back the pillow and featherbed
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the whole curtain opens, a separate one doesn't
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   plums dye a curtain purple
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a rug lies on the grass
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a rug can be dyed
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the quern grinds 2 wheat into 4 flour (4 gospodarstwo:flour)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   4 apples press into 2 bottles of juice
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   juice can't be taken without a bottle
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a bottle is filled with juice
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   sauerkraut needs time
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   8 cabbages ferment into 8 sauerkraut (8 gospodarstwo:sauerkraut)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   without a fire nothing gets smoked
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   porkchops are smoked into ham over a campfire
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   milk poured into the churn, the bucket comes back
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   not butter yet
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   churning turns the milk into butter
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   butter taken out
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   pierogi boil in the kettle
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   bigos is food
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a new watering can is empty
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   watering makes the crops grow (20 stages)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   watering wets the farmland
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the scythe reaps 9 ripe crops (9)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and sows them again
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   wheat lies on the field
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the sickle cuts the grass around too (8)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the hunting horn calls your wolf (1)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the war horn scares monsters
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   4 eggs fit in the incubator
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   green eggs hatch into 4 greenleg chicks (4)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the net stands in open water (25)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the net holds up to 6 catches
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the catch is taken out
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   carrots grow on the raised bed
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the raised bed is always watered
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a wild goblin spawns
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   goblins like home cooking more than raw apples
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin picks up the food and thinks it over
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a goblin that doesn't like it throws the food away
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and won't take food for a while
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a goblin that likes it eats it and follows the giver
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   loose things go into the chest on its back
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cobblestone goes to the chest that already has cobblestone
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   dirt goes to a chest with a free slot
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin stores everything in the right chests
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   staying at the base remembers home
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin puts wheat into the quern
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and collects the flour
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin harvests and replants
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a goblin that would die faints instead
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and wakes up in its friend's bed (BlockPos{x=-46, y=250, z=-33})
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   stone goblins are tougher
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cave goblins are never afraid of the dark
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   work settings change and sync
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin leaves wood you didn't tick alone
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin fells the whole tree into its pack (5, 5)
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and plants a sapling where it stood
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin digs a staircase down (BlockPos{x=-4, y=244, z=-14})
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   it keeps the coal and throws the stone away
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin shears a sheep
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   sheep are friends to guard
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin builds itself a hut
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   using up the sticks, leaves and wool
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   no dancing at noon
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   in the evening it wants to dance by the fire
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   it is afraid of what its character says
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   zombies are not friends
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   it raises its shield against a flying arrow
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   breed lookup
+[02:55:04] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST RESULT: PASS (139 checks)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   escape-test pen still detected
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.cow still in pen (at BlockPos{x=10, y=250, z=45}, alive=true)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.sheep still in pen (at BlockPos{x=14, y=250, z=46}, alive=true)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.pig still in pen (at BlockPos{x=9, y=250, z=42}, alive=true)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.chicken still in pen (at BlockPos{x=9, y=250, z=46}, alive=true)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.goat still in pen (at BlockPos{x=10, y=250, z=41}, alive=true)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.rabbit still in pen (at BlockPos{x=13, y=250, z=41}, alive=true)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.horse still in pen (at BlockPos{x=12, y=250, z=44}, alive=true)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.zombie still in pen (at BlockPos{x=9, y=250, z=44}, alive=true)
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   a bonded wolf fetched the thrown ball (1 fetches, wolf at BlockPos{x=9, y=250, z=161})
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   fetching counts as petting for the day
+[02:55:54] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST RESULT: PASS (90 checks)
