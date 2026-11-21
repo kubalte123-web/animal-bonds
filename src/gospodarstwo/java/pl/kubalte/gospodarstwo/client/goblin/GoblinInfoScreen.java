@@ -81,7 +81,7 @@ public class GoblinInfoScreen extends Screen {
         for (int i = 0; i < n; i++) {
             final int id = firstId + i;
             addRenderableWidget(Button.builder(Component.translatable("goblin.gospodarstwo." + key + "." + i), b -> press(id))
-                    .bounds(x + (i % 2) * 68, y + (i / 2) * 18, 64, 16).build());
+                    .bounds(x + (i % 2) * 68, y + (i / 2) * 18, i == n - 1 && n % 2 == 1 ? 132 : 64, 16).build());
         }
     }
 

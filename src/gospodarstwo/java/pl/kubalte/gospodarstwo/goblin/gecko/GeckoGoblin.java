@@ -54,18 +54,34 @@ public class GeckoGoblin extends Goblin implements GeoEntity {
         controllers.add(new AnimationController<GeckoGoblin>("action", 3, this::doing));
     }
 
-    private PlayState base(AnimationTest<GeckoGoblin> t) {
-        if (isSleeping()) return t.setAndContinue(SLEEP_BED);
-        if (work() == 6) return t.setAndContinue(SLEEP);
-        if (hiding()) return t.setAndContinue(PEEK);
-        if (considering() > 0) return t.setAndContinue(CONSIDER);
-        if (!level().getFluidState(BlockPos.containing(getX(), getY() + 0.5, getZ())).isEmpty()) return t.setAndContinue(SWIM);
-        if (isOrderedToSit() || resting()) return t.setAndContinue(SIT);
-        if (t.isMoving()) {
-            if (isCrouching()) return t.setAndContinue(SNEAK);
-            return t.setAndContinue(walkAnimation.speed() > 0.8F ? RUN : WALK);
+    private static int debugLogs;
+
+    private void debug(String which, AnimationTest<GeckoGoblin> t, RawAnimation anim) {
+        if (debugLogs < 40 && Boolean.getBoolean("gospodarstwo.clienttest") && tickCount % 200 == 0) {
+            debugLogs++;
+            pl.kubalte.gospodarstwo.Gospodarstwo.LOGGER.info("GOBLIN ANIM {} id={} action={} anim={} current={} state={} animating={}", which, getId(),
+                    action(), anim, t.controller().getCurrentRawAnimation(), t.controller().getPlayState(), t.controller().isAnimatingBones());
         }
-        return t.setAndContinue(IDLE);
+    }
+
+    private PlayState base(AnimationTest<GeckoGoblin> t) {
+        RawAnimation a = baseAnim(t);
+        debug("base", t, a);
+        return t.setAndContinue(a);
+    }
+
+    private RawAnimation baseAnim(AnimationTest<GeckoGoblin> t) {
+        if (isSleeping()) return SLEEP_BED;
+        if (work() == 6) return SLEEP;
+        if (hiding()) return PEEK;
+        if (considering() > 0) return CONSIDER;
+        if (!level().getFluidState(BlockPos.containing(getX(), getY() + 0.5, getZ())).isEmpty()) return SWIM;
+        if (isOrderedToSit() || resting()) return SIT;
+        if (t.isMoving()) {
+            if (isCrouching()) return SNEAK;
+            return walkAnimation.speed() > 0.8F ? RUN : WALK;
+        }
+        return IDLE;
     }
 
     private PlayState doing(AnimationTest<GeckoGoblin> t) {
@@ -79,6 +95,7 @@ public class GeckoGoblin extends Goblin implements GeoEntity {
             seenSeq = actionSeq();
             t.controller().reset();
         }
+        debug("action", t, ACTIONS[a]);
         return t.setAndContinue(ACTIONS[a]);
     }
 

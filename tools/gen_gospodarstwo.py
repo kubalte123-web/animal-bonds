@@ -2218,7 +2218,7 @@ def goblin_hut():
     for k in range(8):
         y0, y1 = 14 + 2 * k, 16 + 2 * k
         left_roof.append(el([2 * k - 1, y0, -16], [2 * k + 3, y1, 16], '#thatch'))
-        right_roof.append(el([29 - 2 * k, y0, -16], [33 - 2 * k, y1, 16], '#thatch'))
+        right_roof.append(el([29 - 2 * k, y0, -16], [min(32, 33 - 2 * k), y1, 16], '#thatch'))
         if 31 - 2 * k > 2 * k + 1:
             gables.append(el([2 * k + 1, y0, -16], [31 - 2 * k, y1, -15], '#planks'))
             gables.append(el([2 * k + 1, y0, 15], [31 - 2 * k, y1, 16], '#thatch'))

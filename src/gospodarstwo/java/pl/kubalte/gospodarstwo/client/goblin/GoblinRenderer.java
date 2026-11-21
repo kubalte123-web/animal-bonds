@@ -45,6 +45,8 @@ public class GoblinRenderer extends HumanoidMobRenderer<Goblin, GoblinRenderStat
         s.resting = g.resting();
         s.isCrouching = g.isCrouching() || g.work() == 6;
         s.race = g.race().ordinal();
+        s.action = g.action();
+        s.actionAge = g.actionAge(partialTick);
     }
 
     @Override

@@ -253,6 +253,18 @@ public class Goblin extends TamableAnimal {
         return entityData.get(ACTION_SEQ);
     }
 
+    private int clientSeq = -1, clientActionStart;
+
+    /** Ticks since the current action started (on the client, for the plain model's animations). */
+    public float actionAge(float partialTick) {
+        int seq = actionSeq();
+        if (seq != clientSeq) {
+            clientSeq = seq;
+            clientActionStart = tickCount;
+        }
+        return tickCount - clientActionStart + partialTick;
+    }
+
     /** Starts an animation that lasts the given ticks (0 = until replaced). */
     public void act(int action, int ticks) {
         entityData.set(ACTION, action);

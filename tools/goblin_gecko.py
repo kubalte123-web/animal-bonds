@@ -425,7 +425,7 @@ def anim(length, loop, channels, fps=20):
             for i in range(n + 1):
                 t = length * i / n
                 v = fn(t)
-                frames[f'{t:.4g}' if t else '0.0'] = [round(float(x), 2) for x in v]
+                frames[f'{t:.4g}' if t else '0'] = {'vector': [round(float(x), 2) for x in v], 'easing': 'linear'}
             jb[kind] = frames
         bones[bone] = jb
     a = {'animation_length': length, 'bones': bones}
