@@ -691,7 +691,7 @@ public final class GSelfTest {
         gob.pack.clearContent();
         gob.pack.addItem(new ItemStack(Items.STICK, 12));
         gob.pack.addItem(new ItemStack(Items.OAK_LEAVES, 8));
-        gob.pack.addItem(new ItemStack(Items.WHITE_WOOL, 3));
+        gob.pack.addItem(new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("white_wool")), 3));
         BlockPos hut = pl.kubalte.gospodarstwo.goblin.GoblinTestHooks.buildHut(gob);
         check(hut != null && pl.kubalte.gospodarstwo.goblin.GoblinHut.isHut(level, hut), "the goblin builds itself a hut");
         check(gob.pack.isEmpty(), "using up the sticks, leaves and wool");
