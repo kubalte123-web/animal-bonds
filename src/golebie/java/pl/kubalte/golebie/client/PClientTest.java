@@ -101,22 +101,31 @@ public final class PClientTest {
                 mc.player.setXRot(5);
             }
             case 600 -> shot("perchfront");
-            case 620 -> server.execute(() -> pigeon.act(Golebie.NIBBLE_LEFT_SHOULDER, 0));
+            case 640 -> server.execute(() -> pigeon.act(Golebie.NIBBLE_LEFT_SHOULDER, 0));
             case 668 -> shot("nibblefront");
-            case 700 -> mc.options.setCameraType(CameraType.FIRST_PERSON);
-            case 740 -> shot("perchfp");
-            case 760 -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
-            case 800 -> shot("perchback");
-            case 820 -> {
+            case 800 -> {
                 mc.options.setCameraType(CameraType.FIRST_PERSON);
+                mc.player.setYRot(mc.player.getYRot() - 55);
+                mc.player.setXRot(28);
+            }
+            case 850 -> shot("perchfp");
+            case 960 -> {
+                mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+                mc.player.setYRot(mc.player.getYRot() + 55);
+                mc.player.setXRot(20);
+            }
+            case 1000 -> shot("perchback");
+            case 1120 -> {
+                mc.options.setCameraType(CameraType.FIRST_PERSON);
+                mc.player.setXRot(30);
                 server.execute(() -> {
                     ServerPlayer p = sp(server);
                     pigeon.hopOff(p);
                     fantail.hopOff(p);
                 });
             }
-            case 828 -> shot("hopoff");
-            case 900 -> Golebie.LOGGER.info("PCLIENT DONE");
+            case 1127 -> shot("hopoff");
+            case 1250 -> Golebie.LOGGER.info("PCLIENT DONE");
             default -> {}
         }
     }

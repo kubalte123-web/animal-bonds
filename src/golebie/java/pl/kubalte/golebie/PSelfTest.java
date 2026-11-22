@@ -116,7 +116,8 @@ public final class PSelfTest {
         check(Nods.nodded(nod), "a quick nod is noticed");
         check(!Nods.nodded(lookDown) && !Nods.nodded(still), "looking down slowly is not a nod");
         int n = Nods.answer(player);
-        check(n >= 2 && pigeon.pendingBow() > 0 && fantail.pendingBow() > 0, "tame birds around answer the nod (" + n + ")");
+        check(n >= 2 && pigeon.pendingBow() > 0, "tame birds around answer the nod (" + n + ")");
+        check(fantail.pendingBow() == 0, "one still being stroked does not stop to bow");
 
         // running up when you crouch
         pigeon.setPos(O.getX() + 6.5, O.getY(), O.getZ() + 0.5);
