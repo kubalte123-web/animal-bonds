@@ -103,15 +103,9 @@ public final class PClientTest {
             case 600 -> shot("perchfront");
             case 640 -> server.execute(() -> pigeon.act(Golebie.NIBBLE_LEFT_SHOULDER, 0));
             case 668 -> shot("nibblefront");
-            case 800 -> {
-                // first person, head turned towards the left shoulder: the pigeon nibbling at you
-                mc.options.setCameraType(CameraType.FIRST_PERSON);
-                mc.player.setYRot(-50);
-                mc.player.yHeadRot = -50;
-                mc.player.yBodyRot = 0;
-                mc.player.yBodyRotO = 0;
-                mc.player.setXRot(22);
-            }
+            case 800 -> mc.options.setCameraType(CameraType.FIRST_PERSON);
+            case 801, 805, 810, 820, 830, 840, 849 -> lookAtPigeon(mc);
+            case 846 -> logLook(mc);
             case 850 -> shot("perchfp");
             case 960 -> {
                 mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
@@ -129,6 +123,28 @@ public final class PClientTest {
             case 1250 -> Golebie.LOGGER.info("PCLIENT DONE");
             default -> {}
         }
+    }
+
+    /** Turns the camera to look straight at the pigeon on the shoulder (as far as the neck allows). */
+    static void lookAtPigeon(Minecraft mc) {
+        if (mc.level == null || pigeon == null) return;
+        var e = mc.level.getEntity(pigeon.getId());
+        if (e == null) return;
+        var eye = mc.player.getEyePosition();
+        var d = e.position().add(0, 0.25, 0).subtract(eye);
+        float yaw = (float) (Math.atan2(d.z, d.x) * 180 / Math.PI) - 90F;
+        float pitch = (float) (-Math.atan2(d.y, Math.sqrt(d.x * d.x + d.z * d.z)) * 180 / Math.PI);
+        mc.player.setYRot(yaw);
+        mc.player.yRotO = yaw;
+        mc.player.yHeadRot = yaw;
+        mc.player.setXRot(pitch);
+        mc.player.xRotO = pitch;
+    }
+
+    static void logLook(Minecraft mc) {
+        var e = pigeon == null || mc.level == null ? null : mc.level.getEntity(pigeon.getId());
+        Golebie.LOGGER.info("PCLIENT LOOK yaw={} head={} body={} pitch={} eye={} bird={}", mc.player.getYRot(), mc.player.yHeadRot,
+                mc.player.yBodyRot, mc.player.getXRot(), mc.player.getEyePosition(), e == null ? "none" : e.position());
     }
 
     static Bird bird(ServerLevel level, EntityType<? extends Bird> type, BlockPos at, int diaper, ServerPlayer owner) {
