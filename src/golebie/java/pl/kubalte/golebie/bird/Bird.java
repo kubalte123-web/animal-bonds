@@ -484,6 +484,7 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
     /** Glued to the owner's shoulder or head, on both sides, including last tick's place so it moves smoothly. */
     void followPerch(Player p) {
         int slot = perch();
+        noPhysics = true;
         Vec3 now = perchPos(p, slot);
         Vec3 old = perchPos(new Vec3(p.xo, p.yo, p.zo), p.yBodyRotO, p.getBbHeight(), slot);
         setPos(now.x, now.y, now.z);
@@ -503,8 +504,26 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
         fallDistance = 0;
     }
 
+    /** On a shoulder it must not push its owner around (nor be pushed). */
+    @Override
+    public boolean isPushable() {
+        return !perched() && super.isPushable();
+    }
+
+    @Override
+    protected void doPush(Entity other) {
+        if (!perched()) super.doPush(other);
+    }
+
+    @Override
+    public void push(Entity other) {
+        if (!perched()) super.push(other);
+    }
+
     @Override
     public void tick() {
+        if (!perched() && noPhysics && !level().isClientSide()) noPhysics = false;
+        if (level().isClientSide() && !perched()) noPhysics = false;
         super.tick();
         if (perched()) {
             Player p = perchTarget();
