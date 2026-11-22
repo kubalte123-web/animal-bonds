@@ -1,0 +1,14 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "minecraft:gray_wool",
+  "minecraft:black_dye",
+  "minecraft:string",
+  "minecraft:gold_nugget"
+ ],
+ "result": {
+  "id": "golebie:diaper_stripes_grey",
+  "count": 1
+ }
+}

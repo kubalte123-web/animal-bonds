@@ -23,6 +23,8 @@ sourceSets {
     // second mod in this repo: "Żywiołaki" (elemental creatures), released as its own jar
     elementals
     gospodarstwo
+    // "Gołębie": the two pet pigeons, released as its own jar (needs GeckoLib)
+    golebie
 }
 
 sourceSets.main.resources {
@@ -86,6 +88,7 @@ neoForge {
             systemProperty 'animalbonds.selftest', 'true'
             systemProperty 'elementals.selftest', 'true'
             systemProperty 'gospodarstwo.selftest', 'true'
+            systemProperty 'golebie.selftest', 'true'
             systemProperty 'gospodarstwo.noRolls', 'true'
             systemProperty 'elementals.noRolls', 'true'
         }
@@ -110,6 +113,13 @@ neoForge {
         gClient {
             client()
             systemProperty 'gospodarstwo.clienttest', 'true'
+            systemProperty 'gospodarstwo.noRolls', 'true'
+            systemProperty 'elementals.noRolls', 'true'
+            programArguments.addAll '--quickPlaySingleplayer', 'world', '--width', '1280', '--height', '720'
+        }
+        pClient {
+            client()
+            systemProperty 'golebie.clienttest', 'true'
             systemProperty 'gospodarstwo.noRolls', 'true'
             systemProperty 'elementals.noRolls', 'true'
             programArguments.addAll '--quickPlaySingleplayer', 'world', '--width', '1280', '--height', '720'
@@ -150,6 +160,7 @@ neoForge {
     addModdingDependenciesTo(sourceSets.testmod)
     addModdingDependenciesTo(sourceSets.elementals)
     addModdingDependenciesTo(sourceSets.gospodarstwo)
+    addModdingDependenciesTo(sourceSets.golebie)
 
     mods {
         elementals {
@@ -157,6 +168,9 @@ neoForge {
         }
         gospodarstwo {
             sourceSet(sourceSets.gospodarstwo)
+        }
+        golebie {
+            sourceSet(sourceSets.golebie)
         }
         abtestgeo {
             sourceSet(sourceSets.testmod)
@@ -186,6 +200,7 @@ dependencies {
     elementalsCompileOnly sourceSets.main.output
     gospodarstwoCompileOnly "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     gospodarstwoCompileOnly sourceSets.main.output
+    golebieCompileOnly "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     // present in the dev/test client so CI checks that the integration loads
     localRuntime "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 
@@ -272,5 +287,10 @@ def gospodarstwoJar = tasks.register('gospodarstwoJar', Jar) {
     archiveVersion = project.gospodarstwo_version
     from sourceSets.gospodarstwo.output
 }
-tasks.named('build') { dependsOn elementalsJar, gospodarstwoJar }
-tasks.named('assemble') { dependsOn elementalsJar, gospodarstwoJar }
+def golebieJar = tasks.register('golebieJar', Jar) {
+    archiveBaseName = 'golebie'
+    archiveVersion = project.golebie_version
+    from sourceSets.golebie.output
+}
+tasks.named('build') { dependsOn elementalsJar, gospodarstwoJar, golebieJar }
+tasks.named('assemble') { dependsOn elementalsJar, gospodarstwoJar, golebieJar }

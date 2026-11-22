@@ -1,0 +1,14 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "minecraft:blue_wool",
+  "minecraft:string",
+  "minecraft:string",
+  "minecraft:gold_nugget"
+ ],
+ "result": {
+  "id": "golebie:diaper_denim",
+  "count": 1
+ }
+}

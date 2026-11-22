@@ -71,8 +71,8 @@ jobs:
           echo "eula=true" > run/eula.txt
           printf 'online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\ngenerate-structures=false\nspawn-monsters=false\npause-when-empty-seconds=-1\n' > run/server.properties
           ./gradlew runSelfTest --console=plain 2>&1 | tee results/selftest-full.log || true
-          grep -E "ABTEST|ELTEST|GTEST|Exception|ERROR" results/selftest-full.log > results/selftest.log || true
-          grep -q "ABTEST RESULT: PASS" results/selftest-full.log && grep -q "ELTEST RESULT: PASS" results/selftest-full.log && grep -q "GTEST RESULT: PASS" results/selftest-full.log
+          grep -E "ABTEST|ELTEST|GTEST|PTEST|Exception|ERROR" results/selftest-full.log > results/selftest.log || true
+          grep -q "ABTEST RESULT: PASS" results/selftest-full.log && grep -q "ELTEST RESULT: PASS" results/selftest-full.log && grep -q "GTEST RESULT: PASS" results/selftest-full.log && grep -q "PTEST RESULT: PASS" results/selftest-full.log
 
       - name: Client visual test
         id: clienttest
@@ -123,21 +123,21 @@ jobs:
           export DISPLAY=:99
           sleep 2
           ok=1
-          for task in elClientGecko elClientPlain gClient; do
+          for task in pClient elClientGecko elClientPlain gClient; do
             log="results/$task-full.log"
             ./gradlew run${task^} --console=plain > "$log" 2>&1 &
             GPID=$!
             seen=""
             for i in $(seq 1 600); do
               sleep 1
-              for name in $(grep -oE "(ELCLIENT|GCLIENT) SHOT [a-z0-9]+" "$log" | awk '{print $3}'); do
+              for name in $(grep -oE "(ELCLIENT|GCLIENT|PCLIENT) SHOT [a-z0-9]+" "$log" | awk '{print $3}'); do
                 case " $seen " in *" $name "*) ;; *)
                   sleep 1
                   import -window root "results/shots/el_$name.png" && echo "shot $name"
                   seen="$seen $name";;
                 esac
               done
-              if grep -qE "(ELCLIENT|GCLIENT) DONE" "$log"; then break; fi
+              if grep -qE "(ELCLIENT|GCLIENT|PCLIENT) DONE" "$log"; then break; fi
               if ! kill -0 $GPID 2>/dev/null; then echo "client exited"; break; fi
             done
             import -window root "results/shots/zz_$task.png" || true
@@ -145,8 +145,8 @@ jobs:
             kill $GPID 2>/dev/null || true
             pkill -f java || true
             sleep 3
-            grep -E "ELCLIENT|GCLIENT|Żywiołaki|elementals|gospodarstwo|Exception|ERROR|FATAL" "$log" | head -300 > "results/$task.log" || true
-            grep -qE "(ELCLIENT|GCLIENT) DONE" "$log" || ok=0
+            grep -E "ELCLIENT|GCLIENT|PCLIENT|Żywiołaki|elementals|gospodarstwo|golebie|Exception|ERROR|FATAL" "$log" | head -300 > "results/$task.log" || true
+            grep -qE "(ELCLIENT|GCLIENT|PCLIENT) DONE" "$log" || ok=0
           done
           [ $ok = 1 ]
 

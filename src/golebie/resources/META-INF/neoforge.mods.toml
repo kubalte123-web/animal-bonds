@@ -1,0 +1,34 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="golebie"
+version="0.1.0"
+displayName="Gołębie"
+description='''
+Szary gołąb i brązowy pawik, odwzorowane z dwóch prawdziwych, ukochanych ptaszków.
+Oswojone podbiegają z głową nisko, kręcą kółeczka, dają się miziać, wlatują na ramię albo na głowę i delikatnie skubią po twarzy,
+kłaniają się, gdy szybko kiwniesz głową, i noszą pieluszki.
+'''
+
+[[dependencies.golebie]]
+    modId="neoforge"
+    type="required"
+    versionRange="[26.2.0.95,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.golebie]]
+    modId="minecraft"
+    type="required"
+    versionRange="[26.2]"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.golebie]]
+    modId="geckolib"
+    type="required"
+    versionRange="[5.5,)"
+    ordering="AFTER"
+    side="BOTH"

@@ -1,0 +1,35 @@
+{
+ "coo": {
+  "sounds": [
+   "golebie:coo1",
+   "golebie:coo2",
+   "golebie:coo3"
+  ],
+  "subtitle": "subtitles.golebie.coo"
+ },
+ "bow_coo": {
+  "sounds": [
+   "golebie:bow_coo"
+  ],
+  "subtitle": "subtitles.golebie.bow_coo"
+ },
+ "purr": {
+  "sounds": [
+   "golebie:purr1",
+   "golebie:purr2"
+  ],
+  "subtitle": "subtitles.golebie.purr"
+ },
+ "peck": {
+  "sounds": [
+   "golebie:peck"
+  ],
+  "subtitle": "subtitles.golebie.peck"
+ },
+ "wings": {
+  "sounds": [
+   "golebie:wings"
+  ],
+  "subtitle": "subtitles.golebie.wings"
+ }
+}

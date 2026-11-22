@@ -1,0 +1,23 @@
+{
+ "itemGroup.golebie": "Pigeons",
+ "entity.golebie.pigeon": "Pigeon",
+ "entity.golebie.fantail": "Fantail Pigeon",
+ "item.golebie.pigeon_spawn_egg": "Pigeon Spawn Egg",
+ "item.golebie.fantail_spawn_egg": "Fantail Spawn Egg",
+ "subtitles.golebie.coo": "Pigeon coos",
+ "subtitles.golebie.bow_coo": "Pigeon bows and coos",
+ "subtitles.golebie.purr": "Pigeon purrs",
+ "subtitles.golebie.peck": "Pigeon nibbles",
+ "subtitles.golebie.wings": "Pigeon flutters",
+ "golebie.tamed": "%s is your pigeon now!",
+ "golebie.stay": "%s stays here",
+ "golebie.follow": "%s comes with you",
+ "golebie.tip": "Stroke: right-click with an empty hand · onto your shoulder: Shift + right-click · stay/come: right-click with a stick · get off: hold Shift",
+ "item.golebie.diaper.tooltip": "Put it on a tame pigeon (right-click). Take it off with shears.",
+ "item.golebie.diaper_gingham_black": "Black Gingham Pigeon Diaper",
+ "item.golebie.diaper_stripes_grey": "Grey Striped Pigeon Diaper",
+ "item.golebie.diaper_gingham_red": "Red Gingham Pigeon Diaper",
+ "item.golebie.diaper_gingham_blue": "Blue Gingham Pigeon Diaper",
+ "item.golebie.diaper_dots_pink": "Pink Polka-Dot Pigeon Diaper",
+ "item.golebie.diaper_denim": "Denim Pigeon Diaper"
+}

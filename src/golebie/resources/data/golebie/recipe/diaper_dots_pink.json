@@ -1,0 +1,14 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  "minecraft:pink_wool",
+  "minecraft:white_dye",
+  "minecraft:string",
+  "minecraft:gold_nugget"
+ ],
+ "result": {
+  "id": "golebie:diaper_dots_pink",
+  "count": 1
+ }
+}

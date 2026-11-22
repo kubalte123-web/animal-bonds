@@ -1,0 +1,23 @@
+{
+ "itemGroup.golebie": "Gołębie",
+ "entity.golebie.pigeon": "Gołąb",
+ "entity.golebie.fantail": "Pawik",
+ "item.golebie.pigeon_spawn_egg": "Jajo spawnujące gołębia",
+ "item.golebie.fantail_spawn_egg": "Jajo spawnujące pawika",
+ "subtitles.golebie.coo": "Gołąb grucha",
+ "subtitles.golebie.bow_coo": "Gołąb kłania się i grucha",
+ "subtitles.golebie.purr": "Gołąb mruczy z zadowolenia",
+ "subtitles.golebie.peck": "Gołąb skubie",
+ "subtitles.golebie.wings": "Gołąb trzepocze skrzydłami",
+ "golebie.tamed": "%s jest teraz twoim gołębiem!",
+ "golebie.stay": "%s zostaje tutaj",
+ "golebie.follow": "%s idzie z tobą",
+ "golebie.tip": "Mizianie: PPM pustą ręką · na ramię: Shift + PPM · zostań/chodź: PPM patykiem · zejdź z ramienia: przytrzymaj Shift",
+ "item.golebie.diaper.tooltip": "Załóż oswojonemu gołębiowi (PPM). Zdejmiesz nożycami.",
+ "item.golebie.diaper_gingham_black": "Pieluszka dla gołębia w czarną kratkę",
+ "item.golebie.diaper_stripes_grey": "Pieluszka dla gołębia w szare paski",
+ "item.golebie.diaper_gingham_red": "Pieluszka dla gołębia w czerwoną kratkę",
+ "item.golebie.diaper_gingham_blue": "Pieluszka dla gołębia w niebieską kratkę",
+ "item.golebie.diaper_dots_pink": "Pieluszka dla gołębia różowa w kropki",
+ "item.golebie.diaper_denim": "Pieluszka dla gołębia dżinsowa"
+}

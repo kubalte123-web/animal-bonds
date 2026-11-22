@@ -106,3 +106,9 @@ net.minecraft.world.entity.Shearable
 net.minecraft.world.item.HoeItem
 net.minecraft.world.level.block.CampfireBlock
 net.minecraft.world.entity.ai.control.MoveControl
+net.minecraft.world.entity.Entity
+net.minecraft.sounds.SoundEvent
+net.minecraft.client.Options
+net.minecraft.client.CameraType
+com.geckolib.renderer.layer.builtin.TextureLayerGeoLayer
+net.minecraft.world.entity.player.Player
