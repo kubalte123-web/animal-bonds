@@ -478,7 +478,7 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
         Vec3 left = new Vec3(Mth.cos(yaw), 0, Mth.sin(yaw));
         if (slot == PERCH_HEAD) return feet.add(0, h + 0.02, 0);
         Vec3 side = slot == PERCH_LEFT ? left : left.scale(-1);
-        return feet.add(side.scale(0.34)).add(0, h * 0.775, 0);
+        return feet.add(side.scale(0.4)).add(0, h * 0.775, 0);
     }
 
     /** Glued to the owner's shoulder or head, on both sides, including last tick's place so it moves smoothly. */

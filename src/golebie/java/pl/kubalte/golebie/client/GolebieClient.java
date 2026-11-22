@@ -11,8 +11,8 @@ import pl.kubalte.golebie.Golebie;
 public class GolebieClient {
     public GolebieClient(IEventBus modBus, ModContainer container) {
         modBus.addListener((EntityRenderersEvent.RegisterRenderers e) -> {
-            e.registerEntityRenderer(Golebie.PIGEON.get(), ctx -> new BirdRenderer(ctx, "pigeon", 0.34F));
-            e.registerEntityRenderer(Golebie.FANTAIL.get(), ctx -> new BirdRenderer(ctx, "fantail", 0.33F));
+            e.registerEntityRenderer(Golebie.PIGEON.get(), ctx -> new BirdRenderer(ctx, "pigeon", 0.38F));
+            e.registerEntityRenderer(Golebie.FANTAIL.get(), ctx -> new BirdRenderer(ctx, "fantail", 0.36F));
         });
         PClientTest.register(modBus);
     }
