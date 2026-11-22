@@ -1,0 +1,421 @@
+Calculating task graph as no cached configuration is available for tasks: runSelfTest
+
+> Configure project :
+Creating Minecraft artifacts without recompilation.
+
+> Task :generateModMetadata UP-TO-DATE
+> Task :processElementalsResources UP-TO-DATE
+> Task :createMinecraftArtifacts UP-TO-DATE
+> Task :processGolebieResources UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :processGospodarstwoResources UP-TO-DATE
+> Task :compileJava UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :processTestmodResources
+> Task :compileElementalsJava UP-TO-DATE
+> Task :compileGolebieJava UP-TO-DATE
+> Task :elementalsClasses UP-TO-DATE
+> Task :golebieClasses UP-TO-DATE
+> Task :compileTestmodJava FROM-CACHE
+> Task :testmodClasses
+> Task :compileGospodarstwoJava UP-TO-DATE
+> Task :gospodarstwoClasses UP-TO-DATE
+
+> Task :downloadAssets
+Loaded 137 artifacts from /home/runner/work/animal-bonds/animal-bonds/build/tmp/downloadAssets/nfrt_artifact_manifest.properties
+Downloading asset index 32
+Using Minecraft asset root: /home/runner/.gradle/caches/neoformruntime/assets
+  ↓ https://piston-meta.mojang.com/v1/packages/7b95b377ffe8b2f072bb4cc27884a25f29a53b0f/32.json
+
+> Task :prepareSelfTestRun
+
+> Task :runSelfTest
+2026-11-22T12:29:53.357913312Z main WARN Advanced terminal features are not available in this environment
+[12:29:53] [main/INFO] [ne.ne.fm.st.Entrypoint/]: JVM Uptime at startup: 71ms
+[12:29:53] [main/INFO] [ne.ne.fm.lo.FMLLoader/]: Starting FancyModLoader version 11.0.16 (DEDICATED_SERVER in DEV)
+[12:29:53] [main/INFO] [ne.ne.fm.lo.FMLLoader/]: Game directory: /home/runner/work/animal-bonds/animal-bonds/run
+[12:29:53] [main/INFO] [ne.ne.fm.lo.EarlyServiceDiscovery/]: Found 2 early service jars (out of 101) in 15ms
+[12:29:53] [main/INFO] [ne.ne.fm.lo.FMLLoader/]: Loading FML Early Services:
+[12:29:53] [main/INFO] [ne.ne.fm.lo.FMLLoader/]:  - /home/runner/.gradle/caches/modules-2/files-2.1/net.neoforged.fancymodloader/earlydisplay/11.0.16/2d357375a7ea94a1ca86042d48fa4f719a552894/earlydisplay-11.0.16.jar
+[12:29:53] [main/INFO] [ne.ne.fm.lo.FMLLoader/]:  - /home/runner/.gradle/caches/modules-2/files-2.1/net.neoforged.fancymodloader/loader/11.0.16/42d3bfead0ba3aa89c7d45ac29115defc9967219/loader-11.0.16.jar
+[12:29:53] [main/INFO] [ne.ne.fm.lo.ImmediateWindowHandler/]: Not loading early display in headless mode.
+[12:29:53] [main/INFO] [ne.ne.fm.lo.mo.lo.GameLocator/]: Detected a joined NeoForge and Minecraft configuration. Applying filtering...
+[12:29:53] [main/INFO] [ne.ne.fm.lo.mo.lo.InDevFolderLocator/CORE]: Got mod coordinates golebie%%/home/runner/work/animal-bonds/animal-bonds/build/classes/java/golebie:golebie%%/home/runner/work/animal-bonds/animal-bonds/build/resources/golebie:gospodarstwo%%/home/runner/work/animal-bonds/animal-bonds/build/classes/java/gospodarstwo:gospodarstwo%%/home/runner/work/animal-bonds/animal-bonds/build/resources/gospodarstwo:abtestgeo%%/home/runner/work/animal-bonds/animal-bonds/build/classes/java/testmod:abtestgeo%%/home/runner/work/animal-bonds/animal-bonds/build/resources/testmod:elementals%%/home/runner/work/animal-bonds/animal-bonds/build/classes/java/elementals:elementals%%/home/runner/work/animal-bonds/animal-bonds/build/resources/elementals:animalbonds%%/home/runner/work/animal-bonds/animal-bonds/build/classes/java/main:animalbonds%%/home/runner/work/animal-bonds/animal-bonds/build/resources/main from env
+[12:29:53] [main/INFO] [ne.ne.fm.lo.mo.lo.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
+[12:29:53] [main/INFO] [ne.ne.fm.lo.mo.ModDiscoverer/]: 
+     Mod List:
+		Name Version (Mod Id)
+
+		Animal Bonds 0.1.0 (animalbonds)
+		Animal Bonds GeckoLib test creature (CI only) 1.0.0 (abtestgeo)
+		GeckoLib 5 5.5.6 (geckolib)
+		Gołębie 0.1.0 (golebie)
+		Minecraft 26.2 (minecraft)
+		NeoForge 26.2.0.95 (neoforge)
+		Swojskie Gospodarstwo 0.1.0 (gospodarstwo)
+		Żywiołaki (Elementals) 0.1.0 (elementals)
+[12:29:54] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/5f66cc9f59b8efaa942155a3d5a30599bf6640dd/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=FML Env=SERVER
+[12:29:54] [main/INFO] [ne.ne.fm.lo.FMLLoader/]: Loading FML Plugins:
+[12:29:54] [main/INFO] [ne.ne.fm.lo.FMLLoader/]:  - /home/runner/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.2.0.95/c55eb24983bc2743cea7e8b2f0010d9b92b29007/neoforge-26.2.0.95-universal.jar > net.neoforged.neoforge-coremods-26.2.0.95.jar
+[12:29:54] [main/INFO] [ne.ne.fm.lo.FMLLoader/]: Building game content classloader:
+ - abtestgeo (composite(folder(/home/runner/work/animal-bonds/animal-bonds/build/classes/java/testmod), folder(/home/runner/work/animal-bonds/animal-bonds/build/resources/testmod)))
+ - animalbonds (composite(folder(/home/runner/work/animal-bonds/animal-bonds/build/classes/java/main), folder(/home/runner/work/animal-bonds/animal-bonds/build/resources/main)))
+ - elementals (composite(folder(/home/runner/work/animal-bonds/animal-bonds/build/classes/java/elementals), folder(/home/runner/work/animal-bonds/animal-bonds/build/resources/elementals)))
+ - geckolib (jar(/home/runner/.gradle/caches/modules-2/files-2.1/com.geckolib/geckolib-neoforge-26.2/5.5.6/980aba8415e4d9593c03403e955e96a8b11117c6/geckolib-neoforge-26.2-5.5.6.jar))
+ - golebie (composite(folder(/home/runner/work/animal-bonds/animal-bonds/build/classes/java/golebie), folder(/home/runner/work/animal-bonds/animal-bonds/build/resources/golebie)))
+ - gospodarstwo (composite(folder(/home/runner/work/animal-bonds/animal-bonds/build/classes/java/gospodarstwo), folder(/home/runner/work/animal-bonds/animal-bonds/build/resources/gospodarstwo)))
+ - minecraft (composite(filtered(jar(/home/runner/work/animal-bonds/animal-bonds/build/moddev/artifacts/minecraft-patched-26.2.0.95.jar)), filtered(jar(/home/runner/work/animal-bonds/animal-bonds/build/moddev/artifacts/minecraft-patched-26.2.0.95.jar))))
+ - mixinextras.neoforge (jar(/home/runner/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.2.0.95/c55eb24983bc2743cea7e8b2f0010d9b92b29007/neoforge-26.2.0.95-universal.jar > mixinextras-neoforge-0.5.5.jar))
+ - neoforge (composite(filtered(jar(/home/runner/.gradle/caches/modules-2/files-2.1/net.neoforged/neoforge/26.2.0.95/c55eb24983bc2743cea7e8b2f0010d9b92b29007/neoforge-26.2.0.95-universal.jar))))
+ - net.neoforged.fml.generated (empty(VirtualJar/net.neoforged.fml.generated))
+[12:29:54] [main/INFO] [ne.ne.fm.lo.FMLLoader/]: Built game content classloader in 37ms
+[animalbonds] GeckoLib found: enabling integration
+[12:29:55] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [time, set, time] and [time, set, timemarker] with inputs: [0, 0s, 0d, 0t]
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [time, set, timemarker] and [time, set, time] with inputs: [012]
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [time, of, clock, set, time] and [time, of, clock, set, timemarker] with inputs: [0, 0s, 0d, 0t]
+[12:29:59] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [time, of, clock, set, timemarker] and [time, of, clock, set, time] with inputs: [012]
+[12:29:59] [modloading-worker-0/INFO] [ne.ne.ne.co.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 26.2.0.95, for MC 26.2
+[12:29:59] [modloading-worker-0/INFO] [pl.ku.el.Elementals/]: Żywiołaki: Animal Bonds integration active
+[12:29:59] [modloading-worker-0/INFO] [pl.ku.go.Gospodarstwo/]: Swojskie Gospodarstwo: Animal Bonds integration active
+[12:30:00] [main/INFO] [mojang/YggdrasilAuthenticationService]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[12:30:00] [Worker-Main-3/INFO] [minecraft/Main]: No existing world data, creating new world
+[12:30:00] [Worker-Main-3/ERROR] [minecraft/DedicatedServerProperties]: No key layers in MapLike[{}]
+[12:30:01] [main/INFO] [minecraft/RecipeManager]: Loaded 1669 recipes
+[12:30:01] [main/INFO] [minecraft/AdvancementTree]: Loaded 1688 advancements
+[12:30:01] [main/INFO] [ne.ne.ne.co.cr.RecipePriorityManager/]: Loaded 0 recipe priority overrides
+[12:30:01] [Server thread/INFO] [minecraft/DedicatedServer]: Starting minecraft server version 26.2
+[12:30:01] [Server thread/INFO] [minecraft/DedicatedServer]: Loading properties
+[12:30:01] [Server thread/INFO] [minecraft/DedicatedServer]: Default game type: SURVIVAL
+[12:30:01] [Server thread/INFO] [minecraft/MinecraftServer]: Generating keypair
+[12:30:01] [Server thread/INFO] [minecraft/DedicatedServer]: Starting Minecraft server on *:25565
+[12:30:01] [Server thread/WARN] [minecraft/DedicatedServer]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[12:30:01] [Server thread/WARN] [minecraft/DedicatedServer]: The server will make no attempt to authenticate usernames. Beware.
+[12:30:01] [Server thread/WARN] [minecraft/DedicatedServer]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[12:30:01] [Server thread/WARN] [minecraft/DedicatedServer]: To change this, set "online-mode" to "true" in the server.properties file.
+[12:30:01] [Server thread/INFO] [minecraft/DedicatedServer]: Preparing level "world"
+[12:30:01] [Server thread/INFO] [minecraft/LoggingLevelLoadListener]: Selecting global world spawn...
+[12:30:01] [Server thread/INFO] [minecraft/LoggingLevelLoadListener]: Loading 0 persistent chunks...
+[12:30:01] [Server thread/INFO] [minecraft/LoggingLevelLoadListener]: Preparing spawn area: 100%
+[12:30:01] [Server thread/INFO] [minecraft/LoggingLevelLoadListener]: Time elapsed: 272 ms
+[12:30:01] [Server thread/INFO] [minecraft/DedicatedServer]: Done (0.410s)! For help, type "help"
+[12:30:01] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[12:30:01] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[12:30:02] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[12:30:02] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[12:30:02] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[12:30:02] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[12:30:02] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[12:30:02] [Server thread/INFO] [ne.ne.ne.se.pe.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pen detected next to fence
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pen area is 36 (was 36)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   open pen is not detected
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pedestal has block entity
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hilly pen detected with area 36 (was 36)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hill top floor is 3 blocks up
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pit floor is 4 blocks down
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   creatures on the hill and in the pit count as inside
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   creatures spawned
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   3 creatures in pen (was 3)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   fresh cow not bonded
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   wheat is cow's favourite
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bone is not cow's favourite
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bonded cow starts at level 1
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trough need unmet without trough
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   grass need met on grass
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   company need met with two cows
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   roof need unmet under open sky
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trough found in pen
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trough need met with filled trough
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   happiness rises with trough (37 -> 50)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trough feed values
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   xp reaches level 5 (got 5)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   level caps at 10
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   cow gives a gift at level 5 (1 minecraft:leather)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   no second gift right away
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pen scan sets home
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pen scan never removes xp
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bonded zombie does not target players
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bonded zombie does not attack other creatures
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   iron golem leaves a bonded zombie alone
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   zombie at level 7
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   zombie got a home pen
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   zombie moved out of the pen
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   level 7 zombie faints instead of dying
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   fainted zombie has no AI
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   fainted zombie is back in the pen
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   unbonded zombie dies normally
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   cow2 reaches riding level
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hand feeding wheat eventually bonds a sheep
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   treat gives xp (0 -> 25)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   second treat right away gives no xp
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   petting gives xp
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   petting has a cooldown
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   owner can use her creature
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   stranger cannot use someone else's creature
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   stranger is not trusted at the Chronicle
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   trusted player can use the creature
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   stranger's treat gives no bond xp
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   new creature got a random size
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   size within range (1.0750563280668988)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   sizes vary between creatures (0.85 .. 1.1331823465814437)
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   splicing cow + spider creates a hybrid
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid has the cow's body
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid remembers the chosen parts (HybridData[donorType=minecraft:spider, head=true, legs=true, extras=false, colors=2, movement=true, parents=Cow × Spider])
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid has the needs of both parents
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid likes the food of both parents
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   cow-spider hybrid climbs walls like a spider
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid is bonded to its maker
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   parents must rest before splicing again
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrids can't be spliced again
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   hybrid data save/load
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   pig with phantom wings and movement flies
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   splicing is refused for strangers
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   bond data codec round trip
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   book entry network round trip
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   book entry content
+[12:30:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   profiles for cow and zombie
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   all four new creatures spawn
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Żarołaz is always fire
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Szroniec is always ice
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   other creatures get an element roll
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Mchowiec eats berries (can be bred)
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Szroniec hovers
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   fire cow is tougher (11.202000617980957 -> 13.202001)
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   fire cow is immune to lava
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   ice sheep doesn't freeze
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   fire creature sets its target on fire
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   ice creature slows its target
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   electric hit jumps to a nearby enemy
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   dragon creature hits harder
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   Nether creatures roll fire (56/200) and nothing else
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: pen found
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: fire creature warms the whole pen
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: Mchowiec gives the pen grass
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: dragon creature boosts bond xp and gifts
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: gifts in a pen with fire come out cooked
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: Mchowiec has its own needs and gifts
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: Mchowiec loves sweet berries
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST ok   AB: Mchowiec makes crops near the pen grow
+[12:30:02] [Server thread/INFO] [pl.ku.el.Elementals/]: ELTEST RESULT: PASS (22 checks)
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   scratching post found in pen (1)
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   chest next to the pedestal is the pen storage
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST debug upgrades: mobs in pen=[Cow['Cow'/54, l='ServerLevel[world]', x=11.50, y=250.00, z=114.50], Strider['Strider'/55, l='ServerLevel[world]', x=12.50, y=250.00, z=115.50]] cow=BlockPos{x=11, y=250, z=114} lvl=5 strider=BlockPos{x=12, y=250, z=115} lvl=5 pet=-4611686018427387904
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   work mode off: nobody harvests
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   scratching post makes the cow feel petted (101)
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   empty trough refilled from the storage
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   gift went straight into the storage
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   work mode off: nothing smelted
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   farmer cow harvested and replanted the wheat
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   strider smelted the raw iron in the storage
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   jobs by species
+[12:30:07] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   Chronicle shows the job ({"text":"","extra":[{"translate":"work.animalbonds.label","with":[{"text":"","extra":[{"translate":"work.animalbonds.farmer"}]}]}]})
+[12:30:08] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: BALL candidate entity.minecraft.wolf at BlockPos{x=11, y=250, z=165} d=1.881179255116754
+[12:30:08] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: BALL age=8 FLYING -> CHASE go=true ball=BlockPos{x=10, y=250, z=167} chaser=BlockPos{x=11, y=250, z=165}
+[12:30:08] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: BALL age=9 CHASE -> CARRY go=true ball=BlockPos{x=10, y=250, z=167} chaser=BlockPos{x=11, y=250, z=165}
+[12:30:08] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: BALL age=16 CARRY -> CARRY go=false ball=BlockPos{x=10, y=250, z=161} chaser=BlockPos{x=11, y=250, z=163}
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:flax} can be planted on farmland
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:flax} grows
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:flax} drops gospodarstwo:flax_fiber and gospodarstwo:flax_seeds: [2 gospodarstwo:flax_fiber, 3 gospodarstwo:flax_seeds]
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:cabbages} can be planted on farmland
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:cabbages} grows
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:cabbages} drops gospodarstwo:cabbage and gospodarstwo:cabbage_seeds: [1 gospodarstwo:cabbage, 3 gospodarstwo:cabbage_seeds]
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:onions} can be planted on farmland
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:onions} grows
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:onions} drops gospodarstwo:onion and gospodarstwo:onion: [1 gospodarstwo:onion, 4 gospodarstwo:onion]
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:strawberries} can be planted on farmland
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:strawberries} grows
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   Block{gospodarstwo:strawberries} drops gospodarstwo:strawberry and gospodarstwo:strawberry_runner: [1 gospodarstwo:strawberry_runner, 3 gospodarstwo:strawberry]
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   flax seeds plant flax
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   picking a ripe gooseberry bush gives gooseberries
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   picked bush starts over
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   apple sapling grows into an apple tree (54 leaves)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   plum sapling grows
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   ripe plum leaves give plums
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   fruit ripens again (blossom -> fruit)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   oak sapling planted in the bonsai pot
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   without water the bonsai doesn't grow
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   untrimmed tree stops as a shaggy bush (750)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   trimming twice while it grows (2)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cared-for tree becomes a finished bonsai
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   picking up the pot keeps the bonsai on the item ([1 gospodarstwo:bonsai_pot])
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   string goes into the loom
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   loom weaves 8 string into 2 canvas (2 gospodarstwo:canvas)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cloth taken from the loom
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   linen yarn becomes linen
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   spinning 2 red wool gives 4 wool yarn (4 gospodarstwo:yarn_wool)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   yarn from red wool is red
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   flax fibre spins into linen yarn
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   no dye without water
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   vat filled with water
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   plums dye the water purple
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   merino yarn dipped in the vat turns purple
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   purple yarn weaves into purple merino cloth (2 gospodarstwo:merino_cloth)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a second dye mixes into the bath
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   duck, goose, turkey and snail spawn
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   snail slime collected with a bottle
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   new cows get a breed roll
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   shearing a highland cow gives highland hair
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   hair needs time to grow back
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   merino gives merino wool when sheared
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   brushing a goat gives cashmere
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   shearing a llama gives llama wool
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   raw hides stretched on the tanning rack
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   half way the hides are still tanning (0.5)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   all three hides become leather together (3 minecraft:leather)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   thick hide becomes thick leather
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a kettle without fire does nothing
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   honeycomb renders into beeswax over a campfire (4 gospodarstwo:beeswax)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   bones boil into glue
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   fatback renders into lard
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   spider spinnerets spin into silk yarn (1 gospodarstwo:yarn_silk)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   extra drops are defined for vanilla mobs
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cows drop raw hide
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cows drop tallow
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a ravager always drops its horn
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a sweater is worn on the chest
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   felt boots go on the feet
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   wool clothes are warm and protect from freezing
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   linen clothes are airy
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   felt boots walk on powder snow
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   sweaters can be dyed
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a pillow is put on the bed
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a second pillow is not used up
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   pillow and featherbed on the bed
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   sleeping in a cosy bed makes you well rested (effect.gospodarstwo.rested x 2, Duration: 24000)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   rested gives extra hearts (28.0)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   breaking the bed gives back the pillow and featherbed
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the whole curtain opens, a separate one doesn't
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   plums dye a curtain purple
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a rug lies on the grass
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a rug can be dyed
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the quern grinds 2 wheat into 4 flour (4 gospodarstwo:flour)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   4 apples press into 2 bottles of juice
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   juice can't be taken without a bottle
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a bottle is filled with juice
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   sauerkraut needs time
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   8 cabbages ferment into 8 sauerkraut (8 gospodarstwo:sauerkraut)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   without a fire nothing gets smoked
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   porkchops are smoked into ham over a campfire
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   milk poured into the churn, the bucket comes back
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   not butter yet
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   churning turns the milk into butter
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   butter taken out
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   pierogi boil in the kettle
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   bigos is food
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a new watering can is empty
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   watering makes the crops grow (21 stages)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   watering wets the farmland
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the scythe reaps 9 ripe crops (9)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and sows them again
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   wheat lies on the field
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the sickle cuts the grass around too (8)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the hunting horn calls your wolf (1)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the war horn scares monsters
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   4 eggs fit in the incubator
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   green eggs hatch into 4 greenleg chicks (4)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the net stands in open water (25)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the net holds up to 6 catches
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the catch is taken out
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   carrots grow on the raised bed
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the raised bed is always watered
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a wild goblin spawns
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   goblins like home cooking more than raw apples
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin picks up the food and thinks it over
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a goblin that doesn't like it throws the food away
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and won't take food for a while
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a goblin that likes it eats it and follows the giver
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   loose things go into the chest on its back
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cobblestone goes to the chest that already has cobblestone
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   dirt goes to a chest with a free slot
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin stores everything in the right chests
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   staying at the base remembers home
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin puts wheat into the quern
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and collects the flour
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin harvests and replants
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   a goblin that would die faints instead
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and wakes up in its friend's bed (BlockPos{x=-46, y=250, z=-33})
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   stone goblins are tougher
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   cave goblins are never afraid of the dark
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   work settings change and sync
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin leaves wood you didn't tick alone
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin fells the whole tree into its pack (5, 5)
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   and plants a sapling where it stood
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin digs a staircase down (BlockPos{x=-4, y=244, z=-14})
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   it keeps the coal and throws the stone away
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin shears a sheep
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   sheep are friends to guard
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   the goblin builds itself a hut
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   using up the sticks, leaves and wool
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   no dancing at noon
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   in the evening it wants to dance by the fire
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   it is afraid of what its character says
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   zombies are not friends
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   it raises its shield against a flying arrow
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST ok   breed lookup
+[12:30:12] [Server thread/INFO] [pl.ku.go.Gospodarstwo/]: GTEST RESULT: PASS (139 checks)
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   both birds spawn
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   pigeon is tamed with seeds
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   fantail is tamed with seeds
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   a diaper goes on
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   another diaper swaps it, the old one drops
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   shears take it off
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   stroked, it leans into the hand
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   the pigeon sits on the left shoulder
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   at shoulder height beside the head ((101.2, 251.3949999630451, 100.5) vs (101.2, 251.3949999630451, 100.5))
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   the fantail sits on the head
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   two birds on one player, each spot once
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   room check does not crash
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   it hops off and flutters down
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   a quick nod is noticed
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   looking down slowly is not a nod
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   tame birds around answer the nod (2)
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   one still being stroked does not stop to bow
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   crouching calls it over
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   standing does not
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   it takes off towards a shoulder
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   young of tame birds are tame
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST ok   no fall damage
+[12:30:13] [Server thread/INFO] [pl.ku.go.Golebie/]: PTEST RESULT: PASS (22 checks)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   escape-test pen still detected
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.cow still in pen (at BlockPos{x=14, y=250, z=42}, alive=true)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.sheep still in pen (at BlockPos{x=11, y=250, z=44}, alive=true)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.pig still in pen (at BlockPos{x=14, y=250, z=41}, alive=true)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.chicken still in pen (at BlockPos{x=12, y=250, z=41}, alive=true)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.goat still in pen (at BlockPos{x=12, y=250, z=42}, alive=true)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.rabbit still in pen (at BlockPos{x=9, y=250, z=44}, alive=true)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.horse still in pen (at BlockPos{x=10, y=250, z=46}, alive=true)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   after 60 s entity.minecraft.zombie still in pen (at BlockPos{x=13, y=250, z=44}, alive=true)
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   a bonded wolf fetched the thrown ball (1 fetches, wolf at BlockPos{x=11, y=250, z=161})
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST ok   fetching counts as petting for the day
+[12:31:02] [Server thread/INFO] [pl.ku.an.AnimalBonds/]: ABTEST RESULT: PASS (90 checks)
+[12:31:02] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[12:31:02] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[12:31:02] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[12:31:02] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[12:31:03] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[12:31:03] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[12:31:03] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[12:31:03] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[12:31:03] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[12:31:03] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[12:31:03] [main/INFO] [ne.ne.fm.lo.FMLLoader/]: Closing FML Loader 3a6ed4d9
+[12:31:03] [main/INFO] [ne.ne.fm.ModLoader/]: Clearing ModLoader
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/selftest-1795350590387.json
+
+[Incubating] Problems report is available at: file:///home/runner/work/animal-bonds/animal-bonds/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.2.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 13s
+15 actionable tasks: 4 executed, 1 from cache, 10 up-to-date
+Configuration cache entry stored.
