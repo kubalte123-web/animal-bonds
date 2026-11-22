@@ -180,13 +180,29 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
 
     /** Busy with something that should keep the ordinary walking goals still. */
     boolean busy() {
-        return flying || isPassenger() || petTicks > 0 || isAsleep() || running;
+        return flying || perched() || petTicks > 0 || isAsleep() || running;
+    }
+
+    /** Sitting on its owner (it follows their shoulder or head; the game does not let anything ride a player). */
+    public boolean perched() {
+        return perch() != PERCH_NONE;
+    }
+
+    @Nullable Player perchPlayer;
+    /** Only for the server test, whose fake player is not in the level's player list. */
+    public static @Nullable Player testOwner;
+
+    public @Nullable Player perchTarget() {
+        if (perchPlayer != null && perchPlayer.isAlive() && perchPlayer.level() == level()) return perchPlayer;
+        return ownerPlayer();
     }
 
     boolean running;
 
     @Nullable Player ownerPlayer() {
-        return getOwner() instanceof Player p && p.level() == level() && p.isAlive() && !p.isSpectator() ? p : null;
+        LivingEntity o = getOwner();
+        if (o == null && testOwner != null && isOwnedBy(testOwner)) o = testOwner;
+        return o instanceof Player p && p.level() == level() && p.isAlive() && !p.isSpectator() ? p : null;
     }
 
     // ------------------------------------------------------------------ goals
@@ -262,7 +278,7 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
 
         @Override
         public boolean canUse() {
-            if (!b.isTame() || b.isOrderedToSit() || b.flying || b.isPassenger() || b.petTicks > 0 || b.runCooldown > 0 || b.isBaby()) return false;
+            if (!b.isTame() || b.isOrderedToSit() || b.flying || b.perched() || b.petTicks > 0 || b.runCooldown > 0 || b.isBaby()) return false;
             Player o = b.ownerPlayer();
             if (o == null) return false;
             double d = b.distanceTo(o);
@@ -285,7 +301,7 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
 
         @Override
         public boolean canContinueToUse() {
-            return owner != null && owner.isAlive() && b.petTicks == 0 && !b.flying && !b.isPassenger() && timer < 400
+            return owner != null && owner.isAlive() && b.petTicks == 0 && !b.flying && !b.perched() && timer < 400
                     && (phase < 2 || b.distanceTo(owner) < 5);
         }
 
@@ -360,18 +376,18 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
             if (petTicks == 0 && action() == A_PETTED) act(A_NONE, 0);
         }
         if (bowDelay > 0 && --bowDelay == 0) {
-            if (bowTo != null && !isPassenger() && !flying) faceTowards(bowTo);
+            if (bowTo != null && !perched() && !flying) faceTowards(bowTo);
             act(A_BOW, 26);
             playSound(Golebie.BOW_COO.get(), 1F, getVoicePitch());
             bowTo = null;
         }
         Player owner = ownerPlayer();
-        if (isPassenger()) perchedTick(sl, owner);
+        if (perched()) perchedTick(sl, owner);
         else if (flying) flightTick(sl, owner);
         else groundTick(sl, owner);
-        entityData.set(FLYING, flying || (!onGround() && !isPassenger() && !isInWater() && getDeltaMovement().y < -0.1));
+        entityData.set(FLYING, flying || (!onGround() && !perched() && !isInWater() && getDeltaMovement().y < -0.1));
         // fluttering down instead of falling
-        if (!onGround() && !flying && !isPassenger() && getDeltaMovement().y < -0.12)
+        if (!onGround() && !flying && !perched() && getDeltaMovement().y < -0.12)
             setDeltaMovement(getDeltaMovement().x, -0.12, getDeltaMovement().z);
     }
 
@@ -443,7 +459,8 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
     /** Free spot on the owner: a shoulder, otherwise the head (0 if all are taken). */
     static int freePerch(Player p, int wanted) {
         boolean[] used = new boolean[4];
-        for (Entity e : p.getPassengers()) if (e instanceof Bird b) used[b.perch()] = true;
+        for (Bird b : p.level().getEntitiesOfClass(Bird.class, p.getBoundingBox().inflate(2), Bird::perched))
+            if (b.perchTarget() == p) used[b.perch()] = true;
         if (wanted > 0 && !used[wanted]) return wanted;
         int first = p.getRandom().nextBoolean() ? PERCH_LEFT : PERCH_RIGHT;
         if (!used[first]) return first;
@@ -453,12 +470,46 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
 
     /** Where a bird sits on a player: on a shoulder or on top of the head. */
     public static Vec3 perchPos(Player p, int slot) {
-        float yaw = p.yBodyRot * Mth.DEG_TO_RAD;
+        return perchPos(p.position(), p.yBodyRot, p.getBbHeight(), slot);
+    }
+
+    static Vec3 perchPos(Vec3 feet, float bodyYaw, double h, int slot) {
+        float yaw = bodyYaw * Mth.DEG_TO_RAD;
         Vec3 left = new Vec3(Mth.cos(yaw), 0, Mth.sin(yaw));
-        double h = p.getBbHeight();
-        if (slot == PERCH_HEAD) return p.position().add(0, h + 0.02, 0);
+        if (slot == PERCH_HEAD) return feet.add(0, h + 0.02, 0);
         Vec3 side = slot == PERCH_LEFT ? left : left.scale(-1);
-        return p.position().add(side.scale(0.34)).add(0, h * 0.775, 0);
+        return feet.add(side.scale(0.34)).add(0, h * 0.775, 0);
+    }
+
+    /** Glued to the owner's shoulder or head, on both sides, including last tick's place so it moves smoothly. */
+    void followPerch(Player p) {
+        int slot = perch();
+        Vec3 now = perchPos(p, slot);
+        Vec3 old = perchPos(new Vec3(p.xo, p.yo, p.zo), p.yBodyRotO, p.getBbHeight(), slot);
+        setPos(now.x, now.y, now.z);
+        xo = old.x;
+        yo = old.y;
+        zo = old.z;
+        xOld = old.x;
+        yOld = old.y;
+        zOld = old.z;
+        setDeltaMovement(Vec3.ZERO);
+        setYRot(p.yBodyRot);
+        yRotO = p.yBodyRotO;
+        yBodyRot = p.yBodyRot;
+        yBodyRotO = p.yBodyRotO;
+        yHeadRot = p.yBodyRot;
+        yHeadRotO = p.yBodyRotO;
+        fallDistance = 0;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (perched()) {
+            Player p = perchTarget();
+            if (p != null) followPerch(p);
+        }
     }
 
     /** Takes off towards a spot on the owner (0 = whichever is free). Returns false if there is no room. */
@@ -509,13 +560,9 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
             flying = false;
             setNoGravity(false);
             setDeltaMovement(Vec3.ZERO);
-            entityData.set(PERCH, flyPerch);
-            if (startRiding(owner, true, true)) {
-                perchTicks = 0;
-                perchTime = 1200 + random.nextInt(2400);
-                nibbleTimer = 40 + random.nextInt(60);
-                ownerSneakTicks = 0;
-            } else entityData.set(PERCH, PERCH_NONE);
+            sitOn(owner, flyPerch);
+            perchTime = 1200 + random.nextInt(2400);
+            nibbleTimer = 40 + random.nextInt(60);
             return;
         }
         if (flyGround != null && (dist < 0.6 || onGround() && flightTicks > 10 || flightTicks > 160)) {
@@ -535,6 +582,24 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
         }
     }
 
+    void sitOn(Player p, int slot) {
+        flying = false;
+        flyPerch = 0;
+        flyGround = null;
+        perchPlayer = p;
+        entityData.set(PERCH, slot);
+        setNoGravity(true);
+        noPhysics = true;
+        perchTicks = 0;
+        ownerSneakTicks = 0;
+        getNavigation().stop();
+        followPerch(p);
+    }
+
+    public void stopFlying() {
+        land();
+    }
+
     void land() {
         flying = false;
         flyPerch = 0;
@@ -543,10 +608,15 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
     }
 
     void perchedTick(ServerLevel sl, @Nullable Player owner) {
-        if (!(getVehicle() instanceof Player p)) return;
+        Player p = perchTarget();
+        getNavigation().stop();
+        if (p == null) {
+            hopOff(null);
+            return;
+        }
         perchTicks++;
         ownerSneakTicks = p.isShiftKeyDown() ? ownerSneakTicks + 1 : 0;
-        if (p != owner || ownerSneakTicks >= 12 || perchTicks > perchTime || p.isInWater() || p.isSleeping() || perch() == PERCH_NONE) {
+        if (ownerSneakTicks >= 12 || perchTicks > perchTime || p.isInWater() || p.isSleeping()) {
             hopOff(p);
             return;
         }
@@ -569,12 +639,15 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
     }
 
     /** Gets off the owner and flutters down beside them. */
-    public void hopOff(Player p) {
+    public void hopOff(@Nullable Player p) {
         int slot = perch();
-        stopRiding();
         entityData.set(PERCH, PERCH_NONE);
+        perchPlayer = null;
+        noPhysics = false;
+        setNoGravity(false);
         perchCooldown = 600 + random.nextInt(600);
         if (action() == A_NIBBLE_L || action() == A_NIBBLE_R) act(A_NONE, 0);
+        if (p == null) return;
         float yaw = p.yBodyRot * Mth.DEG_TO_RAD;
         Vec3 left = new Vec3(Mth.cos(yaw), 0, Mth.sin(yaw));
         Vec3 fwd = new Vec3(-Mth.sin(yaw), 0, Mth.cos(yaw));
@@ -584,37 +657,21 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
         flyDownTo(p.position().add(side.scale(1.2)).add(fwd.scale(0.9)));
     }
 
-    @Override
-    public void rideTick() {
-        super.rideTick();
-        if (getVehicle() instanceof Player p && perch() != PERCH_NONE) {
-            Vec3 at = perchPos(p, perch());
-            setPos(at.x, at.y, at.z);
-            setYRot(p.yBodyRot);
-            yBodyRot = p.yBodyRot;
-            if (action() != A_NIBBLE_L && action() != A_NIBBLE_R) yHeadRot = p.getYHeadRot();
-            else yHeadRot = p.yBodyRot;
-        }
-    }
-
-    @Override
-    public void stopRiding() {
-        super.stopRiding();
-        if (!level().isClientSide()) entityData.set(PERCH, PERCH_NONE);
-    }
-
     // ------------------------------------------------------------------ test hooks
     /** Sits down on the player at once (tests and the client scene). */
     public boolean perchNow(Player p, int slot) {
-        entityData.set(PERCH, slot);
-        if (!startRiding(p, true, true)) {
-            entityData.set(PERCH, PERCH_NONE);
-            return false;
-        }
-        perchTicks = 0;
+        if (freePerch(p, slot) != slot) return false;
+        sitOn(p, slot);
         perchTime = 100000;
         nibbleTimer = 100000;
         return true;
+    }
+
+    /** How many birds sit on this player. */
+    public static int perchedOn(Player p) {
+        int n = 0;
+        for (Bird b : p.level().getEntitiesOfClass(Bird.class, p.getBoundingBox().inflate(2), Bird::perched)) if (b.perchTarget() == p) n++;
+        return n;
     }
 
     public boolean isFlyingTowardsPerch() {
@@ -745,11 +802,11 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
         if (source.is(DamageTypes.FALL) || source.is(DamageTypes.IN_WALL)) return false;
-        if (isPassenger() && source.getEntity() == getVehicle()) return false;
+        if (perched() && source.getEntity() == perchTarget()) return false;
         boolean hurt = super.hurtServer(level, source, amount);
         if (hurt && isAlive()) {
             entityData.set(SLEEPING, false);
-            if (isPassenger() && getVehicle() instanceof Player p) hopOff(p);
+            if (perched()) hopOff(perchTarget());
             else if (!isTame() || !(source.getEntity() instanceof Player)) {
                 double a = random.nextDouble() * Math.PI * 2;
                 flyDownTo(position().add(Math.cos(a) * 9, 3, Math.sin(a) * 9));
@@ -798,6 +855,7 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
     protected void readAdditionalSaveData(ValueInput in) {
         super.readAdditionalSaveData(in);
         setDiaper(in.getIntOr("Diaper", 0));
+        entityData.set(PERCH, PERCH_NONE);
     }
 
     @Override
@@ -814,7 +872,7 @@ public abstract class Bird extends TamableAnimal implements GeoEntity {
     }
 
     private PlayState base(AnimationTest<Bird> t) {
-        if (isPassenger()) return t.setAndContinue(idle);
+        if (perched()) return t.setAndContinue(idle);
         if (isFlyingNow()) return t.setAndContinue(getY() - yo < -0.06 && !flyingUp() ? glide : fly);
         if (isAsleep()) return t.setAndContinue(sleep);
         if (isInSittingPose()) return t.setAndContinue(sit);

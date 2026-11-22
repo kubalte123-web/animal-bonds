@@ -3,7 +3,6 @@ package pl.kubalte.golebie;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -66,7 +65,7 @@ public final class Nods {
     /** Birds sitting on a player are not saved with them, so they hop off when the player leaves. */
     static void onLogout(PlayerEvent.PlayerLoggedOutEvent e) {
         Player p = e.getEntity();
-        for (Entity passenger : java.util.List.copyOf(p.getPassengers())) if (passenger instanceof Bird b) b.hopOff(p);
+        for (Bird b : p.level().getEntitiesOfClass(Bird.class, p.getBoundingBox().inflate(3), Bird::perched)) if (b.perchTarget() == p) b.hopOff(p);
         PITCH.remove(p.getUUID());
         COOLDOWN.remove(p.getUUID());
     }

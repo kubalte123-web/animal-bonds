@@ -61,6 +61,7 @@ public final class PSelfTest {
         }
         FakePlayer player = FakePlayerFactory.get(level, new com.mojang.authlib.GameProfile(java.util.UUID.nameUUIDFromBytes("ptest".getBytes()), "PTest"));
         player.setPos(O.getX() + 0.5, O.getY(), O.getZ() + 0.5);
+        Bird.testOwner = player;
         Bird pigeon = Golebie.PIGEON.get().spawn(level, O.offset(2, 0, 0), EntitySpawnReason.COMMAND);
         Bird fantail = Golebie.FANTAIL.get().spawn(level, O.offset(-2, 0, 0), EntitySpawnReason.COMMAND);
         check(pigeon != null && fantail != null, "both birds spawn");
@@ -92,18 +93,21 @@ public final class PSelfTest {
         check(fantail.petTicks() > 0 && fantail.action() == Bird.A_PETTED, "stroked, it leans into the hand");
 
         // onto the shoulder and the head
-        check(pigeon.perchNow(player, Bird.PERCH_LEFT) && pigeon.getVehicle() == player, "the pigeon sits on the left shoulder");
-        pigeon.rideTick();
+        check(pigeon.perchNow(player, Bird.PERCH_LEFT) && pigeon.perch() == Bird.PERCH_LEFT, "the pigeon sits on the left shoulder");
+        player.setPos(player.getX() + 0.3, player.getY(), player.getZ());
+        pigeon.tick();
         Vec3 want = Bird.perchPos(player, Bird.PERCH_LEFT);
         check(pigeon.position().distanceTo(want) < 0.05 && Math.abs(pigeon.getY() - (player.getY() + player.getBbHeight() * 0.775)) < 0.05,
                 "at shoulder height beside the head (" + pigeon.position() + " vs " + want + ")");
         check(fantail.perchNow(player, Bird.PERCH_HEAD) && Math.abs(Bird.perchPos(player, Bird.PERCH_HEAD).y - player.getY() - player.getBbHeight()) < 0.1,
                 "the fantail sits on the head");
-        check(player.getPassengers().size() == 2, "two birds on one player");
+        check(Bird.perchedOn(player) == 2 && !pigeon.perchNow(player, Bird.PERCH_LEFT), "two birds on one player, each spot once");
         check(pigeon.startPerchFlight(player, 0) == false || true, "room check does not crash");
         pigeon.hopOff(player);
-        check(!pigeon.isPassenger() && pigeon.isLanding(), "it hops off and flutters down");
+        check(!pigeon.perched() && pigeon.isLanding(), "it hops off and flutters down");
         fantail.hopOff(player);
+        pigeon.stopFlying();
+        fantail.stopFlying();
 
         // nods
         float[] nod = {0, 0, 0, 0, 0, 0, 5, 12, 20, 24, 18, 8, 2, 0, 0, 0};
@@ -130,6 +134,7 @@ public final class PSelfTest {
         check(!pigeon.hurtServer(level, level.damageSources().fall(), 4F), "no fall damage");
         pigeon.discard();
         fantail.discard();
+        Bird.testOwner = null;
     }
 
     static boolean dropped(ServerLevel level, Bird b, net.minecraft.world.item.Item item) {

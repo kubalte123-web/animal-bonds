@@ -200,6 +200,7 @@ dependencies {
     elementalsCompileOnly sourceSets.main.output
     gospodarstwoCompileOnly "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     gospodarstwoCompileOnly sourceSets.main.output
+    golebieCompileOnly sourceSets.main.output
     golebieCompileOnly "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     // present in the dev/test client so CI checks that the integration loads
     localRuntime "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"

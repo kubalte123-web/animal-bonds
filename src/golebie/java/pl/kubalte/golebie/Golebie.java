@@ -107,6 +107,7 @@ public class Golebie {
         NeoForge.EVENT_BUS.addListener(Nods::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(Nods::onLogout);
         PSelfTest.register(NeoForge.EVENT_BUS);
+        if (net.neoforged.fml.ModList.get().isLoaded("animalbonds")) pl.kubalte.golebie.compat.AnimalBondsCompat.init();
     }
 
     static void attributes(EntityAttributeCreationEvent e) {

@@ -32,3 +32,10 @@ kłaniają się, gdy szybko kiwniesz głową, i noszą pieluszki.
     versionRange="[5.5,)"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.golebie]]
+    modId="animalbonds"
+    type="optional"
+    versionRange="[0.1,)"
+    ordering="AFTER"
+    side="BOTH"
